@@ -1,0 +1,27 @@
+[*]
+[*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
+[*] Sat Jul 24 15:17:07 2021
+[*]
+[dumpfile] "C:\Users\soura\Documents\Verilog\BasicCPU\signals\register_tb.vcd"
+[savefile] "C:\Users\soura\Documents\Verilog\BasicCPU\signals\register.gtkw"
+[timestart] 0
+[size] 2138 600
+[pos] -1 -1
+*-14.706788 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] register_tb.
+[sst_width] 318
+[signals_width] 186
+[sst_expanded] 1
+[sst_vpaned_height] 153
+@28
+register_tb.reg1.clk
+register_tb.reg1.CS
+register_tb.reg1.OE
+register_tb.reg1.WE
+@22
+register_tb.reg1.data[7:0]
+register_tb.reg1.data_int[7:0]
+@29
+register_tb.reg1.reset
+[pattern_trace] 1
+[pattern_trace] 0

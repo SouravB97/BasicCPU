@@ -22,10 +22,16 @@ module d_ff(clk, reset, D, Q, Q_bar);
 	nor n3(Q, g, q_bar);
 	nor n4(q_bar, Q, h);
 
-//level triggered
-//	nand u1(Q, A, q_bar);
-//	nand u2(q_bar, Q, B);
-//	nand u3(A, D, clk);
-//	nand u4(B, ~D, clk);
+endmodule
+
+module latch(D, EN, Q);
+	input D, EN;
+	output Q;
+
+	//level triggered
+	nand u1(Q, A, q_bar);
+	nand u2(q_bar, Q, B);
+	nand u3(A, D, EN);
+	nand u4(B, ~D, EN);
 
 endmodule
