@@ -26,10 +26,10 @@ module register_tb();
 		#10 reset = 1'b1;
 	end
 
-	register reg1(
+	counter reg1(
 		.clk(clk), .reset(reset),
 		.data(data_bus),
-		.CS(CS),.WE(WE),.OE(OE)
+		.CS(CS),.WE(WE),.OE(OE), .CNT_EN(1)
 	);
 	assign data_bus = data;
 
