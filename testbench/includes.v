@@ -10,11 +10,13 @@
 	`include "../jk_ff_bhvr.v"
 	`include "../mux_bhvr.v"
 	`include "../register_bhvr.v"
+	`include "../counter_bhvr.v"
 
 `else //structural
 	`include "../d_ff.v"
 	`include "../jk_ff.v"
 	`include "../mux.v"
 	`include "../register.v"
+	`include "../counter.v"
 
 `endif

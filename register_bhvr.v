@@ -1,10 +1,11 @@
-module register(
+module register
+#(parameter DATA_WIDTH = `DATA_WIDTH)(
 	input clk, reset,
 	input CS, WE, OE,
-	inout [`DATA_WIDTH-1:0] data
+	inout [DATA_WIDTH-1:0] data
 );
 
-	reg [`DATA_WIDTH-1:0] data_int = 0;
+	reg [DATA_WIDTH-1:0] data_int = 0;
 
 	always @(reset)
 		if(!reset)
