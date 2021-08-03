@@ -6,15 +6,16 @@ ECHO Verilog: %1
 
 set v_file=%1
 set o_file=%v_file:~0,-2%
+set compile_path=C:\Users\soura\Documents\Verilog\compiled
 
-ECHO iverilog -o C:\Users\soura\Documents\Verilog\compiled\%o_file% %v_file%
-ECHO vvp C:\Users\soura\Documents\Verilog\compiled\%o_file%
+ECHO iverilog -o %compile_path%\%o_file% %v_file%
+ECHO vvp %compile_path%\%o_file%
 ECHO.
 ECHO.
 ECHO.
 
-iverilog -o C:\Users\soura\Documents\Verilog\compiled\%o_file% %v_file%
-vvp C:\Users\soura\Documents\Verilog\compiled\%o_file%
-del C:\Users\soura\Documents\Verilog\compiled\%o_file%
+iverilog -o %compile_path%\%o_file% %v_file%
+vvp %compile_path%\%o_file%
+del %compile_path%\%o_file%
 
 ::PAUSE
