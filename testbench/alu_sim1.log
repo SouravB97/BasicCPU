@@ -1,0 +1,114 @@
+
+C:\Users\soura\Documents\Verilog\testing\testbench>ECHO OFF 
+My utility for icarus simulator
+Verilog: ALU_tb.v
+iverilog -o C:\Users\soura\Documents\Verilog\compiled\ALU_tb ALU_tb.v
+vvp C:\Users\soura\Documents\Verilog\compiled\ALU_tb
+
+
+
+VCD info: dumpfile ALU_tb.vcd opened for output.
+Time scale of (ALU_tb) is 1ns / 1ps
+=============================================================================================
+MEMORY INITIALISED with
+DEPTH =         256, ADDRESS_WIDTH =           8, DATA_WIDTH =           8
+=============================================================================================
+
+
+A: 128		|10000000
+B: 36		|00100100
+C: 192		|11000000
+Opcode: 10 
+Status{sign, zero, parity, carry}: 1000 
+         12,          0, FAIL: C = 192, refC =  64, status = 1000, refStatus = 0010
+A: 64		|01000000
+B: 129		|10000001
+C: 32		|00100000
+Opcode: 10 
+Status{sign, zero, parity, carry}: 10 
+         12,          1, PASS: C =  32, refC =  32, status = 0010, refStatus = 0010
+A: 32		|00100000
+B: 9		|00001001
+C: 16		|00010000
+Opcode: 10 
+Status{sign, zero, parity, carry}: 10 
+         12,          2, PASS: C =  16, refC =  16, status = 0010, refStatus = 0010
+A: 16		|00010000
+B: 99		|01100011
+C: 8		|00001000
+Opcode: 10 
+Status{sign, zero, parity, carry}: 10 
+         12,          3, PASS: C =   8, refC =   8, status = 0010, refStatus = 0010
+A: 8		|00001000
+B: 13		|00001101
+C: 4		|00000100
+Opcode: 10 
+Status{sign, zero, parity, carry}: 10 
+         12,          4, PASS: C =   4, refC =   4, status = 0010, refStatus = 0010
+A: 4		|00000100
+B: 141		|10001101
+C: 2		|00000010
+Opcode: 10 
+Status{sign, zero, parity, carry}: 10 
+         12,          5, PASS: C =   2, refC =   2, status = 0010, refStatus = 0010
+A: 2		|00000010
+B: 101		|01100101
+C: 1		|00000001
+Opcode: 10 
+Status{sign, zero, parity, carry}: 10 
+         12,          6, PASS: C =   1, refC =   1, status = 0010, refStatus = 0010
+A: 1		|00000001
+B: 18		|00010010
+C: 0		|00000000
+Opcode: 10 
+Status{sign, zero, parity, carry}: 100 
+         12,          7, PASS: C =   0, refC =   0, status = 0100, refStatus = 0100
+A: 128		|10000000
+B: 1		|00000001
+C: 0		|00000000
+Opcode: 18 
+Status{sign, zero, parity, carry}: 100 
+         13,          0, FAIL: C =   0, refC =   0, status = 0100, refStatus = 0101
+A: 64		|01000000
+B: 13		|00001101
+C: 0		|00000000
+Opcode: 18 
+Status{sign, zero, parity, carry}: 100 
+         13,          1, FAIL: C =   0, refC = 128, status = 0100, refStatus = 1010
+A: 32		|00100000
+B: 118		|01110110
+C: 64		|01000000
+Opcode: 18 
+Status{sign, zero, parity, carry}: 10 
+         13,          2, PASS: C =  64, refC =  64, status = 0010, refStatus = 0010
+A: 16		|00010000
+B: 61		|00111101
+C: 32		|00100000
+Opcode: 18 
+Status{sign, zero, parity, carry}: 10 
+         13,          3, PASS: C =  32, refC =  32, status = 0010, refStatus = 0010
+A: 8		|00001000
+B: 237		|11101101
+C: 16		|00010000
+Opcode: 18 
+Status{sign, zero, parity, carry}: 10 
+         13,          4, PASS: C =  16, refC =  16, status = 0010, refStatus = 0010
+A: 4		|00000100
+B: 140		|10001100
+C: 8		|00001000
+Opcode: 18 
+Status{sign, zero, parity, carry}: 10 
+         13,          5, PASS: C =   8, refC =   8, status = 0010, refStatus = 0010
+A: 2		|00000010
+B: 249		|11111001
+C: 4		|00000100
+Opcode: 18 
+Status{sign, zero, parity, carry}: 10 
+         13,          6, PASS: C =   4, refC =   4, status = 0010, refStatus = 0010
+A: 1		|00000001
+B: 198		|11000110
+C: 2		|00000010
+Opcode: 18 
+Status{sign, zero, parity, carry}: 10 
+         13,          7, PASS: C =   2, refC =   2, status = 0010, refStatus = 0010
+ALU_tb.v:61: $finish called at 16000 (1ps)

@@ -1,0 +1,25 @@
+[*]
+[*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
+[*] Thu Jul 08 22:48:33 2021
+[*]
+[dumpfile] "C:\Users\soura\Documents\Verilog\testing\testbench\signals\d_ff_tb.vcd"
+[savefile] "C:\Users\soura\Documents\Verilog\testing\testbench\signals\d_ff.gtkw"
+[timestart] 17600
+[size] 1755 600
+[pos] -1 -1
+*-16.127310 268400 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] d_ff_tb.
+[sst_width] 254
+[signals_width] 78
+[sst_expanded] 1
+[sst_vpaned_height] 156
+@28
+d_ff_tb.dff.clk
+@29
+d_ff_tb.dff.reset
+@28
+d_ff_tb.dff.D
+d_ff_tb.dff.Q
+d_ff_tb.dff.q_bar
+[pattern_trace] 1
+[pattern_trace] 0

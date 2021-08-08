@@ -1,0 +1,103 @@
+[*]
+[*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
+[*] Tue Jul 06 10:34:49 2021
+[*]
+[dumpfile] "C:\Users\soura\Documents\Verilog\testing\testbench\signals\counter_tb.vcd"
+[savefile] "C:\Users\soura\Documents\Verilog\testing\testbench\signals\counter_dbg1.gtkw"
+[timestart] 0
+[size] 2560 1353
+[pos] -287 -284
+*-17.552355 145000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] counter_tb.
+[treeopen] counter_tb.counter1.
+[sst_width] 254
+[signals_width] 134
+[sst_expanded] 1
+[sst_vpaned_height] 156
+@28
+counter_tb.counter1.clk
+counter_tb.counter1.CS
+counter_tb.counter1.LD
+counter_tb.counter1.OE
+counter_tb.counter1.jkff_0.clk
+counter_tb.counter1.jkff_0.reset
+counter_tb.counter1.jkff_0.J
+counter_tb.counter1.jkff_0.K
+counter_tb.counter1.jkff_0.Q
+counter_tb.counter1.jkff_0.Q_bar
+counter_tb.counter1.CNT_EN
+@c00022
+counter_tb.counter1.data[7:0]
+@28
+(0)counter_tb.counter1.data[7:0]
+(1)counter_tb.counter1.data[7:0]
+(2)counter_tb.counter1.data[7:0]
+(3)counter_tb.counter1.data[7:0]
+(4)counter_tb.counter1.data[7:0]
+(5)counter_tb.counter1.data[7:0]
+(6)counter_tb.counter1.data[7:0]
+(7)counter_tb.counter1.data[7:0]
+@1401200
+-group_end
+@800028
+counter_tb.counter1.mux_0.D[1:0]
+@28
+(0)counter_tb.counter1.mux_0.D[1:0]
+(1)counter_tb.counter1.mux_0.D[1:0]
+@1001200
+-group_end
+@28
+counter_tb.counter1.mux_0.S
+counter_tb.counter1.mux_0.Y
+@800028
+counter_tb.counter1.mux_1.D[1:0]
+@28
+(0)counter_tb.counter1.mux_1.D[1:0]
+(1)counter_tb.counter1.mux_1.D[1:0]
+@1001200
+-group_end
+@28
+counter_tb.counter1.mux_1.S
+counter_tb.counter1.mux_1.Y
+@800022
+counter_tb.counter1.cnt_en[8:0]
+@28
+(0)counter_tb.counter1.cnt_en[8:0]
+(1)counter_tb.counter1.cnt_en[8:0]
+(2)counter_tb.counter1.cnt_en[8:0]
+(3)counter_tb.counter1.cnt_en[8:0]
+(4)counter_tb.counter1.cnt_en[8:0]
+(5)counter_tb.counter1.cnt_en[8:0]
+(6)counter_tb.counter1.cnt_en[8:0]
+(7)counter_tb.counter1.cnt_en[8:0]
+(8)counter_tb.counter1.cnt_en[8:0]
+@800022
+counter_tb.counter1.q[7:0]
+@28
+(0)counter_tb.counter1.q[7:0]
+(1)counter_tb.counter1.q[7:0]
+(2)counter_tb.counter1.q[7:0]
+(3)counter_tb.counter1.q[7:0]
+(4)counter_tb.counter1.q[7:0]
+(5)counter_tb.counter1.q[7:0]
+(6)counter_tb.counter1.q[7:0]
+@29
+(7)counter_tb.counter1.q[7:0]
+@1001200
+-group_end
+@800022
+counter_tb.counter1.data[7:0]
+@28
+(0)counter_tb.counter1.data[7:0]
+(1)counter_tb.counter1.data[7:0]
+(2)counter_tb.counter1.data[7:0]
+(3)counter_tb.counter1.data[7:0]
+(4)counter_tb.counter1.data[7:0]
+(5)counter_tb.counter1.data[7:0]
+(6)counter_tb.counter1.data[7:0]
+(7)counter_tb.counter1.data[7:0]
+@1001200
+-group_end
+-group_end
+[pattern_trace] 1
+[pattern_trace] 0

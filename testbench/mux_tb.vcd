@@ -1,0 +1,149 @@
+$date
+	Tue Jul 20 00:31:18 2021
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module mux_tb $end
+$var wire 1 ! y1 $end
+$var wire 1 " y $end
+$var reg 8 # data [7:0] $end
+$var reg 3 $ sel [2:0] $end
+$scope module eight_mux $end
+$var wire 8 % D [7:0] $end
+$var wire 3 & S [2:0] $end
+$var wire 1 " Y $end
+$upscope $end
+$scope module two_mux $end
+$var wire 2 ' D [1:0] $end
+$var wire 1 ( S $end
+$var wire 1 ! Y $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+0(
+b1 '
+b0 &
+b1 %
+b0 $
+b1 #
+1"
+1!
+$end
+#10000
+b10 '
+1!
+1(
+b10 #
+b10 %
+1"
+b1 $
+b1 &
+#20000
+b0 '
+0!
+0(
+b100 #
+b100 %
+1"
+b10 $
+b10 &
+#30000
+1(
+b1000 #
+b1000 %
+1"
+b11 $
+b11 &
+#40000
+0(
+b10000 #
+b10000 %
+1"
+b100 $
+b100 &
+#50000
+1(
+b100000 #
+b100000 %
+1"
+b101 $
+b101 &
+#60000
+0(
+b1000000 #
+b1000000 %
+1"
+b110 $
+b110 &
+#70000
+1(
+0"
+b111 $
+b111 &
+#80000
+1!
+b1 '
+0(
+1"
+b1 #
+b1 %
+b0 $
+b0 &
+#90000
+b10 '
+1!
+1(
+b10 #
+b10 %
+1"
+b1 $
+b1 &
+#100000
+b0 '
+0!
+0(
+b100 #
+b100 %
+1"
+b10 $
+b10 &
+#110000
+1(
+b1000 #
+b1000 %
+1"
+b11 $
+b11 &
+#120000
+0(
+b10000 #
+b10000 %
+1"
+b100 $
+b100 &
+#130000
+1(
+b100000 #
+b100000 %
+1"
+b101 $
+b101 &
+#140000
+0(
+b1000000 #
+b1000000 %
+1"
+b110 $
+b110 &
+#150000
+1(
+0"
+b111 $
+b111 &
+#160000
