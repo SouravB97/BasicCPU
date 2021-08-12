@@ -8,29 +8,29 @@
 //includes
 `ifdef BHVR
 
-`include "../d_ff_bhvr.v"
-`include "../jk_ff_bhvr.v"
-`include "../mux_bhvr.v"
-`include "../decoder_bhvr.v"
-`include "../register_bhvr.v"
-`include "../counter_bhvr.v"
-`include "../memory_bhvr.v"
-`include "../ALU_bhvr.v"
+`include "../design/d_ff_bhvr.v"
+`include "../design/jk_ff_bhvr.v"
+`include "../design/mux_bhvr.v"
+`include "../design/decoder_bhvr.v"
+`include "../design/register_bhvr.v"
+`include "../design/counter_bhvr.v"
+`include "../design/memory_bhvr.v"
+`include "../design/ALU_bhvr.v"
 
 `else //structural
 
-`include "../d_ff.v"
-`include "../jk_ff.v"
-`include "../mux.v"
-`include "../decoder.v"
-`include "../register.v"
-`include "../counter.v"
-`include "../memory_bhvr.v"
-`include "../ALU_components.v"
-`include "../ALU.v"
+`include "../design/d_ff.v"
+`include "../design/jk_ff.v"
+`include "../design/mux.v"
+`include "../design/decoder.v"
+`include "../design/register.v"
+`include "../design/counter.v"
+`include "../design/memory_bhvr.v"
+`include "../design/ALU_components.v"
+`include "../design/ALU.v"
 
 `endif
 
 
 
-//`include "../clk_divider.v"
+//`include "../design/clk_divider.v"

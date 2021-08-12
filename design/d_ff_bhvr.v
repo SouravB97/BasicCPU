@@ -1,16 +1,15 @@
-
 module d_ff(clk, reset, D, Q);
 	input clk, reset, D;
 	output reg Q;
 
-	always @(reset) begin
+	always @(reset)
 		if(!reset)
 			Q <= 0;
-	end
 
 	always @(posedge clk) begin
+		if(!reset)
+			Q <= 0;
+		else
 			Q <= D;
-			//Q <= #0.01 D;
 	end
-
 endmodule

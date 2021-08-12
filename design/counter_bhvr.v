@@ -1,33 +1,28 @@
-//`include "timescale.v"
-//`define DATA_WIDTH 8
-
 module counter
 #(parameter DATA_WIDTH = `DATA_WIDTH)(
 	input clk, reset,
-	input OE, CS, EN, CNT_EN,
-	inout [DATA_WIDTH - 1:0] data
+	input CS, WE, OE, CNT_EN,
+	inout [DATA_WIDTH-1:0] data
 );
 
-	reg [DATA_WIDTH -1:0] data_int = 00; //reset value
+	reg [DATA_WIDTH-1:0] data_int = 0;
 
-	always @(reset) begin
- 		if(!reset)	begin
-			data_int = 'b0;  //clear assign data
-		end
-	end
+	always @(reset)
+		if(!reset)
+			data_int = 0;
 
-	assign data  = CS ? (OE ? data_int : 'bz) : 'bz;
+	assign data = CS ? (OE ? data_int : 'bz) : 'bz;
 
 	always @(posedge clk) begin
 		if(!reset)
 			data_int = 0;
 		else begin
 			if(CS) begin
-				case({EN, OE})
-					2'b00 :;
-					2'b01 :;
-					2'b10 : data_int = data;
-					2'b11	:	$display("ERROR from module counter: EN and OE are 1 at the same time");
+				case({WE,OE})
+					2'b00 :; //no change
+					2'b01 :; //READ
+					2'b10 : data_int = data;	//WRITE
+					2'b11 : $display("ERROR from module counter: OE and WE are 1 at the same time!!");	//INVALID
 				endcase
 				if(CNT_EN)
 					data_int = data_int + 1;
