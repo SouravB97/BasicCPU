@@ -21,6 +21,7 @@
 
 `include "../design/d_ff.v"
 `include "../design/jk_ff.v"
+`include "../design/tri_state_buffer.v"
 `include "../design/mux.v"
 `include "../design/decoder.v"
 `include "../design/register.v"
