@@ -2,7 +2,7 @@
 /*
 
 |--------------------------------------------------------------|
-|OPCODE |HEX			 |NAME	|OPERATION			|Function            |
+|OPCODE |HEX			 |NAME		|OPERATION			|Function            |
 |--------------------------------------------------------------|
 |00000	|'h00			 |LD 		|C = A					|Transfer A          |
 |00001	|'h01			 |INC		|C = A + 1;			|Increment A         |
@@ -12,12 +12,12 @@
 |00101	|'h05			 |SUB		|C = A + ~B + 1;|Subtraction         |
 |00110	|'h06			 |DEC		|C = A - 1;			|Decrement A         |
 |00111	|'h07			 |LD1		|C = A;					|Transfer A          |
-|0100x	|'h08,'h09 |AND		|C = A & B;			|AND                 |
-|0101x	|'h0A,'h0B |OR 		|C = A | B;			|OR                  |
-|0110x	|'h0C,'h0D |XOR		|C = A ^ B;			|XOR                 |
-|0111x	|'h0E,'h0F |CMP		|C = ~B;				|Complement A        |
-|10xxx	|'h10-'h17 |LSH		|C = A >> 1;		|Shift right         |
-|11xxx	|'h18-'h1F |RSH		|C = A << 1;		|Shift left          |
+|0100x	|'h08,'h09		 |AND		|C = A & B;			|AND                 |
+|0101x	|'h0A,'h0B		 |OR 		|C = A | B;			|OR                  |
+|0110x	|'h0C,'h0D		 |XOR		|C = A ^ B;			|XOR                 |
+|0111x	|'h0E,'h0F		 |CMP		|C = ~B;				|Complement A        |
+|10xxx	|'h10-'h17		 |LSH		|C = A >> 1;		|Shift right         |
+|11xxx	|'h18-'h1F		 |RSH		|C = A << 1;		|Shift left          |
 |-------------------------|------------------------------------|
 
 */

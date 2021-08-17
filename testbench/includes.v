@@ -14,7 +14,7 @@
 `include "../design/decoder_bhvr.v"
 `include "../design/register_bhvr.v"
 `include "../design/counter_bhvr.v"
-`include "../design/memory_bhvr.v"
+`include "../design/memory_bhvr2.v"
 `include "../design/ALU_bhvr.v"
 
 `else //structural
@@ -26,9 +26,10 @@
 `include "../design/decoder.v"
 `include "../design/register.v"
 `include "../design/counter.v"
-`include "../design/memory_bhvr.v"
+`include "../design/memory_bhvr2.v"
 `include "../design/ALU_components.v"
 `include "../design/ALU.v"
+`include "../design/CPU_v1.v"
 
 `endif
 

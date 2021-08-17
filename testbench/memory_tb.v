@@ -1,11 +1,12 @@
 `include "includes.v"
 
+`define MEMORY2
 module memory_tb();
 	reg clk, reset;
 	wire clk_out;
 
 	reg [addr_width - 1:0] address;
-	reg CS, RD_WR;
+	reg CS, RD_WR, OE, WE;
 
 	reg [`DATA_WIDTH - 1:0] rdata, wdata;
 	wire [`DATA_WIDTH - 1:0] data_bus;
@@ -21,7 +22,11 @@ module memory_tb();
 	always #(clk_period/2) clk = ~clk;
 
 	//instantiate DUT
-	memory #(.DEPTH(depth)) ram(.clk(clk), .address(address), .data(data_bus), .RD_WR(RD_WR), .CS(CS));
+	`ifdef MEMORY2
+	memory #(.DEPTH(depth)) ram(.clk(clk), .reset(reset), .address(address), .data(data_bus), .OE(OE), .WE(WE), .CS(CS));
+	`else
+	memory #(.DEPTH(depth)) ram(.clk(clk), .reset(reset), .address(address), .data(data_bus), .RD_WR(RD_WR), .CS(CS));
+	`endif
 
 	assign data_bus = wdata;
 
@@ -34,6 +39,8 @@ module memory_tb();
 		reset <=0;
 		wdata <= 'bz;
 		$printtimescale;
+
+		CS=0;WE=0;OE=0;RD_WR=0;
 
 		#13 reset = 1'b1;
 	end
@@ -76,11 +83,18 @@ module memory_tb();
 	task do_write(input [addr_width -1:0] addr, input [`DATA_WIDTH -1:0] w_data);
 		begin
 			CS <= 1;
+			`ifdef MEMORY2
+			WE <=1;
+			`else
 			RD_WR <= 0;
+			`endif
 			address <= addr;
 			wdata <= w_data;
 			@(posedge clk);
 			CS <= 0;
+			`ifdef MEMORY2
+			WE <=0;
+			`endif
 			wdata <= 'bz;
 		end
 	endtask
@@ -89,13 +103,20 @@ module memory_tb();
 	task do_read(input [addr_width - 1:0] addr);
 		begin
 			CS <=1;
+			`ifdef MEMORY2
+			OE <=1;
+			`else
 			RD_WR <=1;
+			`endif
 			address <= addr;
 			@(posedge clk);
 			//#(clk_period/1000);
 			#1;
 			rdata = data_bus;
 			CS =0;
+			`ifdef MEMORY2
+			OE = 0;
+			`endif
 			#1;
 			//#(clk_period/1000);
 		end

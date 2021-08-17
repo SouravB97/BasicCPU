@@ -6,7 +6,7 @@ module memory
 
 	 input [ADDR_WIDTH - 1 :0] address,
 	 inout [DATA_WIDTH - 1 :0] data,
-	 input CS, RD_WR,
+	 input CS, OE, WE,
 	 input clk, reset
 );
 	reg [DATA_WIDTH - 1 :0] mem [DEPTH :0] ;
@@ -14,7 +14,7 @@ module memory
 	reg [DATA_WIDTH - 1 :0] rdata;
 	integer i;
 
-	assign output_condition = CS & RD_WR;
+	assign output_condition = CS & OE;
 	assign data = output_condition ? rdata : 'bz;
 
 	initial begin
@@ -35,12 +35,12 @@ module memory
 	always @(posedge clk) begin
 		if(reset) begin
 		  if(CS) begin
-			  if(RD_WR) begin//READ
-				  rdata = mem[address];
-		    end		
-			  else begin			//WRITE
-				  mem[address] = data;
-			  end
+				case({WE,OE})
+					2'b00 :; //no change
+					2'b01 : rdata = mem[address]; //READ
+					2'b10 : mem[address] = data; //WRITE
+					2'b11 : $display("ERROR from module memory: OE and WE are 1 at the same time!!");	//INVALID
+				endcase
 		  end
 		end
 	end

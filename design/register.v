@@ -20,12 +20,38 @@ module register
 			tranif1(Q[i], data[i], CS & OE);
 		end
 	endgenerate
-
-
 endmodule
 
 
-//A special register who's data contents are always visible on an iadditional output data lines
+//A register with seperate data input and output lines.
+//used for status register
+module st_register
+#(parameter DATA_WIDTH = `DATA_WIDTH)(
+	input clk, reset,
+	input CS, WE, OE,
+	input [DATA_WIDTH-1:0] data_in,
+	output [DATA_WIDTH-1:0] data_out
+);
+	wire [DATA_WIDTH-1:0] D,Q;
+
+	genvar i;
+
+	generate
+		for(i=0; i< DATA_WIDTH; i= i+1) begin
+			//dff
+			d_ff dff(.clk(clk), .reset(reset),
+								.D(D[i]), .Q(Q[i]));
+			//latch
+			latch l1(.D(data_in[i]), .Q(D[i]), .EN(CS & WE));
+
+			//tristate gate
+			tranif1(Q[i], data_out[i], CS & OE);
+		end
+	endgenerate
+endmodule
+
+
+//A special register who's data contents are always visible on an additional output data lines
 //It's designed to be used with any register connected as an inpt to the ALU
 module ac_register
 #(parameter DATA_WIDTH = `DATA_WIDTH)(
@@ -59,9 +85,11 @@ endmodule
 
 //Address register
 //16 bit register designed to be used as Address registers
+//It has an output data bus called "address" to be conected to the address bus
+//"address" contains the 16 bit data when OE_A goes high
 module ar_register
-#(parameter DATA_WIDTH = `DATA_WIDTH,
-  parameter ADDR_WIDTH = 2*DATA_WIDTH)(
+#(parameter ADDR_WIDTH = 2*`DATA_WIDTH,
+  parameter DATA_WIDTH = ADDR_WIDTH/2)(
 	input clk, reset,
 	input CS, OE_A,
 	input WE_L, OE_L, WE_H, OE_H,

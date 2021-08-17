@@ -32,3 +32,23 @@ module tri_state_mux(input [1:0] D, input S, output Y);
 	tranif1(D[1], Y, S);
 endmodule
 
+//N bit array of muxes.
+//useful for bus decode logic
+module mux_array
+#(parameter DATA_WIDTH = `DATA_WIDTH,
+  parameter MUX_DATA_WIDTH = 2,
+  parameter SEL_WIDTH = $clog2(MUX_DATA_WIDTH))(
+	input [DATA_WIDTH-1:0][MUX_DATA_WIDTH-1:0] D,
+	input [SEL_WIDTH - 1: 0] S,	
+	output [DATA_WIDTH-1:0] Y
+);
+
+	genvar i;
+	generate
+		for(i=0; i< DATA_WIDTH; i=i+1) begin
+			mux #(.DATA_WIDTH(MUX_DATA_WIDTH)) m(.D(D[i]), .S(S), .Y(Y[i]));
+		end
+	endgenerate
+
+
+endmodule

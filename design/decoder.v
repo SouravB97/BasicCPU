@@ -7,11 +7,12 @@ module decoder
 	output [(2 ** WIDTH) -1 : 0] D
 );
 	wire [(2** WIDTH) -1 : 0] mux_out;
+	wire [(2** WIDTH) -1 : 0] const_1 = 1;
 
 	genvar i;
 	generate
 		for(i = 0; i < 2** WIDTH; i = i+1) begin
-			mux #(.DATA_WIDTH(2** WIDTH)) mux_m(.D(1<<i),.S(S),.Y(mux_out[i]));
+			mux #(.DATA_WIDTH(2** WIDTH)) mux_m(.D(const_1<<i),.S(S),.Y(mux_out[i]));
 			assign D[i] = mux_out[i] & EN;
 		end
 	endgenerate

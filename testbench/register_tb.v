@@ -31,13 +31,23 @@ module register_tb();
 //		.data(data_bus),
 //		.CS(CS),.WE(WE),.OE(OE)//, .CNT_EN(1)
 //	);
-	ar_register reg1(
+
+	//ar_register reg1(
+	//	.clk(clk), .reset(reset),
+	//	.data(data_bus),
+	//	.CS(CS),.OE_A(OE_A),
+	//	.WE_H(WE),.OE_H(OE),
+	//	.WE_L(WE),.OE_L(OE)
+	//);
+
+	pc_register reg1(
 		.clk(clk), .reset(reset),
 		.data(data_bus),
 		.CS(CS),.OE_A(OE_A),
 		.WE_H(WE),.OE_H(OE),
-		.WE_L(WE),.OE_L(OE)
+		.WE_L(WE),.OE_L(OE), .CNT_EN(1)
 	);
+
 	assign data_bus = data;
 
 	task do_write(input [`DATA_WIDTH -1:0] wdata);
