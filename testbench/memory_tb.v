@@ -49,7 +49,7 @@ module memory_tb();
 	initial begin
 		@(posedge reset);
 		#10;
-		//ram.print_mem();
+		ram.print_mem();
 		
 		for(i = 0; i < depth; i++) begin
 			wdata_array[i] = $urandom;

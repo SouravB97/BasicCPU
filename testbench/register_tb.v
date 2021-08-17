@@ -45,7 +45,7 @@ module register_tb();
 		.data(data_bus),
 		.CS(CS),.OE_A(OE_A),
 		.WE_H(WE),.OE_H(OE),
-		.WE_L(WE),.OE_L(OE), .CNT_EN(1)
+		.WE_L(WE),.OE_L(OE), .CNT_EN(1'b1)
 	);
 
 	assign data_bus = data;

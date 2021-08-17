@@ -1,6 +1,7 @@
 module CPU(
 	input clk, reset, hlt,
-	inout [7:0] PORTA, PORTB, PORTC, PORTD
+	inout [7:0] PORTA, PORTB, PORTC, PORTD,
+	input [63:0] control_bus
 );
 	wire [7:0] data_bus; 
 	wire [15:0] address_bus;
@@ -9,14 +10,29 @@ module CPU(
 	//Control outputs for Data bus
 	wire WE_A, WE_B, WE_R0, WE_R1, WE_IR0, WE_IR1, WE_PORTA, WE_PORTB, WE_PORTC, WE_PORTD, WE_AR0, WE_AR1, WE_PC0, WE_PC1, WE_SP0, WE_SP1, WE_M;
 	wire OE_A, OE_B, OE_R0, OE_R1, OE_IR0, OE_IR1, OE_PORTA, OE_PORTB, OE_PORTC, OE_PORTD, OE_AR0, OE_AR1, OE_PC0, OE_PC1, OE_SP0, OE_SP1, OE_M;
-	wire OE_SR, OE_ALU;
+	wire OE_SR, OE_ALU, PC_INR;
+	//Control outputs for address bus
 	wire OE_AR, OE_PC, OE_SP, OE_R0R1;
-	wire [4:0] alu_opcode;
+	wire [4:0] alu_opcode, MID, SID; //data bus master/slave ID
+	wire [1:0] AMID; //address master ID
+
+	//Timing outputs
+	wire[3:0] T;
 
 	//========================= random wires in CPU =====================================
 	wire[7:0] alu_in0, alu_in1, alu_out;
 	wire[3:0] alu_status;
 	wire[15:0] instr_data;
+
+	//control bus
+	assign {
+		alu_opcode, MID, SID,
+		AMID,
+		OE_AR, OE_PC, OE_SP, OE_R0R1,
+		OE_SR, OE_ALU, PC_INR,
+		OE_A, OE_B, OE_R0, OE_R1, OE_IR0, OE_IR1, OE_PORTA, OE_PORTB, OE_PORTC, OE_PORTD, OE_AR0, OE_AR1, OE_PC0, OE_PC1, OE_SP0, OE_SP1, OE_M,
+		WE_A, WE_B, WE_R0, WE_R1, WE_IR0, WE_IR1, WE_PORTA, WE_PORTB, WE_PORTC, WE_PORTD, WE_AR0, WE_AR1, WE_PC0, WE_PC1, WE_SP0, WE_SP1, WE_M
+	} = control_bus;
 	
 	//========================= CPU Registers =====================================
 
@@ -81,10 +97,10 @@ module CPU(
 		.WE_L(WE_AR0),.OE_L(OE_AR0)
 	);
 	//Programme Counter PC
-	ar_register #(.ADDR_WIDTH(16)) PC(
+	pc_register #(.ADDR_WIDTH(16)) PC(
 		.clk(clk), .reset(reset),
 		.data(data_bus), .address(address_bus),
-		.CS(1'b1),.OE_A(OE_PC),
+		.CS(1'b1),.OE_A(OE_PC), .CNT_EN(PC_INR),
 		.WE_H(WE_PC1),.OE_H(OE_PC1),
 		.WE_L(WE_PC0),.OE_L(OE_PC0)
 	);

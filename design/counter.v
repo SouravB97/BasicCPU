@@ -41,8 +41,8 @@ endmodule
 //A special 16 bit register which is basically the address register 
 //with CNT_EN input
 module pc_register
-#(parameter DATA_WIDTH = `DATA_WIDTH,
-  parameter ADDR_WIDTH = 2*DATA_WIDTH)(
+#(parameter ADDR_WIDTH = 2*`DATA_WIDTH,
+  parameter DATA_WIDTH = ADDR_WIDTH/2)(
 	input clk, reset,
 	input CS, OE_A, CNT_EN,
 	input WE_L, OE_L, WE_H, OE_H,
