@@ -8,14 +8,14 @@
 //includes
 `ifdef BHVR
 
-`include "../design/d_ff_bhvr.v"
-`include "../design/jk_ff_bhvr.v"
-`include "../design/mux_bhvr.v"
-`include "../design/decoder_bhvr.v"
-`include "../design/register_bhvr.v"
-`include "../design/counter_bhvr.v"
-`include "../design/memory_bhvr2.v"
-`include "../design/ALU_bhvr.v"
+`include "../design/BHVR/d_ff_bhvr.v"
+`include "../design/BHVR/jk_ff_bhvr.v"
+`include "../design/BHVR/mux_bhvr.v"
+`include "../design/BHVR/decoder_bhvr.v"
+`include "../design/BHVR/register_bhvr.v"
+`include "../design/BHVR/counter_bhvr.v"
+`include "../design/BHVR/memory_bhvr2.v"
+`include "../design/BHVR/ALU_bhvr.v"
 
 `else //structural
 
@@ -26,7 +26,7 @@
 `include "../design/decoder.v"
 `include "../design/register.v"
 `include "../design/counter.v"
-`include "../design/memory_bhvr2.v"
+`include "../design/BHVR/memory_bhvr2.v"
 `include "../design/ALU_components.v"
 `include "../design/ALU.v"
 `include "../design/CPU_v1.v"
