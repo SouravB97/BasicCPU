@@ -10,25 +10,19 @@ module CPU_tb();
 	always #(clk_period/2) clk = ~clk;
 
 	//========================= CONTROL UNIT OUTPUTS =====================================
-	wire[63:0] control_bus;
-	//Control outputs for Data bus
-	reg WE_A, WE_B, WE_R0, WE_R1, WE_IR0, WE_IR1, WE_PORTA, WE_PORTB, WE_PORTC, WE_PORTD, WE_AR0, WE_AR1, WE_PC0, WE_PC1, WE_SP0, WE_SP1, WE_M;
-	reg OE_A, OE_B, OE_R0, OE_R1, OE_IR0, OE_IR1, OE_PORTA, OE_PORTB, OE_PORTC, OE_PORTD, OE_AR0, OE_AR1, OE_PC0, OE_PC1, OE_SP0, OE_SP1, OE_M;
-	reg OE_SR, OE_ALU, PC_INR;
-	//Control outputs for address bus
-	reg OE_AR, OE_PC, OE_SP, OE_R0R1;
-	reg [4:0] alu_opcode, MID, SID; //data bus master/slave ID
+	wire[32:0] control_bus;
+	//control bus inputs
+	reg [4:0] alu_opcode;
+	reg [4:0] MID, SID; //data bus master/slave ID
 	reg [1:0] AMID; //address master ID
+	reg PC_INR, MID_EN, SID_EN;
 
 	//control bus
 	assign control_bus = {
-		alu_opcode, MID, SID,
-		AMID,
-		OE_AR, OE_PC, OE_SP, OE_R0R1,
-		OE_SR, OE_ALU, PC_INR,
-		OE_A, OE_B, OE_R0, OE_R1, OE_IR0, OE_IR1, OE_PORTA, OE_PORTB, OE_PORTC, OE_PORTD, OE_AR0, OE_AR1, OE_PC0, OE_PC1, OE_SP0, OE_SP1, OE_M,
-		WE_A, WE_B, WE_R0, WE_R1, WE_IR0, WE_IR1, WE_PORTA, WE_PORTB, WE_PORTC, WE_PORTD, WE_AR0, WE_AR1, WE_PC0, WE_PC1, WE_SP0, WE_SP1, WE_M
+		alu_opcode, MID, SID, AMID,
+		PC_INR, MID_EN, SID_EN
 	};
+	
 
 
 	//instantiate DUT
@@ -44,13 +38,9 @@ module CPU_tb();
 		reset <=0;
 		$printtimescale;
 
-	{
-		alu_opcode, MID, SID,
-		AMID,
-		OE_AR, OE_PC, OE_SP, OE_R0R1,
-		OE_SR, OE_ALU, PC_INR,
-		OE_A, OE_B, OE_R0, OE_R1, OE_IR0, OE_IR1, OE_PORTA, OE_PORTB, OE_PORTC, OE_PORTD, OE_AR0, OE_AR1, OE_PC0, OE_PC1, OE_SP0, OE_SP1, OE_M,
-		WE_A, WE_B, WE_R0, WE_R1, WE_IR0, WE_IR1, WE_PORTA, WE_PORTB, WE_PORTC, WE_PORTD, WE_AR0, WE_AR1, WE_PC0, WE_PC1, WE_SP0, WE_SP1, WE_M
+	 {
+		alu_opcode, MID, SID, AMID,
+		PC_INR, MID_EN, SID_EN
 	} = 0;
 	
 
@@ -61,37 +51,57 @@ module CPU_tb();
 	initial begin
 		#34;
 		fetch();
-		fetch();
-		fetch();
-		fetch();
-		fetch();
-		fetch();
-		fetch();
-		fetch();
-		fetch();
-		fetch();
+	//	fetch();
+	//	fetch();
+	//	fetch();
+	//	fetch();
+	//	fetch();
+	//	fetch();
+	//	fetch();
+	//	fetch();
+	//	fetch();
+		#32;
+		$display("Instruction reg = %0h", cpu.instr_reg.tsb.data_in);
 		$finish();
 	end
 
 	task fetch();
 		begin
 			//@(negedge clk); //T0
-			OE_PC <= 1;
-			OE_M  <= 1;
+			AMID <= 0;
+			MID  <= 4; MID_EN <= 1; //OE_M <=1
 			@(negedge clk); //T1
-			WE_IR0 <= 1;
+			SID <= 0; SID_EN <= 1; //WE_IR0 <= 1;
 			PC_INR <= 1;
 			@(negedge clk); //T2
-			WE_IR0 <= 0;
+			SID_EN <= 0; //WE_IR0 <= 0;
 			PC_INR <= 0;
 			@(negedge clk); //T3
-			WE_IR1 <= 1;
+			SID <= 1; SID_EN <= 1; //WE_IR1 <= 1;
 			PC_INR <= 1;
 			@(negedge clk); //T4
-			OE_PC <= 0;
-			OE_M  <= 0;
-			WE_IR1 <= 0;
+			//OE_PC <= 0;
+			MID_EN <= 0; //OE_M  <= 0;
+			SID_EN <= 0; //WE_IR1 <= 0;
 			PC_INR <= 0;
+
+		//	//@(negedge clk); //T0
+		//	OE_PC <= 1;
+		//	OE_M  <= 1;
+		//	@(negedge clk); //T1
+		//	WE_IR0 <= 1;
+		//	PC_INR <= 1;
+		//	@(negedge clk); //T2
+		//	WE_IR0 <= 0;
+		//	PC_INR <= 0;
+		//	@(negedge clk); //T3
+		//	WE_IR1 <= 1;
+		//	PC_INR <= 1;
+		//	@(negedge clk); //T4
+		//	OE_PC <= 0;
+		//	OE_M  <= 0;
+		//	WE_IR1 <= 0;
+		//	PC_INR <= 0;
 		end
 	endtask
 //	initial begin

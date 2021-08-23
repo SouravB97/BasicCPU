@@ -6,6 +6,8 @@ module register_tb();
 	wire [`DATA_WIDTH-1:0] data_bus = 'bz;
 	reg CS, OE, WE, OE_A;
 
+	reg WE_L, WE_H;
+
 	parameter clk_period = 10;
 	integer i;
 
@@ -20,6 +22,7 @@ module register_tb();
 		clk=0;
 		reset=0;
 		CS=0;OE=0;WE=0;OE_A=0;
+		WE_L=0; WE_H =0;
 
 		$monitor("Time=%0t\t data = %h, rdata = %h, CS=%b,WE=%b,OE=%b", $time, data, rdata, CS, WE, OE);
 
@@ -32,21 +35,21 @@ module register_tb();
 //		.CS(CS),.WE(WE),.OE(OE)//, .CNT_EN(1)
 //	);
 
-	//ar_register reg1(
-	//	.clk(clk), .reset(reset),
-	//	.data(data_bus),
-	//	.CS(CS),.OE_A(OE_A),
-	//	.WE_H(WE),.OE_H(OE),
-	//	.WE_L(WE),.OE_L(OE)
-	//);
-
-	pc_register reg1(
+	ar_register reg1(
 		.clk(clk), .reset(reset),
 		.data(data_bus),
 		.CS(CS),.OE_A(OE_A),
-		.WE_H(WE),.OE_H(OE),
-		.WE_L(WE),.OE_L(OE), .CNT_EN(1'b1)
+		.WE_H(WE_H),.OE_H(OE),
+		.WE_L(WE_L),.OE_L(OE)
 	);
+
+//	pc_register reg1(
+//		.clk(clk), .reset(reset),
+//		.data(data_bus),
+//		.CS(CS),.OE_A(OE_A),
+//		.WE_H(WE),.OE_H(OE),
+//		.WE_L(WE),.OE_L(OE), .CNT_EN(1'b1)
+//	);
 
 	assign data_bus = data;
 
@@ -78,22 +81,47 @@ module register_tb();
 
 		#20 do_write('hBF);
 		#15 do_write('hAD);
-//		#10 do_read();
-//		#5  do_read();
+		#10 do_read();
+		#5  do_read();
 		#15 do_write('hFF);
-//		#0  do_read();
+		#0  do_read();
 		#15 do_write('h67);
-//		#5  do_read();
+		#5  do_read();
 		#15 do_write('h23);
-//		#5  do_read();
+		#5  do_read();
 		#15 do_write('h16);
-//		#5  do_read();
+		#5  do_read();
 		#15 do_write('hD3);
-//		#5  do_read();
+		#5  do_read();
 
 
 		#10;
-		CS=1; WE=1; OE=1;
+		CS=1; WE=0; OE=0;
+		data = 'h54;
+		WE_L=1;
+		@(posedge clk);
+		#3;
+		WE_L=0;
+		WE_H=1;
+		data='h34;
+		@(posedge clk);
+		#28;
+		WE_L=0;
+		WE_H=0;
+		data='h34;
+		#28;
+		data='h9a;
+		#28;
+		data='h05;
+		#28;
+		data='h3C;
+		WE_L=1;
+		#28;
+		data='h96;
+		#28;
+		data='hF3;
+		@(posedge clk);
+
 		#50 $finish();
 	end
 	always #(17) OE_A = ~OE_A;
