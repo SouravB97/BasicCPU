@@ -1,6 +1,6 @@
 
 my $output_file = "/c/Users/soura/Documents/verilog/testing/testbench/bootcode.hex";
-my $depth = 32768;
+my $depth = 256; #32768;
 
 open(OUT, '>', $output_file) or die "Can't open $output_file";
 for(my $i=0; $i<$depth; $i = $i+1){

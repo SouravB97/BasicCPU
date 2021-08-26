@@ -17,7 +17,7 @@ module CPU(
 	wire [4:0] alu_opcode;
 	wire [4:0] MID, SID; //data bus master/slave ID
 	wire [1:0] AMID; //address master ID
-	wire PC_INR, MID_EN, SID_EN;
+	wire PC_INR, MID_EN, SID_EN, AMID_EN;
 
 	//Timing outputs
 	wire[3:0] T;
@@ -31,7 +31,7 @@ module CPU(
 	//control bus
 	assign {
 		alu_opcode, MID, SID, AMID,
-		PC_INR, MID_EN, SID_EN
+		PC_INR, MID_EN, SID_EN, AMID_EN
 	} = control_bus;
 	
 	//========================= CPU Registers =====================================
@@ -126,7 +126,7 @@ module CPU(
 	//========================= Memory =====================================
 	//RAM
 	//Address range: 0x0000 to 0x7FFF
-	memory #(.DEPTH(32768)) RAM(
+	memory #(.DEPTH(256)) RAM(
 		.clk(clk), .reset(reset), 
 		.address(address_bus[14:0]), .data(data_bus), 
 		.OE(OE_M), .WE(WE_M), .CS(~address_bus[15])
@@ -201,7 +201,7 @@ module CPU(
 	);
 
 	//========================= Address bus Decoders =====================================
-	//Master address_bus ID decode (WE decoder)
+	//Master address_bus ID decode (OE decoder)
 	//RAM or IO_ports are always the slave. (Memory mapped IO)
 	/*
 		AMID	|	Register
@@ -212,7 +212,7 @@ module CPU(
 
 	*/
 	decoder #(.WIDTH(2)) amid_decoder(
-		.S(AMID), .EN(1'b1),
+		.S(AMID), .EN(AMID_EN),
 		.D({
 			OE_R0R1, OE_SP, OE_AR, OE_PC	
 		})
@@ -222,5 +222,6 @@ module CPU(
 	//========================= Instruction Decoder =====================================
 
 	//========================= Control Unit =====================================
+
 
 endmodule

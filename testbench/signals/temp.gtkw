@@ -1,43 +1,41 @@
 [*]
 [*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
-[*] Thu Jul 08 23:20:12 2021
+[*] Mon Aug 23 18:15:45 2021
 [*]
-[dumpfile] "C:\Users\soura\Documents\Verilog\testing\testbench\signals\d_ff_tb.vcd"
+[dumpfile] "C:\Users\soura\Documents\Verilog\testing\testbench\signals\CPU_tb.vcd"
 [savefile] "C:\Users\soura\Documents\Verilog\testing\testbench\signals\temp.gtkw"
-[timestart] 106600
-[size] 1274 600
-[pos] 1069 78
-*-15.736222 193500 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
-[treeopen] d_ff_tb.
+[timestart] 0
+[size] 2560 1353
+[pos] -287 -284
+*-13.371248 75000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] CPU_tb.
+[treeopen] CPU_tb.cpu.
+[treeopen] CPU_tb.cpu.instr_reg.
+[treeopen] CPU_tb.cpu.R1R0_pair.
 [sst_width] 254
-[signals_width] 78
+[signals_width] 166
 [sst_expanded] 1
-[sst_vpaned_height] 156
+[sst_vpaned_height] 908
 @28
-[color] 2
-d_ff_tb.dff.D
-@68
-[color] 2
-d_ff_tb.dff.D
+CPU_tb.clk
+@22
+CPU_tb.cpu.address_bus[15:0]
+CPU_tb.cpu.data_bus[7:0]
 @28
-[color] 2
-d_ff_tb.dff.c
-[color] 2
-d_ff_tb.dff.d
-@68
-[color] 2
-d_ff_tb.dff.clk
+CPU_tb.cpu.WE_IR0
+CPU_tb.cpu.WE_IR1
+@22
+CPU_tb.cpu.instr_reg.tsb.data_in[15:0]
 @28
-d_ff_tb.dff.c
-d_ff_tb.dff.d
-d_ff_tb.dff.Q
-d_ff_tb.dff.q_bar
-d_ff_tb.dff.clk
-[color] 5
-d_ff_tb.dff.D
-[color] 5
-d_ff_tb.dff.Q
-[color] 5
-d_ff_tb.dff.clk
+CPU_tb.PC_INR
+@22
+CPU_tb.cpu.R1R0_pair.tsb.data_in[15:0]
+@28
+CPU_tb.cpu.R1R0_pair.WE_L
+CPU_tb.cpu.R1R0_pair.WE_H
+CPU_tb.cpu.instr_reg.WE_L
+CPU_tb.cpu.instr_reg.WE_H
+@22
+CPU_tb.cpu.instr_reg.tsb.data_in[15:0]
 [pattern_trace] 1
 [pattern_trace] 0

@@ -15,12 +15,12 @@ module CPU_tb();
 	reg [4:0] alu_opcode;
 	reg [4:0] MID, SID; //data bus master/slave ID
 	reg [1:0] AMID; //address master ID
-	reg PC_INR, MID_EN, SID_EN;
+	reg PC_INR, MID_EN, SID_EN, AMID_EN;
 
 	//control bus
 	assign control_bus = {
 		alu_opcode, MID, SID, AMID,
-		PC_INR, MID_EN, SID_EN
+		PC_INR, MID_EN, SID_EN, AMID_EN
 	};
 	
 
@@ -40,7 +40,7 @@ module CPU_tb();
 
 	 {
 		alu_opcode, MID, SID, AMID,
-		PC_INR, MID_EN, SID_EN
+		PC_INR, MID_EN, SID_EN, AMID_EN
 	} = 0;
 	
 
@@ -60,7 +60,7 @@ module CPU_tb();
 	//	fetch();
 	//	fetch();
 	//	fetch();
-		#32;
+		#100;
 		$display("Instruction reg = %0h", cpu.instr_reg.tsb.data_in);
 		$finish();
 	end
@@ -68,7 +68,7 @@ module CPU_tb();
 	task fetch();
 		begin
 			//@(negedge clk); //T0
-			AMID <= 0;
+			AMID <= 0; AMID_EN <= 1; //	OE_PC <= 1;
 			MID  <= 4; MID_EN <= 1; //OE_M <=1
 			@(negedge clk); //T1
 			SID <= 0; SID_EN <= 1; //WE_IR0 <= 1;
@@ -80,7 +80,7 @@ module CPU_tb();
 			SID <= 1; SID_EN <= 1; //WE_IR1 <= 1;
 			PC_INR <= 1;
 			@(negedge clk); //T4
-			//OE_PC <= 0;
+			AMID_EN <= 0; //OE_PC <= 0;
 			MID_EN <= 0; //OE_M  <= 0;
 			SID_EN <= 0; //WE_IR1 <= 0;
 			PC_INR <= 0;

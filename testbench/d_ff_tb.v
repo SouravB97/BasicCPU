@@ -1,18 +1,20 @@
 `include "includes.v"
 
 module d_ff_tb();
-	reg clk, reset, D, J, K;
+	reg clk, reset, D, J, K, EN;
 	wire Q, Q1, Q_bar;
 
 	parameter clk_period = 10;
 	integer i;
 
-	d_ff dff(.clk(clk),
-					 .reset(reset),
-					 .D(D),
-					 .Q(Q));
+	//d_ff dff(.clk(clk),
+	//				 .reset(reset),
+	//				 .D(D),
+	//				 .Q(Q));
 
-	jk_ff jkff(.clk(clk),.reset(reset),.J(J),.K(K),.Q(Q1),.Q_bar(Q_bar));
+	//jk_ff jkff(.clk(clk),.reset(reset),.J(J),.K(K),.Q(Q1),.Q_bar(Q_bar));
+
+	latch l1(.EN(EN), .D(D), .Q(Q));
 
 	initial begin
 		$dumpfile("d_ff_tb.vcd");
@@ -22,6 +24,7 @@ module d_ff_tb();
 		clk <=0;
 		reset <=1;
 		D <= 0;
+		EN <= 0;
 		J <= 0;
 		K <= 0;
 	end
@@ -32,6 +35,7 @@ module d_ff_tb();
 	end
 
 	always #(clk_period*3.87) D = ~D;
+	always #(clk_period*13) EN = ~EN;
 	always #(clk_period*16.34) reset = ~reset;
 
 	initial begin

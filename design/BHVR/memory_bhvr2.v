@@ -9,8 +9,8 @@ module memory
 	 input CS, OE, WE,
 	 input clk, reset
 );
-	reg [DATA_WIDTH - 1 :0] mem [0: DEPTH] ;
-	//reg [DATA_WIDTH - 1 :0] mem [DEPTH :0] ;
+	reg [DATA_WIDTH - 1 :0] mem [0: DEPTH-1] ;
+	//reg [DATA_WIDTH - 1 :0] mem [DEPTH-1 :0] ;
 	wire output_condition;
 	reg [DATA_WIDTH - 1 :0] rdata;
 	integer i;
