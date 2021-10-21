@@ -12,7 +12,7 @@ module counter
 	//wire carry; //output?
 	assign data_out = Q;
 
-	assign cnt_en[0] = CNT_EN;
+	assign cnt_en[0] = CNT_EN & CS;
 	assign carry = cnt_en[DATA_WIDTH];
 
 	genvar i;

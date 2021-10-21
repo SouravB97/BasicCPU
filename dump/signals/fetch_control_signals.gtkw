@@ -1,0 +1,25 @@
+[*]
+[*] GTKWave Analyzer v3.3.108 (w)1999-2020 BSI
+[*] Wed Oct 20 12:03:57 2021
+[*]
+[dumpfile] "C:\Users\soura\Documents\Verilog\testing\testbench\signals\CPU_tb.vcd"
+[savefile] "C:\Users\soura\Documents\Verilog\testing\testbench\signals\fetch_control_signals.gtkw"
+[timestart] 0
+[size] 2560 1353
+[pos] -365 -362
+*-14.177474 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] CPU_tb.
+[sst_width] 254
+[signals_width] 78
+[sst_expanded] 1
+[sst_vpaned_height] 418
+@28
+CPU_tb.cpu.clk_n
+CPU_tb.cpu.OE_PC
+CPU_tb.cpu.OE_M
+CPU_tb.cpu.WE_IR0
+CPU_tb.cpu.WE_IR1
+@29
+CPU_tb.cpu.PC_INR
+[pattern_trace] 1
+[pattern_trace] 0

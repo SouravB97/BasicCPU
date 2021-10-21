@@ -29,7 +29,7 @@
 `include "../design/BHVR/memory_bhvr2.v"
 `include "../design/ALU_components.v"
 `include "../design/ALU.v"
-`include "../design/CPU_v1.v"
+`include "../design/CPU.v"
 
 `endif
 

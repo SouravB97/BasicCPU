@@ -1,6 +1,7 @@
 
 module memory
  #(parameter DEPTH = 256,
+ 	 parameter ID = 0,
  	 parameter DATA_WIDTH = `DATA_WIDTH,
 	 parameter ADDR_WIDTH = $clog2(DEPTH))(
 
@@ -9,8 +10,8 @@ module memory
 	 input CS, OE, WE,
 	 input clk, reset
 );
-	reg [DATA_WIDTH - 1 :0] mem [0: DEPTH] ;
-	//reg [DATA_WIDTH - 1 :0] mem [DEPTH :0] ;
+	reg [DATA_WIDTH - 1 :0] mem [0: DEPTH-1] ;
+	//reg [DATA_WIDTH - 1 :0] mem [DEPTH-1 :0] ;
 	wire output_condition;
 	reg [DATA_WIDTH - 1 :0] rdata;
 	integer i;
@@ -28,10 +29,14 @@ module memory
 
 		//clear memory
 		for(i = 0; i < DEPTH; i = i+1)
-			mem[i] = ~0;
+			if(ID == 1) mem[i] = 0;
+			else mem[i] = ~0;
 
 		//backdoor memory load task here.
-		$readmemh("bootcode.hex", mem);
+		if(ID == 0)
+			$readmemh("bootcode.hex", mem);
+		else if(ID == 1)
+			$readmemh("micro_code.hex", mem);
 	end
 
 	always @(posedge clk) begin
