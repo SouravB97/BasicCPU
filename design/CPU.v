@@ -24,6 +24,8 @@ module CPU(
 	wire [4:0] MID, SID; //data bus master/slave ID
 	wire [1:0] AMID; //address master ID
 	wire PC_INR, MID_EN, SID_EN;
+	wire instr_decode; //enable decode phase
+	wire clr_timer = 0;
 
 	//Timing outputs
 	wire[3:0] T;
@@ -33,6 +35,7 @@ module CPU(
 	wire[3:0] alu_status;
 	wire[15:0] instr_data;
 	wire PORT_A_CS;
+	wire [15:0] DEC_IR0;
 
 	//control bus
 	assign {
@@ -53,7 +56,7 @@ module CPU(
 	ac_register #(.DATA_WIDTH(8)) B_reg (
 		.clk(clk), .reset(reset),
 		.data(data_bus), .data_out(alu_in1),
-		.CS(1'b1),.WE(WE_A),.OE(OE_A)
+		.CS(1'b1),.WE(WE_B),.OE(OE_B)
 	);
 
 	//16 bit R0 R1 pair.
@@ -74,12 +77,17 @@ module CPU(
 	);
 
 	//Instruction register (Connects to instruction decoder)
-	ar_register #(.ADDR_WIDTH(16)) instr_reg(
+	/*ar_register #(.ADDR_WIDTH(16), .DATA_WIDTH(8)) instr_reg(
 		.clk(clk), .reset(reset),
 		.data(data_bus), .address(instr_data),
 		.CS(1'b1),.OE_A(1'b1),
 		.WE_H(WE_IR1),.OE_H(OE_IR1),
 		.WE_L(WE_IR0),.OE_L(OE_IR0)
+	);*/
+	ac_register #(.DATA_WIDTH(8)) instr_reg0 (
+		.clk(clk), .reset(reset),
+		.data(), .data_out(ir0_reg_out),
+		.CS(1'b1),.WE(WE_IR0),.OE()
 	);
 
 	//========================= ALU =====================================
@@ -235,7 +243,36 @@ module CPU(
 
 
 	//========================= Instruction Decoder =====================================
+	decoder #(.WIDTH(3)) ir0_decoder(
+		.S(ir0_reg_out), .EN(instr_decode),
+		.D(DEC_IR0)
+	);
+
+	//========================= Timing =====================================
+	//timer counter
+	counter #(.DATA_WIDTH(2)) timer_reg(
+		.clk(clk), .reset(reset & ~clr_timer),
+		.data_out(timer_out),
+		.CS(1'b1), .CNT_EN(1'b1)
+	);
+	decoder #(.WIDTH(2)) timer_decoder(
+		.S(timer_out), .EN(1), .D(T)
+	);
 
 	//========================= Control Unit =====================================
+	//FETCH always at T0
+	assign MID = T[0] ? 4 : 5'hz; //RAM
+	assign SID = T[0] ? 0 : 5'hz; //IR0
+	assign AMID= T[0] ? 0 : 0; //PC
+
+	//============== T1 decode ================
+	//ADDB
+	assign alu_opcode = ir0_reg_out;
+	assign MID = T[1] & DEC_IR0[2] ? 18 : 5'hz; //OE_ALU
+	assign SID = T[1] & DEC_IR0[2] ?  2 : 5'hz; //WE_A
+
+	//============== T2 decode ================
+	//ADDB
+	assign clr_timer =  T[1] & DEC_IR0[2] ? 1 : 0;
 
 endmodule
