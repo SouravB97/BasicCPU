@@ -1,3 +1,9 @@
+/*
+Address map:
+
+IO: 0x0000-0x00FF
+RAM:  0x8000-0x8004
+*/
 module CPU(
 	input clk, reset, hlt,
 	inout [7:0] PORTA, PORTB, PORTC, PORTD,
@@ -125,11 +131,20 @@ module CPU(
 
 	//========================= Memory =====================================
 	//RAM
-	//Address range: 0x0000 to 0x7FFF
+	/*//Address range: 0x0000 to 0x7FFF
 	memory #(.DEPTH(32768)) RAM(
 		.clk(clk), .reset(reset), 
 		.address(address_bus[14:0]), .data(data_bus), 
 		.OE(OE_M), .WE(WE_M), .CS(~address_bus[15])
+	); */
+
+	//Address range: 0x8000 to 0x80FF
+	memory #(.DEPTH(`MEMORY_DEPTH),
+					 .ADDR_WIDTH(8))
+	RAM(
+		.clk(clk), .reset(reset), 
+		.address(address_bus[7:0]), .data(data_bus), 
+		.OE(OE_M), .WE(WE_M), .CS(address_bus[15])
 	);
 
 	//========================= DATA bus Decoders =====================================

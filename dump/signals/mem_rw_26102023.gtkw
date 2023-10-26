@@ -1,0 +1,30 @@
+[*]
+[*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
+[*] Thu Oct 26 15:11:34 2023
+[*]
+[dumpfile] "C:\Users\soura\Documents\Verilog\testing\dump\signals\CPU_tb.vcd"
+[savefile] "C:\Users\soura\Documents\Verilog\testing\dump\signals\mem_rw_26102023.gtkw"
+[timestart] 0
+[size] 1000 600
+[pos] -1 -1
+*-16.149035 85000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] CPU_tb.
+[treeopen] CPU_tb.cpu.
+[sst_width] 211
+[signals_width] 126
+[sst_expanded] 1
+[sst_vpaned_height] 216
+@28
+CPU_tb.cpu.RAM.clk
+@22
+CPU_tb.cpu.RAM.address[7:0]
+CPU_tb.cpu.RAM.data[7:0]
+@28
+CPU_tb.cpu.RAM.OE
+CPU_tb.cpu.RAM.WE
+@29
+CPU_tb.cpu.RAM.CS
+@22
+CPU_tb.cpu.RAM.rdata[7:0]
+[pattern_trace] 1
+[pattern_trace] 0

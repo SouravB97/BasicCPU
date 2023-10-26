@@ -16,7 +16,7 @@ module memory
 	reg [DATA_WIDTH - 1 :0] rdata;
 	integer i;
 
-	assign output_condition = CS & OE;
+	assign output_condition = reset & CS & OE;
 	assign data = output_condition ? rdata : 'bz;
 
 	initial begin
@@ -34,16 +34,18 @@ module memory
 
 		//backdoor memory load task here.
 		if(ID == 0)
-			$readmemh("bootcode.hex", mem);
+			$readmemh("bootcode.hex", mem); //must be same folder as tb top, where irun is run
 		else if(ID == 1)
 			$readmemh("micro_code.hex", mem);
+
+		//print_mem();
 	end
 
 	always @(posedge clk) begin
 		if(reset) begin
 		  if(CS) begin
 				case({WE,OE})
-					2'b00 :; //no change
+					2'b00 : ; //DO NOTHING
 					2'b01 : rdata = mem[address]; //READ
 					2'b10 : mem[address] = data; //WRITE
 					2'b11 : $display("ERROR from module memory: OE and WE are 1 at the same time!!");	//INVALID

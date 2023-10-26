@@ -4,6 +4,7 @@
 //defines
 //`define BHVR 
 `define DATA_WIDTH 8
+`define MEMORY_DEPTH 256
 
 //includes
 `ifdef BHVR
