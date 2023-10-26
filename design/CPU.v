@@ -1,22 +1,23 @@
 module CPU(
 	input clk, reset, hlt,
-	input [63:0] control_bus,
-	inout [7:0] data_bus, 
-	inout [15:0] address_bus
+	inout [7:0] PORTA, PORTB, PORTC, PORTD,
+	input [32:0] control_bus
 );
-	//wire [7:0] data_bus; 
-	//wire [15:0] address_bus;
+	wire [7:0] data_bus; 
+	wire [15:0] address_bus;
 
 	//========================= CONTROL UNIT OUTPUTS =====================================
 	//Control outputs for Data bus
-	wire WE_A, WE_B, WE_R0, WE_R1, WE_IR0, WE_IR1, WE_AR0, WE_AR1, WE_PC0, WE_PC1, WE_SP0, WE_SP1, WE_M;
-	wire OE_A, OE_B, OE_R0, OE_R1, OE_IR0, OE_IR1, OE_AR0, OE_AR1, OE_PC0, OE_PC1, OE_SP0, OE_SP1, OE_M;
-	wire OE_SR, OE_ALU, PC_INR;
+	wire WE_A, WE_B, WE_R0, WE_R1, WE_IR0, WE_IR1, WE_PORTA, WE_PORTB, WE_PORTC, WE_PORTD, WE_AR0, WE_AR1, WE_PC0, WE_PC1, WE_SP0, WE_SP1, WE_M;
+	wire OE_A, OE_B, OE_R0, OE_R1, OE_IR0, OE_IR1, OE_PORTA, OE_PORTB, OE_PORTC, OE_PORTD, OE_AR0, OE_AR1, OE_PC0, OE_PC1, OE_SP0, OE_SP1, OE_M;
+	wire OE_SR, OE_ALU;
 	//Control outputs for address bus
 	wire OE_AR, OE_PC, OE_SP, OE_R0R1;
-	wire [4:0] alu_opcode, MID, SID; //data bus master/slave ID
+	//control bus inputs
+	wire [4:0] alu_opcode;
+	wire [4:0] MID, SID; //data bus master/slave ID
 	wire [1:0] AMID; //address master ID
-	wire sign, zero, parity, carry;
+	wire PC_INR, MID_EN, SID_EN;
 
 	//Timing outputs
 	wire[3:0] T;
@@ -25,17 +26,13 @@ module CPU(
 	wire[7:0] alu_in0, alu_in1, alu_out;
 	wire[3:0] alu_status;
 	wire[15:0] instr_data;
+	wire PORT_A_CS;
 
 	//control bus
-//	assign {
-//	  sign, zero, parity, carry,
-//		MID, SID, AMID,
-//		alu_opcode, 
-//		OE_AR, OE_PC, OE_SP, OE_R0R1,
-//		OE_SR, OE_ALU, PC_INR,
-//		OE_A, OE_B, OE_R0, OE_R1, OE_IR0, OE_IR1, OE_AR0, OE_AR1, OE_PC0, OE_PC1, OE_SP0, OE_SP1, OE_M,
-//		WE_A, WE_B, WE_R0, WE_R1, WE_IR0, WE_IR1, WE_AR0, WE_AR1, WE_PC0, WE_PC1, WE_SP0, WE_SP1, WE_M
-//	} = control_bus;
+	assign {
+		alu_opcode, MID, SID, AMID,
+		PC_INR, MID_EN, SID_EN
+	} = control_bus;
 	
 	//========================= CPU Registers =====================================
 
@@ -50,7 +47,7 @@ module CPU(
 	ac_register #(.DATA_WIDTH(8)) B_reg (
 		.clk(clk), .reset(reset),
 		.data(data_bus), .data_out(alu_in1),
-		.CS(1'b1),.WE(WE_B),.OE(OE_B)
+		.CS(1'b1),.WE(WE_A),.OE(OE_A)
 	);
 
 	//16 bit R0 R1 pair.
@@ -67,7 +64,7 @@ module CPU(
 	st_register #(.DATA_WIDTH(4)) status_reg(
 		.clk(clk), .reset(reset),
 		.data_out(data_bus[3:0]), .data_in(alu_status),
-		.CS(1'b1), .WE(~OE_SR), .OE(OE_SR)
+		.CS(1'b1), .WE(1'b1), .OE(OE_SR)
 	);
 
 	//Instruction register (Connects to instruction decoder)
@@ -89,7 +86,6 @@ module CPU(
 		.data_in(alu_out), .data_out(data_bus),
 		.OE(OE_ALU)
 	);
-	assign {sign, zero, parity, carry} = alu_status;
 
 	//========================= Address Registers =====================================
 	//Address register AR
@@ -117,85 +113,114 @@ module CPU(
 		.WE_L(WE_SP0),.OE_L(OE_SP0)
 	);
 	//========================= PORTS =====================================
+	//PORTA
+//	//Address range: 0x8000 to 0x8003
+//	port_module PORTA(
+//		.clk(clk), .reset(reset), 
+//		.address(address_bus[1:0]), .data(data_bus), 
+//		.gpio(PORTA),
+//		.OE(OE_PORTA), .WE(WE_PORTA), .CS(PORT_A_CS)
+//	);
+//	assign PORT_A_CS = address_bus[15] & ~(|address_bus[14:2]);
 
 	//========================= Memory =====================================
-	memory #(.DEPTH(256)) RAM(.clk(clk), .reset(reset), .address(address_bus[14:0]), .data(data_bus), .OE(OE_M), .WE(WE_M), .CS(~address_bus[15]));
-
-	//========================= Control Unit =====================================
-	//operates on clk_n
-	wire clk_n; //inverted clock
-	wire[15:0] control_address; 
-	wire[63:0] control_outputs;
-	wire[15:0] IR1_mapped, CAR_data;
-
-	reg CAR_INR = 1'b1;
-	reg[1:0] car_mux_sel;
-
-	`define MOV_OFFSET 16'h04
-
-	assign clk_n = ~clk;
-
-	assign {
-		MID, SID, AMID,
-		alu_opcode, 
-		OE_AR, OE_PC, OE_SP, OE_R0R1,
-		OE_SR, OE_ALU, PC_INR,
-		OE_A, OE_B, OE_R0, OE_R1, OE_IR0, OE_IR1, OE_AR0, OE_AR1, OE_PC0, OE_PC1, OE_SP0, OE_SP1, OE_M,
-		WE_A, WE_B, WE_R0, WE_R1, WE_IR0, WE_IR1, WE_AR0, WE_AR1, WE_PC0, WE_PC1, WE_SP0, WE_SP1, WE_M
-	} = control_outputs;
-
-	//Control Address register CAR
-	counter #(.DATA_WIDTH(16)) CAR(
-		.clk(clk_n), .reset(reset),
-		.data(CAR_data), .data_out(control_address),
-		.CS(1'b1), .WE(1'b0), .OE(1'b0),
-		.CNT_EN(CAR_INR)
-	);	
-	//REPLACE WITH COUNTER pc_register #(.ADDR_WIDTH(8)) CAR(
-	//REPLACE WITH COUNTER 	.clk(clk_n), .reset(reset),
-	//REPLACE WITH COUNTER 	.data(CAR_data), .address(control_address),
-	//REPLACE WITH COUNTER 	.CS(1'b1),.OE_A(1'b1), .CNT_EN(CAR_INR),
-	//REPLACE WITH COUNTER 	.WE_H(1'b0),.OE_H(1'b0),
-	//REPLACE WITH COUNTER 	.WE_L(1'b0),.OE_L(1'b0)
-	//REPLACE WITH COUNTER );	
-
-	//Control Memory
-	memory #(.DEPTH(1024), .DATA_WIDTH(64), .ID(1))	control_ROM(
-		.clk(clk_n), .reset(1'b1), 
-		.address(control_address[9:0]), 
-		.data(control_outputs), .OE(1'b1), .WE(1'b0), .CS(1'b1)
+	//RAM
+	//Address range: 0x0000 to 0x7FFF
+	memory #(.DEPTH(32768)) RAM(
+		.clk(clk), .reset(reset), 
+		.address(address_bus[14:0]), .data(data_bus), 
+		.OE(OE_M), .WE(WE_M), .CS(~address_bus[15])
 	);
+
+	//========================= DATA bus Decoders =====================================
+	//Slave data_bus ID decode (WE decoder)
+	/*
+		MID	|	Register
+		0	|	IR0	
+		1	|	IR1
+		2	|	A
+		3	|	B
+		4	|	Mem
+		5	|	R0
+		6	|       R1
+		7	|       AR0
+		8	|	AR1
+		9	|	PC0
+		10	|	PC1
+		11	|	SP0
+		12	|	SP1
+		13	|	PORTA
+		14	|	PORTB
+		15	|	PORTC
+		16	|	PORTD
+	*/
+	decoder #(.WIDTH(5)) sid_decoder(
+		.S(SID), .EN(SID_EN),
+		.D({
+			WE_PORTD, WE_PORTC, WE_PORTB, WE_PORTA,
+			WE_SP1, WE_SP0, WE_PC1, WE_PC0,
+			WE_AR1, WE_AR0, WE_R1, WE_R0,
+			WE_M, WE_B, WE_A,
+			WE_IR1, WE_IR0
+		})
+	);
+
+	//Master data_bus ID decode (WE decoder)
+	/*
+		SID	|	Register
+		0	|	IR0	
+		1	|	IR1
+		2	|	A
+		3	|	B
+		4	|	Mem
+		5	|	R0
+		6	|       R1
+		7	|       AR0
+		8	|	AR1
+		9	|	PC0
+		10	|	PC1
+		11	|	SP0
+		12	|	SP1
+		13	|	PORTA
+		14	|	PORTB
+		15	|	PORTC
+		16	|	PORTD
+		17	|	SR
+		18	|	ALU
+	*/
+	decoder #(.WIDTH(5)) mid_decoder(
+		.S(MID), .EN(MID_EN),
+		.D({
+			OE_ALU, OE_SR,
+			OE_PORTD, OE_PORTC, OE_PORTB, OE_PORTA,
+			OE_SP1, OE_SP0, OE_PC1, OE_PC0,
+			OE_AR1, OE_AR0, OE_R1, OE_R0,
+			OE_M, OE_B, OE_A,
+			OE_IR1, OE_IR0
+		})
+	);
+
+	//========================= Address bus Decoders =====================================
+	//Master address_bus ID decode (WE decoder)
+	//RAM or IO_ports are always the slave. (Memory mapped IO)
+	/*
+		AMID	|	Register
+		0	|	PC	
+		1	|	AR
+		2	|	SP
+		3	|	R0R1
+
+	*/
+	decoder #(.WIDTH(2)) amid_decoder(
+		.S(AMID), .EN(1'b1),
+		.D({
+			OE_R0R1, OE_SP, OE_AR, OE_PC	
+		})
+	);
+
+
 	//========================= Instruction Decoder =====================================
 
-	//Adder unit for adding offset to IR1, which maps IR1 to CAR
-	//Alternatively, add another EEPROM with correct mapping logic
-	AU #(.DATA_WIDTH(16)) IR1_offset_adder(
-		.A(instr_data), //IR1.IR0 (MOV.SRC.DST) //MOV = 0
-		.B(`MOV_OFFSET),			//Control ROM offset for MOV instruction microcodes
-		.opcode(3'h2),				//opcode to add
-		.S(IR1_mapped),				//input to CAR_MUX
-		.Cout()
-	);
-
-	//input MUX to programme CAR
-	mux_array #(.MUX_DATA_WIDTH(4), .DATA_WIDTH(16)) CAR_MUX(
-		.D({16'hDEAD, 16'hBEEF, 16'hC0DE, IR1_mapped}),
-		.S(car_mux_sel),	
-		.Y(CAR_data)
-	);
-
-	initial begin
-		#60;
-		for(integer i =0; i<4; i=i+1) begin
-			@(posedge clk);
-			car_mux_sel = i[1:0];
-		end
-	end
-
-//	initial begin
-//		@(posedge WE_IR1);
-//		CAR_INR <= 0;
-//	end
-
+	//========================= Control Unit =====================================
 
 endmodule
