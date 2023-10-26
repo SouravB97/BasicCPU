@@ -23,10 +23,11 @@ endmodule
 //	OPCODE OPERATION 
 //	0 LSH
 //	1 RSH
-module SHU(
-	input [`DATA_WIDTH-1:0] A,
+module SHU
+#(parameter DATA_WIDTH = `DATA_WIDTH)(
+	input [DATA_WIDTH-1:0] A,
 	input opcode,
-	output [`DATA_WIDTH-1:0] C,
+	output [DATA_WIDTH-1:0] C,
 	output Cout
 );
 
@@ -36,16 +37,16 @@ module SHU(
 
 	//instance i
 	generate
-		for(i = 1; i<`DATA_WIDTH-1; i=i+1) begin
+		for(i = 1; i<DATA_WIDTH-1; i=i+1) begin
 			mux #(.DATA_WIDTH(2)) mi(.D({A[i-1], A[i+1]}), .S(opcode), .Y(C[i]));
 		end
 	endgenerate
 
 	//instance n-1
-	mux #(.DATA_WIDTH(2)) mn1(.D({A[`DATA_WIDTH-2], 1'b0}), .S(opcode), .Y(C[`DATA_WIDTH-1]));
+	mux #(.DATA_WIDTH(2)) mn1(.D({A[DATA_WIDTH-2], 1'b0}), .S(opcode), .Y(C[DATA_WIDTH-1]));
 
 	//for generating carry
-	mux #(.DATA_WIDTH(2)) mux_carry(.D({A[`DATA_WIDTH-1], 1'b0}), .S(opcode), .Y(Cout));
+	mux #(.DATA_WIDTH(2)) mux_carry(.D({A[DATA_WIDTH-1], 1'b0}), .S(opcode), .Y(Cout));
 endmodule
 
 //logic circuit
@@ -54,12 +55,13 @@ endmodule
 //	01	OR
 //	10	XOR
 //	11	NOT
-module LU(
-	input [`DATA_WIDTH-1:0] A,B,
+module LU
+#(parameter DATA_WIDTH = `DATA_WIDTH)(
+	input [DATA_WIDTH-1:0] A,B,
 	input [1:0] opcode,
-	output [`DATA_WIDTH-1:0] S
+	output [DATA_WIDTH-1:0] S
 );
-	wire [`DATA_WIDTH-1:0] a,o,x,n;
+	wire [DATA_WIDTH-1:0] a,o,x,n;
 
 	assign a = A & B;
 	assign o = A | B;
@@ -68,7 +70,7 @@ module LU(
 
 	genvar i;
 	generate
-		for(i = 0; i< `DATA_WIDTH; i=i+1) begin
+		for(i = 0; i< DATA_WIDTH; i=i+1) begin
 			//mux #(.DATA_WIDTH(4)) m1(.D({a[i],o[i],x[i],n[i]}), .S(opcode), .Y(S[i]));
 			mux #(.DATA_WIDTH(4)) m1(.D({n[i],x[i],o[i],a[i]}), .S(opcode), .Y(S[i]));
 		end
@@ -98,23 +100,24 @@ endmodule
 //|110		|'h06			 |DEC		|S = A - 1;			|Decrement A         |
 //|111		|'h07			 |LD1		|S = A;					|Transfer A          |
 
-module AU(
-	input [`DATA_WIDTH -1:0] A, B,
+module AU
+#(parameter DATA_WIDTH = `DATA_WIDTH)(
+	input [DATA_WIDTH -1:0] A, B,
 	input [2:0] opcode,
-	output [`DATA_WIDTH-1:0] S,
+	output [DATA_WIDTH-1:0] S,
 	output Cout
 );
-	wire[`DATA_WIDTH:0] c;
-	wire[`DATA_WIDTH-1:0] w1;
+	wire[DATA_WIDTH:0] c;
+	wire[DATA_WIDTH-1:0] w1;
 	wire Cin;
 
 	assign Cin = opcode[0];
 	assign c[0] = Cin;
-	assign Cout = c[`DATA_WIDTH];
+	assign Cout = c[DATA_WIDTH];
 
 	genvar i;
 	generate
-		for(i =0; i< `DATA_WIDTH; i = i+1) begin
+		for(i =0; i< DATA_WIDTH; i = i+1) begin
 			full_adder fa(.A(A[i]), .B(w1[i]), .Cin(c[i]), .S(S[i]), .Cout(c[i+1]));	
 			//mux #(.DATA_WIDTH(4)) m1(.D({B[i], ~B[i], 1'b1, 1'b0}),.S(opcode[2:1]),.Y(w1[i]));
 			mux #(.DATA_WIDTH(4)) m1(.D({1'b1,~B[i],B[i],1'b0}),.S(opcode[2:1]),.Y(w1[i]));

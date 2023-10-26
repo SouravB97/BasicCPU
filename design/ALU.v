@@ -40,31 +40,31 @@
 //`include "ALU_components.v"
 
 module ALU
-	(
-	input[`DATA_WIDTH -1:0] A,B,
+#(parameter DATA_WIDTH = `DATA_WIDTH)(
+	input[DATA_WIDTH -1:0] A,B,
 	input[4:0] opcode,
-	output[`DATA_WIDTH-1:0] C,
+	output[DATA_WIDTH-1:0] C,
 	output[3:0] status 
 );
 	wire sign, zero, parity, carry;
-	wire [`DATA_WIDTH-1:0] w1,w2,w3,w4;
+	wire [DATA_WIDTH-1:0] w1,w2,w3,w4;
 
 	assign status = {sign, zero, parity, carry};
 
-	AU aui(	
+	AU #(.DATA_WIDTH(DATA_WIDTH)) aui(	
 		.A(A), .B(B),
 		.opcode(opcode[2:0]),
 		.Cout(carry_AU),
 		.S(w1)
 	);
 
-	LU lui(
+	LU #(.DATA_WIDTH(DATA_WIDTH)) lui(
 		.A(A), .B(B),
 		.opcode(opcode[2:1]),
 		.S(w2)
 	);
 
-	SHU shui(
+	SHU #(.DATA_WIDTH(DATA_WIDTH)) shui(
 		.A(A), 
 		.opcode(opcode[3]),
 		.C(w3),
@@ -73,7 +73,7 @@ module ALU
 
 	genvar i;
 	generate
-		for(i = 0; i < `DATA_WIDTH; i = i+1) begin
+		for(i = 0; i < DATA_WIDTH; i = i+1) begin
 
 			mux #(.DATA_WIDTH(2)) m1 (.D({w2[i], w1[i]}), .S(opcode[3]), .Y(w4[i]));
 			mux #(.DATA_WIDTH(2)) m2 (.D({w3[i], w4[i]}), .S(opcode[4]), .Y(C[i]));
@@ -82,7 +82,7 @@ module ALU
 	endgenerate
 
 	//assign status bits
-	assign sign 	= C[`DATA_WIDTH-1]; //MSB
+	assign sign 	= C[DATA_WIDTH-1]; //MSB
 	assign zero 	= ~|C;	//C==0?
 	assign parity = ^C; //EVEN parity
 	assign carry  = carry_AU | carry_SHU; //Carry is set when data overflow or underflow occurs

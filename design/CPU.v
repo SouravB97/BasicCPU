@@ -124,9 +124,14 @@ module CPU(
 	//========================= Control Unit =====================================
 	//operates on clk_n
 	wire clk_n; //inverted clock
-	wire[7:0] control_address; 
+	wire[15:0] control_address; 
 	wire[63:0] control_outputs;
-	wire CAR_INR = 1'b1;
+	wire[15:0] IR1_mapped, CAR_data;
+
+	reg CAR_INR = 1'b1;
+	reg[1:0] car_mux_sel;
+
+	`define MOV_OFFSET 16'h04
 
 	assign clk_n = ~clk;
 
@@ -140,21 +145,57 @@ module CPU(
 	} = control_outputs;
 
 	//Control Address register CAR
-	pc_register #(.ADDR_WIDTH(8)) CAR(
+	counter #(.DATA_WIDTH(16)) CAR(
 		.clk(clk_n), .reset(reset),
-		.data(), .address(control_address),
-		.CS(1'b1),.OE_A(1'b1), .CNT_EN(CAR_INR),
-		.WE_H(1'b0),.OE_H(1'b0),
-		.WE_L(1'b0),.OE_L(1'b0)
+		.data(CAR_data), .data_out(control_address),
+		.CS(1'b1), .WE(1'b0), .OE(1'b0),
+		.CNT_EN(CAR_INR)
 	);	
+	//REPLACE WITH COUNTER pc_register #(.ADDR_WIDTH(8)) CAR(
+	//REPLACE WITH COUNTER 	.clk(clk_n), .reset(reset),
+	//REPLACE WITH COUNTER 	.data(CAR_data), .address(control_address),
+	//REPLACE WITH COUNTER 	.CS(1'b1),.OE_A(1'b1), .CNT_EN(CAR_INR),
+	//REPLACE WITH COUNTER 	.WE_H(1'b0),.OE_H(1'b0),
+	//REPLACE WITH COUNTER 	.WE_L(1'b0),.OE_L(1'b0)
+	//REPLACE WITH COUNTER );	
 
 	//Control Memory
-	memory #(.DEPTH(32), .DATA_WIDTH(64), .ID(1))	control_ROM(
+	memory #(.DEPTH(1024), .DATA_WIDTH(64), .ID(1))	control_ROM(
 		.clk(clk_n), .reset(1'b1), 
-		.address(control_address), 
+		.address(control_address[9:0]), 
 		.data(control_outputs), .OE(1'b1), .WE(1'b0), .CS(1'b1)
 	);
 	//========================= Instruction Decoder =====================================
+
+	//Adder unit for adding offset to IR1, which maps IR1 to CAR
+	//Alternatively, add another EEPROM with correct mapping logic
+	AU #(.DATA_WIDTH(16)) IR1_offset_adder(
+		.A(instr_data), //IR1.IR0 (MOV.SRC.DST) //MOV = 0
+		.B(`MOV_OFFSET),			//Control ROM offset for MOV instruction microcodes
+		.opcode(3'h2),				//opcode to add
+		.S(IR1_mapped),				//input to CAR_MUX
+		.Cout()
+	);
+
+	//input MUX to programme CAR
+	mux_array #(.MUX_DATA_WIDTH(4), .DATA_WIDTH(16)) CAR_MUX(
+		.D({16'hDEAD, 16'hBEEF, 16'hC0DE, IR1_mapped}),
+		.S(car_mux_sel),	
+		.Y(CAR_data)
+	);
+
+	initial begin
+		#60;
+		for(integer i =0; i<4; i=i+1) begin
+			@(posedge clk);
+			car_mux_sel = i[1:0];
+		end
+	end
+
+//	initial begin
+//		@(posedge WE_IR1);
+//		CAR_INR <= 0;
+//	end
 
 
 endmodule

@@ -36,17 +36,35 @@ endmodule
 //useful for bus decode logic
 module mux_array
 #(parameter DATA_WIDTH = `DATA_WIDTH,
-  parameter MUX_DATA_WIDTH = 2,
+  parameter MUX_DATA_WIDTH = 4,
   parameter SEL_WIDTH = $clog2(MUX_DATA_WIDTH))(
-	input [DATA_WIDTH-1:0][MUX_DATA_WIDTH-1:0] D,
+	//input [DATA_WIDTH-1:0][MUX_DATA_WIDTH-1:0] D,
+	input [DATA_WIDTH * MUX_DATA_WIDTH -1 : 0] D,
 	input [SEL_WIDTH - 1: 0] S,	
 	output [DATA_WIDTH-1:0] Y
 );
+	//ICARUS VERILOG LIMITATION wire[DATA_WIDTH-1:0][MUX_DATA_WIDTH-1:0] d;
+	//ICARUS VERILOG LIMITATION for(i=0; i<MUX_DATA_WiDTH; i=i+1) begin
+	//ICARUS VERILOG LIMITATION 	for(j=0; j<MUX_DATA_WIDTH; j=j+1) begin
+	//ICARUS VERILOG LIMITATION 		d[i][j] = D[i + (j*DATA_WIDTH)];
+	//ICARUS VERILOG LIMITATION 	end
+	//ICARUS VERILOG LIMITATION end
 
 	genvar i;
 	generate
 		for(i=0; i< DATA_WIDTH; i=i+1) begin
-			mux #(.DATA_WIDTH(MUX_DATA_WIDTH)) m(.D(D[i]), .S(S), .Y(Y[i]));
+
+			//manually add code for Nx1 mux array
+			if(MUX_DATA_WIDTH == 4) //4x1 mux array
+				mux #(.DATA_WIDTH(MUX_DATA_WIDTH)) m(.D({D[i + (3*DATA_WIDTH)],D[i + (2*DATA_WIDTH)],D[i + (1*DATA_WIDTH)],D[i + (0*DATA_WIDTH)]}), .S(S), .Y(Y[i]));
+			else if(MUX_DATA_WIDTH == 2) //2x1 mux array
+				mux #(.DATA_WIDTH(MUX_DATA_WIDTH)) m(.D({D[i + (1*DATA_WIDTH)],D[i + (0*DATA_WIDTH)]}), .S(S), .Y(Y[i]));
+			else begin	//Nx1 mux array
+				wire[MUX_DATA_WIDTH-1:0] d;
+				//d = ?? // can't assign anything to d thanks to icarus
+				mux #(.DATA_WIDTH(MUX_DATA_WIDTH)) m(.D(d), .S(S), .Y(Y[i]));
+			end
+
 		end
 	endgenerate
 

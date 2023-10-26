@@ -29,13 +29,4 @@ module bus
 				.S(select), 
 		end
 	endgenerate
-
-
-	
-
-	
-
-
-
-
 endmodule

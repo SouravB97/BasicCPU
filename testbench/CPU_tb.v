@@ -68,7 +68,7 @@ module CPU_tb();
 
 	initial begin
 
-		cpu.control_ROM.print_mem();
+		//cpu.control_ROM.print_mem();
 		#34;
 		//set PC as certain memory location
 //		MVI('h69, 2);

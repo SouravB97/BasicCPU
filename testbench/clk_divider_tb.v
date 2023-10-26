@@ -1,6 +1,7 @@
-`include "C:/Users/soura/Documents/Verilog/testing/timescale.v"
+//`include "C:/Users/soura/Documents/Verilog/testing/design/timescale.v"
+`include "../design/timescale.v"
 
-`include "../clk_divider.v"
+`include "../design/clk_divider.v"
 
 module clk_divider_tb();
 	reg clk, reset;

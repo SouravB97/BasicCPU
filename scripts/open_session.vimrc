@@ -1,0 +1,9 @@
+e design/CPU.v 
+tabe testbench/CPU_tb.v 
+tabe testbench/micro_code.hex 
+vs testbench/micro_codes/fetch.hex 
+vs testbench/bootcode.hex
+tabe scripts/micro_code_gen.pl 
+tabe design/BHVR/memory_bhvr2.v 
+tabe design/register.v 
+tabe design/ALU_components.v
