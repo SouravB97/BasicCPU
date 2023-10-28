@@ -1,4 +1,4 @@
-`include "includes.v"
+`include "includes.vh"
 
 module counter_tb();
 	reg clk, reset;

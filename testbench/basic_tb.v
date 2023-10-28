@@ -1,4 +1,4 @@
-`include "includes.v"
+`include "includes.vh"
 
 module basic_tb();
 	reg clk, reset;

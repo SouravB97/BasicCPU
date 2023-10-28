@@ -1,4 +1,4 @@
-`include "includes.v"
+`include "includes.vh"
 
 module d_ff_tb();
 	reg clk, reset, D, J, K;

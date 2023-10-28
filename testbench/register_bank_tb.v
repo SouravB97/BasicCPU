@@ -1,4 +1,4 @@
-`include "includes.v"
+`include "includes.vh"
 
 module register_bank_tb();
 	reg clk, reset;

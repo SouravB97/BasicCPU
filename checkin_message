@@ -1,1 +1,2 @@
-Added timer and IR logic, and basic steps for ADDB instruction
+-Added contol_unit module
+-replaces includes.v with vh

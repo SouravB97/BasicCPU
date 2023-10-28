@@ -2,7 +2,8 @@ module register
 #(parameter DATA_WIDTH = `DATA_WIDTH)(
 	input clk, reset,
 	input CS, WE, OE,
-	inout [DATA_WIDTH-1:0] data
+	inout [DATA_WIDTH-1:0] data,
+	input [DATA_WIDTH-1:0] reset_val
 );
 	wire [DATA_WIDTH-1:0] D,Q;
 

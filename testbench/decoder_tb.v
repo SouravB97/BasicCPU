@@ -1,4 +1,4 @@
-`include "includes.v"
+`include "includes.vh"
 
 module decoder_tb();
 	reg [7:0] select;

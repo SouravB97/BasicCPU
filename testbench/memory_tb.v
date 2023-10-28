@@ -1,4 +1,4 @@
-`include "includes.v"
+`include "includes.vh"
 
 `define MEMORY2
 module memory_tb();

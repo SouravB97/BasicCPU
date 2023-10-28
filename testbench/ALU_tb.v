@@ -1,4 +1,4 @@
-`include "includes.v"
+`include "includes.vh"
 
 module ALU_tb();
 	reg [`DATA_WIDTH -1:0] A,B;

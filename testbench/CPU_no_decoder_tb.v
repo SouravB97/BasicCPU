@@ -1,4 +1,4 @@
-`include "includes.v"
+`include "includes.vh"
 
 module CPU_tb();
 	reg clk, reset;

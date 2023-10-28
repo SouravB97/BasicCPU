@@ -1,4 +1,4 @@
-`include "includes.v"
+`include "includes.vh"
 
 module mux_tb();
 	reg[7:0] data;

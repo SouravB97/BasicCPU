@@ -7,6 +7,8 @@
 `define MEMORY_DEPTH 256
 
 //includes
+`include "../design/cpu_defines.vh"
+
 `ifdef BHVR
 
 `include "../design/BHVR/d_ff_bhvr.v"

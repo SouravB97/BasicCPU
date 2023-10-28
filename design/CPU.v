@@ -1,9 +1,3 @@
-/*
-Address map:
-
-IO: 0x0000-0x00FF
-RAM:  0x8000-0x8004
-*/
 module CPU(
 	input clk, reset, hlt,
 	inout [7:0] PORTA, PORTB, PORTC, PORTD,
@@ -20,28 +14,31 @@ module CPU(
 	//Control outputs for address bus
 	wire OE_AR, OE_PC, OE_SP, OE_R0R1;
 	//control bus inputs
-	wire [4:0] alu_opcode;
-	wire [4:0] MID, SID; //data bus master/slave ID
-	wire [1:0] AMID; //address master ID
-	wire PC_INR, MID_EN, SID_EN;
-	wire instr_decode; //enable decode phase
-	wire clr_timer = 0;
+	wire [4:0] ALU_OPCODE	= control_bus[`CB_ALU_OPCODE_RANGE];
+	wire [4:0] MID 				= control_bus[`CB_MID_RANGE]; //data bus master/slave ID
+	wire [4:0] SID 				= control_bus[`CB_SID_RANGE]; //data bus master/slave ID
+	wire [1:0] AMID				= control_bus[`CB_AMID_RANGE]; //address master ID
+	wire MID_EN			= control_bus[`CB_MID_EN_RANGE];
+	wire SID_EN			= control_bus[`CB_SID_EN_RANGE];
+	wire PC_INR			= control_bus[`CB_PC_INR_RANGE];
+	wire HLT				= control_bus[`CB_HLT_RANGE];
+	wire CLR_TIMER 	= control_bus[`CB_CLR_TIMER_RANGE];
+;
 
 	//Timing outputs
-	wire[3:0] T;
+	wire[7:0] T;
 
 	//========================= random wires in CPU =====================================
-	wire[7:0] alu_in0, alu_in1, alu_out;
+	wire[7:0] alu_in0, alu_in1, alu_out, ir0_reg_out;
 	wire[3:0] alu_status;
-	wire[15:0] instr_data;
+	wire[2:0] timer_out;
 	wire PORT_A_CS;
-	wire [15:0] DEC_IR0;
 
 	//control bus
-	assign {
-		alu_opcode, MID, SID, AMID,
+	/*assign {
+		ALU_OPCODE, MID, SID, AMID,
 		PC_INR, MID_EN, SID_EN
-	} = control_bus;
+	} = control_bus;*/
 	
 	//========================= CPU Registers =====================================
 
@@ -86,14 +83,14 @@ module CPU(
 	);*/
 	ac_register #(.DATA_WIDTH(8)) instr_reg0 (
 		.clk(clk), .reset(reset),
-		.data(), .data_out(ir0_reg_out),
-		.CS(1'b1),.WE(WE_IR0),.OE()
+		.data(data_bus), .data_out(ir0_reg_out),
+		.CS(1'b1),.WE(WE_IR0),.OE(1'b0)
 	);
 
 	//========================= ALU =====================================
 	ALU alu(
 		.A(alu_in0), .B(alu_in1),
-		.opcode(alu_opcode), 
+		.opcode(ALU_OPCODE), 
 		.C(alu_out), .status(alu_status)
 	);
 	tri_state_buffer #(.DATA_WIDTH(8)) alu_tsb(
@@ -152,13 +149,13 @@ module CPU(
 	RAM(
 		.clk(clk), .reset(reset), 
 		.address(address_bus[7:0]), .data(data_bus), 
-		.OE(OE_M), .WE(WE_M), .CS(address_bus[15])
+		.OE(OE_M), .WE(WE_M), .CS(~address_bus[15])
 	);
 
 	//========================= DATA bus Decoders =====================================
 	//Slave data_bus ID decode (WE decoder)
 	/*
-		MID	|	Register
+		SID	|	Register
 		0	|	IR0	
 		1	|	IR1
 		2	|	A
@@ -190,7 +187,7 @@ module CPU(
 
 	//Master data_bus ID decode (WE decoder)
 	/*
-		SID	|	Register
+		MID	|	Register
 		0	|	IR0	
 		1	|	IR1
 		2	|	A
@@ -241,25 +238,53 @@ module CPU(
 		})
 	);
 
-
-	//========================= Instruction Decoder =====================================
-	decoder #(.WIDTH(3)) ir0_decoder(
-		.S(ir0_reg_out), .EN(instr_decode),
-		.D(DEC_IR0)
-	);
-
 	//========================= Timing =====================================
 	//timer counter
-	counter #(.DATA_WIDTH(2)) timer_reg(
-		.clk(clk), .reset(reset & ~clr_timer),
+	counter #(.DATA_WIDTH(3)) timer_reg(
+		.clk(clk), .reset(reset & ~CLR_TIMER),
 		.data_out(timer_out),
-		.CS(1'b1), .CNT_EN(1'b1)
+		.CS(1'b1), .CNT_EN(1'b1), .WE(1'b0)
 	);
-	decoder #(.WIDTH(2)) timer_decoder(
-		.S(timer_out), .EN(1), .D(T)
+	decoder #(.WIDTH(3)) timer_decoder(
+		.S(timer_out), .EN(~HLT), .D(T)
 	);
 
 	//========================= Control Unit =====================================
+	control_unit_m control_unit(
+	 	.clk(clk), .reset(reset),
+	 	.T(T),
+		.ir0_reg_out(ir0_reg_out), .alu_status(alu_status),
+	 	.control_bus(control_bus)
+	);
+
+endmodule
+
+module control_unit_m(
+	input clk, reset,
+	input [7:0] T,
+	input	[7:0] ir0_reg_out, input [3:0] alu_status,
+	output [32:0] control_bus
+);
+
+	wire [7:0] DEC_IR0;
+	wire instr_decode = 1;
+
+	//========================= Instruction Decoder =====================================
+	decoder #(.WIDTH(3)) ir0_decoder(
+		.S(ir0_reg_out[`OPCODEWORD_OPCODE_RANGE]), .EN(instr_decode),
+		.D(DEC_IR0)
+	);
+
+	assign control_bus[`CB_SID_EN_RANGE]				= 1;
+	assign control_bus[`CB_MID_EN_RANGE]				= 1;
+	assign control_bus[`CB_PC_INR_RANGE]				= 1;
+	assign control_bus[`CB_AMID_RANGE]					= 0;	//OE_PC
+	assign control_bus[`CB_MID_RANGE]						= 4;	//OE_M
+	assign control_bus[`CB_SID_RANGE]						= 0;	//WE_IR0
+	assign control_bus[`CB_ALU_OPCODE_RANGE]		= ir0_reg_out[`OPCODEWORD_OPCODE_RANGE];
+	assign control_bus[`CB_HLT_RANGE]						= 0;
+	assign control_bus[`CB_CLR_TIMER_RANGE]			= 0;
+/*
 	//FETCH always at T0
 	assign MID = T[0] ? 4 : 5'hz; //RAM
 	assign SID = T[0] ? 0 : 5'hz; //IR0
@@ -267,12 +292,12 @@ module CPU(
 
 	//============== T1 decode ================
 	//ADDB
-	assign alu_opcode = ir0_reg_out;
+	assign ALU_OPCODE = ir0_reg_out;
 	assign MID = T[1] & DEC_IR0[2] ? 18 : 5'hz; //OE_ALU
 	assign SID = T[1] & DEC_IR0[2] ?  2 : 5'hz; //WE_A
 
 	//============== T2 decode ================
 	//ADDB
 	assign clr_timer =  T[1] & DEC_IR0[2] ? 1 : 0;
-
+*/
 endmodule

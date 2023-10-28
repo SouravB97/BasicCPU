@@ -1,4 +1,4 @@
-`include "includes.v"
+`include "includes.vh"
 
 module ALU_components_tb();
 	reg clk;

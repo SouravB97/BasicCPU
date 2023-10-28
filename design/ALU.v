@@ -4,14 +4,14 @@
 |--------------------------------------------------------------|
 |OPCODE |HEX			 |NAME		|OPERATION			|Function            |
 |--------------------------------------------------------------|
-|00000	|'h00			 |LD 		|C = A					|Transfer A          |
-|00001	|'h01			 |INC		|C = A + 1;			|Increment A         |
-|00010	|'h02			 |ADD		|C = A + B;			|Addition            |
-|00011	|'h03			 |ADC		|C = A + B + 1;	|Add with carry      |
-|00100	|'h04			 |SBB		|C = A + ~B;		|Subtract with borrow|
-|00101	|'h05			 |SUB		|C = A + ~B + 1;|Subtraction         |
-|00110	|'h06			 |DEC		|C = A - 1;			|Decrement A         |
-|00111	|'h07			 |LD1		|C = A;					|Transfer A          |
+|00000	|'h00			 		 |LD 		|C = A					|Transfer A          |
+|00001	|'h01			 		 |INC		|C = A + 1;			|Increment A         |
+|00010	|'h02			 		 |ADD		|C = A + B;			|Addition            |
+|00011	|'h03			 		 |ADC		|C = A + B + 1;	|Add with carry      |
+|00100	|'h04			 		 |SBB		|C = A + ~B;		|Subtract with borrow|
+|00101	|'h05			 		 |SUB		|C = A + ~B + 1;|Subtraction         |
+|00110	|'h06			 		 |DEC		|C = A - 1;			|Decrement A         |
+|00111	|'h07			 		 |LD1		|C = A;					|Transfer A          |
 |0100x	|'h08,'h09		 |AND		|C = A & B;			|AND                 |
 |0101x	|'h0A,'h0B		 |OR 		|C = A | B;			|OR                  |
 |0110x	|'h0C,'h0D		 |XOR		|C = A ^ B;			|XOR                 |
