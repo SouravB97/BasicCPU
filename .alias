@@ -1,0 +1,7 @@
+alias g="gvim"
+alias grep="grep --color"
+alias ls="ls --color"
+alias ll="ls -lart --color"
+alias s="source"
+alias grn="grep -rn --color"
+alias irun="irun.bat"
