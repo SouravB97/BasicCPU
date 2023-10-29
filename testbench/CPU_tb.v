@@ -5,7 +5,7 @@ module CPU_tb();
 	wire clk_out;
 
 	localparam clk_period = 10;
-	localparam bootdelay = 23;
+	localparam bootdelay = 15;
 	integer i;
 
 	always #(clk_period/2) clk = ~clk;

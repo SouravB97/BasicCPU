@@ -301,7 +301,9 @@ module control_unit_m(
 	assign control_bus[`CB_MID_RANGE]				= 
 				T[0] ? 4		//OE_M
 		: 	T[1] ? 
-					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] ? 4 	//LDA
+					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)]  |
+					DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] 
+					? 	 4	//OE_M
 					:		 0
 		: 	T[2] ? 0
 		: 	T[3] ? 0
@@ -310,11 +312,12 @@ module control_unit_m(
 	assign control_bus[`CB_SID_RANGE]				= 
 				T[0] ? 0		//WE_IR0
 		: 	T[1] ? 
-					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] ? 2   //LDA, WE_A
-					:    0
-		: 	T[2] ? 0
-		: 	T[3] ? 0
-		: 			   0
+					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] ? 2   //WE_A
+				:	DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] ? 3   //WE_B
+				:	     15
+		: 	T[2] ? 15
+		: 	T[3] ? 15
+		: 			   15
 	;
 	//BOZO assign control_bus[`CB_ALU_OPCODE_RANGE]				= 
 	//BOZO 			T[0] ? alu_opcode
@@ -333,7 +336,12 @@ module control_unit_m(
  */
 	assign mid_sid_en				= 
 				T[0] ? 1'b1
-		: 			   1'b1	
+		: 	T[1] ? 
+					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] | 
+					DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] 
+					? 	 1'b1	
+					:		 1'b0
+		: 			   1'b0	
 	;
 	assign 	control_bus[`CB_HLT_RANGE]			= 
 				T[0] ? 1'b0
@@ -342,7 +350,9 @@ module control_unit_m(
 	assign clr_timer /*control_bus[`CB_CLR_TIMER_RANGE]*/				= 
 				T[0] ? 1'b0
 		: 	T[1] ? 
-					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] ? 1'b1	//LDA
+					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] |
+					DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] 
+					? 	 1'b1	
 					:		 1'b0
 		: 	T[2] ? 1'b0
 		: 	T[3] ? 1'b1
