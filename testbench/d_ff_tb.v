@@ -20,7 +20,7 @@ module d_ff_tb();
 		$printtimescale;
 
 		clk <=0;
-		reset <=1;
+		reset <=0;
 		D <= 0;
 		J <= 0;
 		K <= 0;
@@ -32,7 +32,7 @@ module d_ff_tb();
 	end
 
 	always #(clk_period*3.87) D = ~D;
-	always #(clk_period*16.34) reset = ~reset;
+	always #(clk_period*16.29) reset = ~reset;
 
 	initial begin
 		//for (i = 0; i < 10; i++) begin;

@@ -243,11 +243,13 @@ module CPU(
 	counter #(.DATA_WIDTH(3)) timer_reg(
 		.clk(clk), .reset(reset & ~CLR_TIMER),
 		.data_out(timer_out),
-		.CS(1'b1), .CNT_EN(1'b1), .WE(1'b0)
+		.CS(1'b1), .CNT_EN(cnt_en_timer), .WE(1'b0)
 	);
+	d_ff cnt_en_timer_dff(.clk(clk), .reset(reset), .D(~HLT), .Q(cnt_en_timer)); //ensure T[0] at first clk after reset
 	decoder #(.WIDTH(3)) timer_decoder(
-		.S(timer_out), .EN(~HLT), .D(T)
+		.S(timer_out), .EN(1'b1), .D(T)
 	);
+	latch en_timer(.D(reset), .EN(clk), .Q(en_timer_decoder)); //ensure T[0] ==0 at reset no posedge clk
 
 	//========================= Control Unit =====================================
 	control_unit_m control_unit(
@@ -267,23 +269,92 @@ module control_unit_m(
 );
 
 	wire [7:0] DEC_IR0;
-	wire instr_decode = 1;
+	wire [4:0] alu_opcode = ir0_reg_out[`OPCODEWORD_ALU_OPCODE_RANGE];
+	wire instr_decode = |ir0_reg_out[`OPCODEWORD_DECODE_RANGE];
 
 	//========================= Instruction Decoder =====================================
 	decoder #(.WIDTH(3)) ir0_decoder(
-		.S(ir0_reg_out[`OPCODEWORD_OPCODE_RANGE]), .EN(instr_decode),
+		.S(ir0_reg_out[`OPCODEWORD_DECODE_RANGE]), .EN(instr_decode),
 		.D(DEC_IR0)
 	);
 
-	assign control_bus[`CB_SID_EN_RANGE]				= 1;
-	assign control_bus[`CB_MID_EN_RANGE]				= 1;
-	assign control_bus[`CB_PC_INR_RANGE]				= 1;
+	assign control_bus[`CB_SID_EN_RANGE]				= mid_sid_en;
+	assign control_bus[`CB_MID_EN_RANGE]				= mid_sid_en;
+	//assign control_bus[`CB_PC_INR_RANGE]				= 1;
 	assign control_bus[`CB_AMID_RANGE]					= 0;	//OE_PC
-	assign control_bus[`CB_MID_RANGE]						= 4;	//OE_M
-	assign control_bus[`CB_SID_RANGE]						= 0;	//WE_IR0
-	assign control_bus[`CB_ALU_OPCODE_RANGE]		= ir0_reg_out[`OPCODEWORD_OPCODE_RANGE];
+	//assign control_bus[`CB_MID_RANGE]						= 4;	//OE_M
+	//assign control_bus[`CB_SID_RANGE]						= 0;	//WE_IR0
+	assign control_bus[`CB_ALU_OPCODE_RANGE]		= alu_opcode;
 	assign control_bus[`CB_HLT_RANGE]						= 0;
-	assign control_bus[`CB_CLR_TIMER_RANGE]			= 0;
+	//assign control_bus[`CB_CLR_TIMER_RANGE]			= 0;
+
+	//FETCH always at T0
+	assign control_bus[`CB_PC_INR_RANGE]				= 
+				T[0] ? 1'b1
+		: 	T[1] ? 
+		//			DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ? 1'b0 
+					    1'b1
+		: 	T[2] ? 1'b1
+		: 	T[3] ? 1'b1
+		: 			   1'b1
+	;
+	assign control_bus[`CB_MID_RANGE]				= 
+				T[0] ? 4		//OE_M
+		: 	T[1] ? 
+					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] ? 4 	//LDA
+					:		 0
+		: 	T[2] ? 0
+		: 	T[3] ? 0
+		: 			   0
+	;
+	assign control_bus[`CB_SID_RANGE]				= 
+				T[0] ? 0		//WE_IR0
+		: 	T[1] ? 
+					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] ? 2   //LDA, WE_A
+					:    0
+		: 	T[2] ? 0
+		: 	T[3] ? 0
+		: 			   0
+	;
+	//BOZO assign control_bus[`CB_ALU_OPCODE_RANGE]				= 
+	//BOZO 			T[0] ? alu_opcode
+	//BOZO 	: 	T[1] ? alu_opcode
+	//BOZO 	: 	T[2] ? alu_opcode
+	//BOZO 	: 	T[3] ? alu_opcode
+	//BOZO 	: 			 : alu_opcode
+	//BOZO ;
+	/*assign control_bus[`CB_AMID_RANGE]				= 
+				T[0] ? 1'b0	//OE_PC
+		: 	T[1] ? 1'b0	//OE_PC
+		: 	T[2] ? 1'b0	//OE_PC
+		: 	T[3] ? 1'b0	//OE_PC
+		: 			   1'b0	//OE_PC
+	;
+ */
+	assign mid_sid_en				= 
+				T[0] ? 1'b1
+		: 			   1'b1	
+	;
+	assign 	control_bus[`CB_HLT_RANGE]			= 
+				T[0] ? 1'b0
+					:    1'b0
+	;
+	assign clr_timer /*control_bus[`CB_CLR_TIMER_RANGE]*/				= 
+				T[0] ? 1'b0
+		: 	T[1] ? 
+					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] ? 1'b1	//LDA
+					:		 1'b0
+		: 	T[2] ? 1'b0
+		: 	T[3] ? 1'b1
+		: 			   1'b0
+	;
+
+	//synchronizing flop
+	d_ff clr_timer_dff (.clk(clk), .reset(reset), .D(clr_timer), .Q(control_bus[`CB_CLR_TIMER_RANGE]));
+	//latch hlt signal. Unrecovorable pause
+	//latch  hlt_latch (.D(reset), .EN((~reset & clk) | hlt_latch_en), .Q());
+	
+
 /*
 	//FETCH always at T0
 	assign MID = T[0] ? 4 : 5'hz; //RAM
@@ -300,4 +371,20 @@ module control_unit_m(
 	//ADDB
 	assign clr_timer =  T[1] & DEC_IR0[2] ? 1 : 0;
 */
+//	always @(posedge clk, posedge reset) begin
+//		
+//	end
+
+	//initial begin
+	//	@(posedge reset);
+	//	repeat(3) @(negedge clk);
+	//	CLR_TIMER = 1 ;
+	//	repeat(5) @(negedge clk);
+	//	CLR_TIMER = 0 ;
+	//	repeat(20) @(negedge clk);
+	//	CLR_TIMER = 1 ;
+	//	repeat(15) @(negedge clk);
+	//	CLR_TIMER = 0 ;
+	//end
+
 endmodule

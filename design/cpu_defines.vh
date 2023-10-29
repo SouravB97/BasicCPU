@@ -46,6 +46,8 @@ IO:  0x8000-0x8004
 		18	|	ALU
 	*/
 
+//gives same output as ir0_decoder
+`define DEC_OP(op) op >> `OPCODEWORD_DECODE_OFFSET
 
 `define CB_SID_EN_RANGE					0:0  
 `define CB_MID_EN_RANGE					1:1  
@@ -53,10 +55,14 @@ IO:  0x8000-0x8004
 `define CB_AMID_RANGE						4:3  
 `define CB_MID_RANGE						8:5  
 `define CB_SID_RANGE					 12:9  
-`define CB_ALU_OPCODE_RANGE		 16:13  
-`define CB_HLT_RANGE	 				 17:17  
-`define CB_CLR_TIMER_RANGE	 	 18:18  
+`define CB_ALU_OPCODE_RANGE		 15:13  
+`define CB_HLT_RANGE	 				 16:16  
+`define CB_CLR_TIMER_RANGE	 	 17:17  
 
-`define OPCODEWORD_OPCODE_RANGE		2:0
+`define OPCODEWORD_ALU_OPCODE_RANGE			4:0
+`define OPCODEWORD_DECODE_RANGE					7:5
+`define OPCODEWORD_DECODE_OFFSET				5
 
-
+`define CPU_INSTR_LDA 				 8'b0010_0000	//0x20
+`define CPU_INSTR_LDB 				 8'b0110_0000	//0x60
+`define CPU_INSTR_HLT 				 8'b1110_0000	//0xE0

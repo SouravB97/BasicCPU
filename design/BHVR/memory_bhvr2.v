@@ -27,6 +27,7 @@ module memory
 		$display("");
 		$display("");
 
+/*
 		//clear memory
 		for(i = 0; i < DEPTH; i = i+1)
 			if(ID == 1) mem[i] = 0;
@@ -36,7 +37,7 @@ module memory
 		if(ID == 0)
 			$readmemh("bootcode.hex", mem); //must be same folder as tb top, where irun is run
 		else if(ID == 1)
-			$readmemh("micro_code.hex", mem);
+			$readmemh("micro_code.hex", mem); */
 
 		//print_mem();
 	end

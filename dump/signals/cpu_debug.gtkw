@@ -1,42 +1,23 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Sat Oct 28 12:18:55 2023
+[*] Sun Oct 29 11:48:28 2023
 [*]
 [dumpfile] "C:\Users\soura\Documents\Verilog\testing\dump\signals\CPU_tb.vcd"
 [savefile] "C:\Users\soura\Documents\Verilog\testing\dump\signals\cpu_debug.gtkw"
-[timestart] 12200
-[size] 1613 968
-[pos] -1 -1
-*-15.635462 34800 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 0
+[size] 2560 1369
+[pos] -87 -87
+*-15.635462 25000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] CPU_tb.
 [treeopen] CPU_tb.cpu.
+[treeopen] CPU_tb.cpu.control_unit.
 [sst_width] 211
-[signals_width] 248
+[signals_width] 385
 [sst_expanded] 1
-[sst_vpaned_height] 448
+[sst_vpaned_height] 471
 @28
 CPU_tb.cpu.clk
 CPU_tb.cpu.reset
-@22
-CPU_tb.cpu.address_bus[15:0]
-CPU_tb.cpu.data_bus[7:0]
-@28
-CPU_tb.cpu.OE_PC
-@22
-CPU_tb.cpu.MID[4:0]
-@28
-CPU_tb.cpu.MID_EN
-CPU_tb.cpu.AMID[1:0]
-@22
-CPU_tb.cpu.SID[4:0]
-@28
-CPU_tb.cpu.SID_EN
-@22
-CPU_tb.cpu.ir0_reg_out[7:0]
-@28
-CPU_tb.cpu.instr_reg0.WE
-@22
-CPU_tb.cpu.instr_reg0.data[7:0]
 @c00022
 CPU_tb.cpu.T[7:0]
 @28
@@ -50,12 +31,47 @@ CPU_tb.cpu.T[7:0]
 (7)CPU_tb.cpu.T[7:0]
 @1401200
 -group_end
-@28
-CPU_tb.cpu.control_unit.clk
 @22
-CPU_tb.cpu.control_unit.T[7:0]
-CPU_tb.cpu.control_unit.ir0_reg_out[7:0]
-@c00023
+CPU_tb.cpu.address_bus[15:0]
+@28
+CPU_tb.cpu.OE_PC
+CPU_tb.cpu.PC_INR
+@22
+CPU_tb.cpu.data_bus[7:0]
+CPU_tb.cpu.MID[4:0]
+@28
+CPU_tb.cpu.MID_EN
+@23
+CPU_tb.cpu.SID[4:0]
+@28
+CPU_tb.cpu.SID_EN
+@22
+CPU_tb.cpu.ir0_reg_out[7:0]
+CPU_tb.cpu.alu_in0[7:0]
+CPU_tb.cpu.alu_in1[7:0]
+@800022
+CPU_tb.cpu.control_bus[32:0]
+@28
+(15)CPU_tb.cpu.control_bus[32:0]
+(16)CPU_tb.cpu.control_bus[32:0]
+(17)CPU_tb.cpu.control_bus[32:0]
+(18)CPU_tb.cpu.control_bus[32:0]
+(19)CPU_tb.cpu.control_bus[32:0]
+(20)CPU_tb.cpu.control_bus[32:0]
+(21)CPU_tb.cpu.control_bus[32:0]
+(22)CPU_tb.cpu.control_bus[32:0]
+(23)CPU_tb.cpu.control_bus[32:0]
+(24)CPU_tb.cpu.control_bus[32:0]
+(25)CPU_tb.cpu.control_bus[32:0]
+(26)CPU_tb.cpu.control_bus[32:0]
+(27)CPU_tb.cpu.control_bus[32:0]
+(28)CPU_tb.cpu.control_bus[32:0]
+(29)CPU_tb.cpu.control_bus[32:0]
+(30)CPU_tb.cpu.control_bus[32:0]
+(31)CPU_tb.cpu.control_bus[32:0]
+(32)CPU_tb.cpu.control_bus[32:0]
+CPU_tb.cpu.control_unit.instr_decode
+@c00022
 CPU_tb.cpu.control_unit.DEC_IR0[7:0]
 @28
 (0)CPU_tb.cpu.control_unit.DEC_IR0[7:0]
@@ -66,7 +82,9 @@ CPU_tb.cpu.control_unit.DEC_IR0[7:0]
 (5)CPU_tb.cpu.control_unit.DEC_IR0[7:0]
 (6)CPU_tb.cpu.control_unit.DEC_IR0[7:0]
 (7)CPU_tb.cpu.control_unit.DEC_IR0[7:0]
-@1401201
+@1401200
+-group_end
+@1001200
 -group_end
 [pattern_trace] 1
 [pattern_trace] 0

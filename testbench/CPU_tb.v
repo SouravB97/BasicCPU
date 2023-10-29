@@ -37,7 +37,9 @@ module CPU_tb();
 		$dumpfile("CPU_tb.vcd");
 		$dumpvars(0,CPU_tb);
 		$timeformat(-9, 2, " ns", 20);
+		//load memory
 		$readmemh("bootcode.hex", mem); //must be same folder as tb top, where irun is run
+		$readmemh("bootcode.hex", cpu.RAM.mem); //must be same folder as tb top, where irun is run
 
 		clk <=0;
 		reset <=0;

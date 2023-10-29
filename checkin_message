@@ -1,2 +1,2 @@
--Added contol_unit module
--replaces includes.v with vh
+Lots of Control unit changes, added LDA instruction
+
