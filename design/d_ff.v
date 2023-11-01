@@ -27,6 +27,17 @@ module d_ff(clk, reset, D, Q, Q_bar);
 
 endmodule
 
+module latch(D, EN, Q);
+	input D, EN;
+	output Q;
+
+	//level triggered
+	nand u1(Q, A, q_bar);
+	nand u2(q_bar, Q, B);
+	nand u3(A, D, EN);
+	nand u4(B, ~D, EN);
+
+endmodule
 `else
 module d_ff(clk, reset, D, Q, Q_bar);
 	input clk, reset, D;
@@ -47,16 +58,13 @@ module d_ff(clk, reset, D, Q, Q_bar);
 	end
 endmodule
 
-`endif
-
 module latch(D, EN, Q);
 	input D, EN;
-	output Q;
+	output reg Q;
 
-	//level triggered
-	nand u1(Q, A, q_bar);
-	nand u2(q_bar, Q, B);
-	nand u3(A, D, EN);
-	nand u4(B, ~D, EN);
-
+	always @(*) begin
+		if(EN)
+			Q = D;
+	end
 endmodule
+`endif

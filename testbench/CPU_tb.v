@@ -34,7 +34,7 @@ module CPU_tb();
 	reg [`DATA_WIDTH - 1 :0] mem [0:`MEMORY_DEPTH -1] ;
 
 	initial begin
-		$dumpfile("CPU_tb.vcd");
+		$dumpfile("../dump/CPU_tb.vcd");
 		$dumpvars(0,CPU_tb);
 		$timeformat(-9, 2, " ns", 20);
 		//load memory

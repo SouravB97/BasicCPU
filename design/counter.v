@@ -1,7 +1,7 @@
 module counter
 #(parameter DATA_WIDTH = `DATA_WIDTH)(
 	input clk, reset,
-	input CS, WE, OE, CNT_EN,
+	input CS, WE, OE, CNT_EN, SYNC_CLR,
 	inout [DATA_WIDTH-1:0] data,
 	output [DATA_WIDTH-1:0] data_out,
 	output carry
@@ -15,12 +15,17 @@ module counter
 	assign cnt_en[0] = CNT_EN & CS;
 	assign carry = cnt_en[DATA_WIDTH];
 
+	wire sync_clr_bar;
+	assign sync_clr_bar = ~SYNC_CLR;
+
 	genvar i;
 	generate
 		for(i = 0; i < DATA_WIDTH; i=i+1) begin
 			//muxes
-			mux mux0(.D({D[i], cnt_en[i]}), .S(WE), .Y(J[i]));
-			mux mux1(.D({~D[i], cnt_en[i]}), .S(WE), .Y(K[i]));
+			//mux mux0(.D({D[i], cnt_en[i]}), .S(WE), .Y(J[i]));
+			//mux mux1(.D({~D[i], cnt_en[i]}), .S(WE), .Y(K[i]));
+			mux #(.DATA_WIDTH(4)) mux0(.D({1'b0, 1'b0, D[i], cnt_en[i]}),  .S({SYNC_CLR, WE}), .Y(J[i]));
+			mux #(.DATA_WIDTH(4)) mux1(.D({1'b1, 1'b1, ~D[i], cnt_en[i]}), .S({SYNC_CLR, WE}), .Y(K[i]));
 
 			//JK flip flop
 			jk_ff jk_ff0 (.clk(clk), .reset(reset),
@@ -28,7 +33,8 @@ module counter
 
 			//tri state buffer and latch
 			tranif1(Q[i], data[i], OE & CS);
-			latch latch0 (.D(data[i]), .Q(D[i]), .EN(WE & CS));
+			latch latch0 (.D(data[i]), .Q(D[i]), .EN((WE & CS)));
+			//latch latch0 (.D(SYNC_CLR ? 1'b0 : data[i]), .Q(D[i]), .EN((WE & CS) | SYNC_CLR));
 
 			assign cnt_en[i+1] = cnt_en[i] & Q[i];
 		end
@@ -55,14 +61,14 @@ module pc_register
 	counter #(.DATA_WIDTH(DATA_WIDTH)) reg_l (
 		.clk(clk), .reset(reset),
 		.data(data), .data_out(addr_l),
-		.CS(CS),.WE(WE_L),.OE(OE_L),
+		.CS(CS),.WE(WE_L),.OE(OE_L), .SYNC_CLR(1'b0),
 		.CNT_EN(CNT_EN), .carry(carry_out)
 	);
 
 	counter #(.DATA_WIDTH(DATA_WIDTH)) reg_h (
 		.clk(clk), .reset(reset),
 		.data(data), .data_out(addr_h),
-		.CS(CS),.WE(WE_H),.OE(OE_H),
+		.CS(CS),.WE(WE_H),.OE(OE_H), .SYNC_CLR(1'b0),
 		.CNT_EN(carry_out), .carry(carry)
 	);
 

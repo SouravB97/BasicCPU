@@ -1,7 +1,7 @@
 module counter
 #(parameter DATA_WIDTH = `DATA_WIDTH)(
 	input clk, reset,
-	input CS, WE, OE, CNT_EN,
+	input CS, WE, OE, CNT_EN, SYNC_CLR,
 	inout [DATA_WIDTH-1:0] data
 );
 
@@ -14,7 +14,7 @@ module counter
 	assign data = CS ? (OE ? data_int : 'bz) : 'bz;
 
 	always @(posedge clk) begin
-		if(!reset)
+		if(~reset | SYNC_CLR)
 			data_int = 0;
 		else begin
 			if(CS) begin

@@ -22,7 +22,7 @@ module CPU(
 	wire SID_EN			= control_bus[`CB_SID_EN_RANGE];
 	wire PC_INR			= control_bus[`CB_PC_INR_RANGE];
 	wire HLT				= control_bus[`CB_HLT_RANGE];
-	wire CLR_TIMER 	= control_bus[`CB_CLR_TIMER_RANGE];
+	wire CLR_TIMER = control_bus[`CB_CLR_TIMER_RANGE];
 ;
 
 	//Timing outputs
@@ -241,13 +241,15 @@ module CPU(
 	//========================= Timing =====================================
 	//timer counter
 	counter #(.DATA_WIDTH(3)) timer_reg(
-		.clk(clk), .reset(reset & ~CLR_TIMER),
+		.clk(clk), .reset(reset),
 		.data_out(timer_out),
-		.CS(1'b1), .CNT_EN(cnt_en_timer), .WE(1'b0)
+		.CS(1'b1), .CNT_EN(cnt_en_timer), .WE(1'b0), .SYNC_CLR(CLR_TIMER)
 	);
+	//synchronizing flop
+	//d_ff clr_timer_dff (.clk(clk), .reset(reset), .D(control_bus[`CB_CLR_TIMER_RANGE]), .Q(CLR_TIMER));
 	d_ff cnt_en_timer_dff(.clk(clk), .reset(reset), .D(~HLT), .Q(cnt_en_timer)); //ensure T[0] at first clk after reset
 	decoder #(.WIDTH(3)) timer_decoder(
-		.S(timer_out), .EN(1'b1), .D(T)
+		.S(timer_out), .EN(en_timer_decoder), .D(T)
 	);
 	latch en_timer(.D(reset), .EN(clk), .Q(en_timer_decoder)); //ensure T[0] ==0 at reset no posedge clk
 
@@ -270,7 +272,7 @@ module control_unit_m(
 
 	wire [7:0] DEC_IR0;
 	wire [4:0] alu_opcode = ir0_reg_out[`OPCODEWORD_ALU_OPCODE_RANGE];
-	wire instr_decode = |ir0_reg_out[`OPCODEWORD_DECODE_RANGE] & ~(|T[1:0]);
+	wire instr_decode = |ir0_reg_out[`OPCODEWORD_DECODE_RANGE] & ~(|T[0:0]);
 
 	//========================= Instruction Decoder =====================================
 	decoder #(.WIDTH(3)) ir0_decoder(
@@ -290,40 +292,40 @@ module control_unit_m(
 
 	//FETCH always at T0:T1
 	assign control_bus[`CB_PC_INR_RANGE]				= 
-				T[0] ? 1'b0
+				T[0] ? 1'b1
 		: 	T[1] ? 1'b1
 		: 	T[2] ? 1'b0
-		: 	T[3] ? 1'b1
-		: 			   1'b1
+		: 	T[3] ? 1'b0
+		: 			   1'b0
 	;
 	assign control_bus[`CB_MID_RANGE]				= 
 				T[0] ? 4		//x
-		: 	T[1] ? 15 		//OE_M
-		: 	T[2] ? 
+		: 	T[1] ? 
 					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)]  |
 					DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] 
 					? 	 4	//OE_M
 					:		 15
+		: 	T[2] ? 15
 		: 	T[3] ? 15
 		: 			   15
 	;
 	assign control_bus[`CB_SID_RANGE]				= 
-				T[0] ? 0		//x
-		:		T[1] ? 15		//WE_IR0
-		: 	T[2] ? 
+				T[0] ? 0		//IR0
+		: 	T[1] ? 
 					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] ? 2   //WE_A
 				:	DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] ? 3   //WE_B
 				:	     15
+		: 	T[2] ? 15
 		: 	T[3] ? 15
 		: 			   15
 	;
 	assign mid_sid_en				= 
-				T[0] ? 1'b1
-		:		T[1] ? 1'b0	//OPCODE_FETCH
-		: 	T[2] ? 
+				T[0] ? 1'b1 //OPCODE_FETCH
+		: 	T[1] ? 
 					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] | 
 					DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)]  ? 	 1'b1	
 					:		 1'b0
+		:		T[2] ? 1'b0	
 		:		T[3] ? 1'b0	
 		: 			   1'b0	
 	;
@@ -346,11 +348,10 @@ module control_unit_m(
 				T[0] ? 1'b0
 					:    1'b0
 	;
-	assign clr_timer /*control_bus[`CB_CLR_TIMER_RANGE]*/				= 
+	assign control_bus[`CB_CLR_TIMER_RANGE]	= 
 				T[0] ? 1'b0
-		: 	T[1] ? 1'b0
-		: 	T[2] ? 1'b0
-		: 	T[3] ? 
+	//	:		T[1] ? 1'b0	
+		: 	T[1] ? 
 					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] |
 					DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] 
 					? 	 1'b1	
@@ -358,8 +359,6 @@ module control_unit_m(
 		: 			   1'b0
 	;
 
-	//synchronizing flop
-	d_ff clr_timer_dff (.clk(clk), .reset(reset), .D(clr_timer), .Q(control_bus[`CB_CLR_TIMER_RANGE]));
 	//latch hlt signal. Unrecovorable pause
 	//latch  hlt_latch (.D(reset), .EN((~reset & clk) | hlt_latch_en), .Q());
 	

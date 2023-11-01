@@ -1,18 +1,17 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Wed Nov 01 09:23:29 2023
+[*] Wed Nov 01 11:29:00 2023
 [*]
 [dumpfile] "C:\Users\soura\Documents\Verilog\testing\dump\CPU_tb.vcd"
-[dumpfile_mtime] "Wed Nov 01 09:19:56 2023"
-[dumpfile_size] 3479157
+[dumpfile_mtime] "Wed Nov 01 11:25:29 2023"
+[dumpfile_size] 4043143
 [savefile] "C:\Users\soura\Documents\Verilog\testing\dump\1.gtkw"
 [timestart] 0
 [size] 2560 1369
-[pos] -113 -113
-*-14.394041 25000 15000 25000 35000 45000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -61 -61
+*-15.394041 185000 15000 25000 35000 45000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] CPU_tb.
 [treeopen] CPU_tb.cpu.
-[treeopen] CPU_tb.cpu.B_reg.
 [treeopen] CPU_tb.cpu.B_reg.genblk1[0].
 [treeopen] CPU_tb.cpu.control_unit.
 [sst_width] 211
@@ -34,6 +33,7 @@ CPU_tb.cpu.T[7:0]
 (6)CPU_tb.cpu.T[7:0]
 (7)CPU_tb.cpu.T[7:0]
 CPU_tb.cpu.CLR_TIMER
+CPU_tb.cpu.cnt_en_timer
 CPU_tb.cpu.timer_reg.reset
 @1001200
 -group_end
@@ -115,7 +115,6 @@ CPU_tb.cpu.control_bus[32:0]
 (30)CPU_tb.cpu.control_bus[32:0]
 (31)CPU_tb.cpu.control_bus[32:0]
 (32)CPU_tb.cpu.control_bus[32:0]
-@29
 CPU_tb.cpu.control_unit.instr_decode
 @c00022
 CPU_tb.cpu.control_unit.DEC_IR0[7:0]
@@ -172,6 +171,30 @@ CPU_tb.cpu.RAM.data[7:0]
 -group_end
 @22
 CPU_tb.cpu.RAM.rdata[7:0]
+@28
+CPU_tb.cpu.B_reg.clk
+CPU_tb.cpu.B_reg.reset
+@22
+CPU_tb.cpu.B_reg.D[7:0]
+@28
+CPU_tb.cpu.B_reg.CS
+CPU_tb.cpu.B_reg.WE
+@23
+CPU_tb.cpu.B_reg.data[7:0]
+@22
+CPU_tb.cpu.B_reg.D[7:0]
+CPU_tb.cpu.B_reg.Q[7:0]
+CPU_tb.cpu.B_reg.data_out[7:0]
+@28
+CPU_tb.cpu.AC.clk
+CPU_tb.cpu.AC.reset
+@22
+CPU_tb.cpu.AC.data[7:0]
+CPU_tb.cpu.AC.D[7:0]
+CPU_tb.cpu.AC.Q[7:0]
+@28
+CPU_tb.cpu.AC.CS
+CPU_tb.cpu.AC.WE
 @1001200
 -group_end
 [pattern_trace] 1

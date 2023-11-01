@@ -1,4 +1,3 @@
--Split opcode fetch into T0:T1 cycles
--Gave ~clk to memory
--Opcode fetch and LDA instructions tested
--LDB giving trouble
+-Fixed LDB
+LDB was working with behavioral model but not structural, which meant logic was right
+I added 0.1ns delay to the decoder output and it worked as expected

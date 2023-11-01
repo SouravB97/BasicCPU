@@ -17,7 +17,7 @@ module memory
 	integer i;
 
 	assign output_condition = reset & CS & OE;
-	assign data = output_condition ? rdata : 'bz;
+	assign /*#(1,1,1)*/ data = output_condition ? rdata : 'bz;
 
 	initial begin
 		$display("=============================================================================================");

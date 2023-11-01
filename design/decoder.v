@@ -13,7 +13,7 @@ module decoder
 	generate
 		for(i = 0; i < 2** WIDTH; i = i+1) begin
 			mux #(.DATA_WIDTH(2** WIDTH)) mux_m(.D(const_1<<i),.S(S),.Y(mux_out[i]));
-			assign D[i] = mux_out[i] & EN;
+			assign #(0.1,0.1) D[i] = mux_out[i] & EN;
 		end
 	endgenerate
 
