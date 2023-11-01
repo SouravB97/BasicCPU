@@ -41,14 +41,13 @@ module CPU_tb();
 		$readmemh("bootcode.hex", mem); //must be same folder as tb top, where irun is run
 		$readmemh("bootcode.hex", cpu.RAM.mem); //must be same folder as tb top, where irun is run
 
+		$display("HLT DECIR0 = %d", `DEC_OP(`CPU_INSTR_HLT));
+		$display("NOP DECIR0 = %d", `DEC_OP(`CPU_INSTR_NOP));
+		$display("ADD DECIR0 = %d", `DEC_OP(`CPU_INSTR_ADD));
+
 		clk <=0;
 		reset <=0;
 		$printtimescale;
-
-	 {
-		ALU_OPCODE, MID, SID, AMID,
-		PC_INR, MID_EN, SID_EN
-	} = 0;
 
 		#bootdelay reset = 1'b1;
 		repeat(50) @(posedge clk);

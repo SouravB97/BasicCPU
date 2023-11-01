@@ -270,14 +270,21 @@ module control_unit_m(
 	output [32:0] control_bus
 );
 
-	wire [7:0] DEC_IR0;
+	wire [31:0] DEC_IR0;
 	wire [4:0] alu_opcode = ir0_reg_out[`OPCODEWORD_ALU_OPCODE_RANGE];
-	wire instr_decode = |ir0_reg_out[`OPCODEWORD_DECODE_RANGE] & ~(|T[0:0]);
+	wire [4:0] ir0_mid		= ir0_reg_out[`OPCODEWORD_MID_RANGE];
+	wire [4:0] ir0_sid		= ir0_reg_out[`OPCODEWORD_SID_RANGE];
+	wire instr_decode = ~T[0]; //don't decode at T0,  during opcode fetch
 
-	//========================= Instruction Decoder =====================================
-	decoder #(.WIDTH(3)) ir0_decoder(
+	//========================= Instruction Decoders =====================================
+	decoder #(.WIDTH(`OPCODEWORD_ALU_OPCODE_WIDTH)) ir0_decoder(
 		.S(ir0_reg_out[`OPCODEWORD_DECODE_RANGE]), .EN(instr_decode),
 		.D(DEC_IR0)
+	);
+
+	decoder #(.WIDTH(2)) opcode_type_decoder(
+		.S(ir0_reg_out[`OPCODEWORD_TYPE_RANGE]), .EN(instr_decode),
+		.D({op_is_sys, op_is_alu, op_is_mvi})
 	);
 
 	assign control_bus[`CB_SID_EN_RANGE]				= mid_sid_en;
@@ -299,32 +306,22 @@ module control_unit_m(
 		: 			   1'b0
 	;
 	assign control_bus[`CB_MID_RANGE]				= 
-				T[0] ? 4		//x
-		: 	T[1] ? 
-					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)]  |
-					DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] 
-					? 	 4	//OE_M
-					:		 15
+				T[0] ? 4		//OE_M, Opcode_fetch
+		: 	T[1] ? op_is_mvi ? ir0_mid : 15	//OE_M
 		: 	T[2] ? 15
 		: 	T[3] ? 15
 		: 			   15
 	;
 	assign control_bus[`CB_SID_RANGE]				= 
-				T[0] ? 0		//IR0
-		: 	T[1] ? 
-					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] ? 2   //WE_A
-				:	DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] ? 3   //WE_B
-				:	     15
+				T[0] ? 0		//IR0, opcode_fetch
+		: 	T[1] ? op_is_mvi ? ir0_sid : 15	//WE_A, B
 		: 	T[2] ? 15
 		: 	T[3] ? 15
 		: 			   15
 	;
 	assign mid_sid_en				= 
 				T[0] ? 1'b1 //OPCODE_FETCH
-		: 	T[1] ? 
-					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] | 
-					DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)]  ? 	 1'b1	
-					:		 1'b0
+		:		T[1] ? op_is_mvi ? 1'b1 : 1'b0
 		:		T[2] ? 1'b0	
 		:		T[3] ? 1'b0	
 		: 			   1'b0	
@@ -345,58 +342,15 @@ module control_unit_m(
 	;
  */
 	assign 	control_bus[`CB_HLT_RANGE]			= 
-				|T[2:0] ? 
-					DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ?
-						1'b1
-					:	1'b0
+				|T[2:0] ? op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ? 1'b1 :	1'b0
 					:    1'b0
 	;
 	assign control_bus[`CB_CLR_TIMER_RANGE]	= 
 				T[0] ? 1'b0
 		: 	T[1] ? 
-							DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] |
-							DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] 
-					? 1'b1	
-					:		DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ?
-						1'b0		
-					:	1'b1
+							op_is_mvi ? 1'b1	
+					:		op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ? 1'b0		
+								:	1'b1
 		: 			   1'b0
 	;
-
-	//latch hlt signal. Unrecovorable pause
-	//latch  hlt_latch (.D(reset), .EN((~reset & clk) | hlt_latch_en), .Q());
-	
-
-/*
-	//FETCH always at T0
-	assign MID = T[0] ? 4 : 5'hz; //RAM
-	assign SID = T[0] ? 0 : 5'hz; //IR0
-	assign AMID= T[0] ? 0 : 0; //PC
-
-	//============== T1 decode ================
-	//ADDB
-	assign ALU_OPCODE = ir0_reg_out;
-	assign MID = T[1] & DEC_IR0[2] ? 18 : 5'hz; //OE_ALU
-	assign SID = T[1] & DEC_IR0[2] ?  2 : 5'hz; //WE_A
-
-	//============== T2 decode ================
-	//ADDB
-	assign clr_timer =  T[1] & DEC_IR0[2] ? 1 : 0;
-*/
-//	always @(posedge clk, posedge reset) begin
-//		
-//	end
-
-	//initial begin
-	//	@(posedge reset);
-	//	repeat(3) @(negedge clk);
-	//	CLR_TIMER = 1 ;
-	//	repeat(5) @(negedge clk);
-	//	CLR_TIMER = 0 ;
-	//	repeat(20) @(negedge clk);
-	//	CLR_TIMER = 1 ;
-	//	repeat(15) @(negedge clk);
-	//	CLR_TIMER = 0 ;
-	//end
-
 endmodule

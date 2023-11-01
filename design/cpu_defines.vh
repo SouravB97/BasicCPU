@@ -45,10 +45,6 @@ IO:  0x8000-0x8004
 		17	|	SR
 		18	|	ALU
 	*/
-
-//gives same output as ir0_decoder
-`define DEC_OP(op) op >> `OPCODEWORD_DECODE_OFFSET
-
 `define CB_SID_EN_RANGE					0:0  
 `define CB_MID_EN_RANGE					1:1  
 `define CB_PC_INR_RANGE					2:2  
@@ -59,11 +55,31 @@ IO:  0x8000-0x8004
 `define CB_HLT_RANGE	 				 16:16  
 `define CB_CLR_TIMER_RANGE	 	 17:17  
 
-`define OPCODEWORD_ALU_OPCODE_RANGE			4:0
-`define OPCODEWORD_DECODE_RANGE					7:5
-`define OPCODEWORD_DECODE_OFFSET				5
+`define DEC_OP(op) \ //gives same output as ir0_decoder
+	(op >> `OPCODEWORD_DECODE_OFFSET)	& {`OPCODEWORD_ALU_OPCODE_WIDTH{1'b1}}
+`define IS_MVI(op) (op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b00
+`define IS_ALU(op) (op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b01
+`define IS_SYS(op) (op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b10
 
-`define CPU_INSTR_LDA 				 8'b0010_0000	//0x20
-`define CPU_INSTR_LDB 				 8'b0110_0000	//0x60
-`define CPU_INSTR_HLT 				 8'b1110_0000	//0xE0
-`define CPU_INSTR_NOP 				 8'b1100_0000	//0xC0
+`define OPCODEWORD_TYPE_RANGE			7:6
+`define OPCODEWORD_ALU_OPCODE_RANGE			4:0
+`define OPCODEWORD_DECODE_RANGE					`OPCODEWORD_ALU_OPCODE_RANGE
+`define OPCODEWORD_MID_RANGE			2:0
+`define OPCODEWORD_SID_RANGE			5:3
+
+`define OPCODEWORD_TYPE_OFFSET					6
+`define OPCODEWORD_ALU_OPCODE_OFFSET		0
+`define OPCODEWORD_DECODE_OFFSET				`OPCODEWORD_ALU_OPCODE_OFFSET
+
+`define OPCODEWORD_ALU_OPCODE_WIDTH 		5
+
+//MVI instruction
+`define CPU_INSTR_LDA 				 8'b0001_0100	//0x14
+`define CPU_INSTR_LDB 				 8'b0001_1100	//0x1C
+
+//ALU instructions
+`define CPU_INSTR_ADD 				 8'b0100_0111	//0x47
+
+//SYSTEM instructions
+`define CPU_INSTR_NOP 				 8'b1000_0000	//0x80
+`define CPU_INSTR_HLT 				 8'b1000_0001	//0x81

@@ -1,1 +1,1 @@
--Added HLT and NOP instructions
+-Changed INstruction set architecture to use op_code type, opcode_mid, opcode_sid
