@@ -66,3 +66,4 @@ IO:  0x8000-0x8004
 `define CPU_INSTR_LDA 				 8'b0010_0000	//0x20
 `define CPU_INSTR_LDB 				 8'b0110_0000	//0x60
 `define CPU_INSTR_HLT 				 8'b1110_0000	//0xE0
+`define CPU_INSTR_NOP 				 8'b1100_0000	//0xC0

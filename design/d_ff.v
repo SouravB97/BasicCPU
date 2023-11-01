@@ -1,3 +1,6 @@
+//`define DFF_BHVR
+
+`ifndef DFF_BHVR
 module d_ff(clk, reset, D, Q, Q_bar);
 	input clk, reset, D;
 	output Q, Q_bar;
@@ -24,7 +27,8 @@ module d_ff(clk, reset, D, Q, Q_bar);
 
 endmodule
 
-/*module d_ff(clk, reset, D, Q, Q_bar);
+`else
+module d_ff(clk, reset, D, Q, Q_bar);
 	input clk, reset, D;
 	output Q_bar;
 	output reg Q;
@@ -41,7 +45,9 @@ endmodule
 		else
 			Q <= D;
 	end
-endmodule*/
+endmodule
+
+`endif
 
 module latch(D, EN, Q);
 	input D, EN;

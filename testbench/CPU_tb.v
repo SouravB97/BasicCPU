@@ -5,7 +5,7 @@ module CPU_tb();
 	wire clk_out;
 
 	localparam clk_period = 10;
-	localparam bootdelay = 15;
+	localparam bootdelay = 11;
 	integer i;
 
 	always #(clk_period/2) clk = ~clk;
@@ -51,6 +51,9 @@ module CPU_tb();
 	} = 0;
 
 		#bootdelay reset = 1'b1;
+		repeat(50) @(posedge clk);
+		reset = 0;
+		#(bootdelay+clk_period/2) reset = 1'b1;
 	end
 
 
@@ -60,7 +63,7 @@ module CPU_tb();
 		$display("Starting seqs at time %t", $time);
 		//memory_sweep_check();
 		//mem_test1();
-		repeat(100) #clk_period;
+		repeat(100) @(posedge clk);
 		$display("Ending seqs at time %t", $time);
 		$finish();
 	end

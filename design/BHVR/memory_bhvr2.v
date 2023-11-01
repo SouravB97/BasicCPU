@@ -49,7 +49,7 @@ module memory
 					2'b00 : ; //DO NOTHING
 					2'b01 : rdata = mem[address]; //READ
 					2'b10 : mem[address] = data; //WRITE
-					2'b11 : $display("ERROR from module memory: OE and WE are 1 at the same time!!");	//INVALID
+					2'b11 : $display("%d: ERROR from module memory: OE and WE are 1 at the same time!!", $time);	//INVALID
 				endcase
 		  end
 		end

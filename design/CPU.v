@@ -147,7 +147,7 @@ module CPU(
 	memory #(.DEPTH(`MEMORY_DEPTH),
 					 .ADDR_WIDTH(8))
 	RAM(
-		.clk(clk), .reset(reset), 
+		.clk(~clk), .reset(reset), 
 		.address(address_bus[7:0]), .data(data_bus), 
 		.OE(OE_M), .WE(WE_M), .CS(~address_bus[15])
 	);
@@ -270,7 +270,7 @@ module control_unit_m(
 
 	wire [7:0] DEC_IR0;
 	wire [4:0] alu_opcode = ir0_reg_out[`OPCODEWORD_ALU_OPCODE_RANGE];
-	wire instr_decode = |ir0_reg_out[`OPCODEWORD_DECODE_RANGE];
+	wire instr_decode = |ir0_reg_out[`OPCODEWORD_DECODE_RANGE] & ~(|T[1:0]);
 
 	//========================= Instruction Decoder =====================================
 	decoder #(.WIDTH(3)) ir0_decoder(
@@ -288,36 +288,44 @@ module control_unit_m(
 	assign control_bus[`CB_HLT_RANGE]						= 0;
 	//assign control_bus[`CB_CLR_TIMER_RANGE]			= 0;
 
-	//FETCH always at T0
+	//FETCH always at T0:T1
 	assign control_bus[`CB_PC_INR_RANGE]				= 
-				T[0] ? 1'b1
-		: 	T[1] ? 
-		//			DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ? 1'b0 
-					    1'b1
-		: 	T[2] ? 1'b1
+				T[0] ? 1'b0
+		: 	T[1] ? 1'b1
+		: 	T[2] ? 1'b0
 		: 	T[3] ? 1'b1
 		: 			   1'b1
 	;
 	assign control_bus[`CB_MID_RANGE]				= 
-				T[0] ? 4		//OE_M
-		: 	T[1] ? 
+				T[0] ? 4		//x
+		: 	T[1] ? 15 		//OE_M
+		: 	T[2] ? 
 					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)]  |
 					DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] 
 					? 	 4	//OE_M
-					:		 0
-		: 	T[2] ? 0
-		: 	T[3] ? 0
-		: 			   0
+					:		 15
+		: 	T[3] ? 15
+		: 			   15
 	;
 	assign control_bus[`CB_SID_RANGE]				= 
-				T[0] ? 0		//WE_IR0
-		: 	T[1] ? 
+				T[0] ? 0		//x
+		:		T[1] ? 15		//WE_IR0
+		: 	T[2] ? 
 					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] ? 2   //WE_A
 				:	DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] ? 3   //WE_B
 				:	     15
-		: 	T[2] ? 15
 		: 	T[3] ? 15
 		: 			   15
+	;
+	assign mid_sid_en				= 
+				T[0] ? 1'b1
+		:		T[1] ? 1'b0	//OPCODE_FETCH
+		: 	T[2] ? 
+					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] | 
+					DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)]  ? 	 1'b1	
+					:		 1'b0
+		:		T[3] ? 1'b0	
+		: 			   1'b0	
 	;
 	//BOZO assign control_bus[`CB_ALU_OPCODE_RANGE]				= 
 	//BOZO 			T[0] ? alu_opcode
@@ -334,28 +342,19 @@ module control_unit_m(
 		: 			   1'b0	//OE_PC
 	;
  */
-	assign mid_sid_en				= 
-				T[0] ? 1'b1
-		: 	T[1] ? 
-					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] | 
-					DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] 
-					? 	 1'b1	
-					:		 1'b0
-		: 			   1'b0	
-	;
 	assign 	control_bus[`CB_HLT_RANGE]			= 
 				T[0] ? 1'b0
 					:    1'b0
 	;
 	assign clr_timer /*control_bus[`CB_CLR_TIMER_RANGE]*/				= 
 				T[0] ? 1'b0
-		: 	T[1] ? 
+		: 	T[1] ? 1'b0
+		: 	T[2] ? 1'b0
+		: 	T[3] ? 
 					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] |
 					DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] 
 					? 	 1'b1	
-					:		 1'b0
-		: 	T[2] ? 1'b0
-		: 	T[3] ? 1'b1
+					:		 1'b1
 		: 			   1'b0
 	;
 

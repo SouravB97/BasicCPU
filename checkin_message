@@ -1,1 +1,4 @@
-LDB
+-Split opcode fetch into T0:T1 cycles
+-Gave ~clk to memory
+-Opcode fetch and LDA instructions tested
+-LDB giving trouble
