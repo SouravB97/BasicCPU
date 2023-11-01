@@ -287,7 +287,7 @@ module control_unit_m(
 	//assign control_bus[`CB_MID_RANGE]						= 4;	//OE_M
 	//assign control_bus[`CB_SID_RANGE]						= 0;	//WE_IR0
 	assign control_bus[`CB_ALU_OPCODE_RANGE]		= alu_opcode;
-	assign control_bus[`CB_HLT_RANGE]						= 0;
+	//assign control_bus[`CB_HLT_RANGE]						= 0;
 	//assign control_bus[`CB_CLR_TIMER_RANGE]			= 0;
 
 	//FETCH always at T0:T1
@@ -345,17 +345,21 @@ module control_unit_m(
 	;
  */
 	assign 	control_bus[`CB_HLT_RANGE]			= 
-				T[0] ? 1'b0
+				|T[2:0] ? 
+					DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ?
+						1'b1
+					:	1'b0
 					:    1'b0
 	;
 	assign control_bus[`CB_CLR_TIMER_RANGE]	= 
 				T[0] ? 1'b0
-	//	:		T[1] ? 1'b0	
 		: 	T[1] ? 
-					DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] |
-					DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] 
-					? 	 1'b1	
-					:		 1'b1
+							DEC_IR0[`DEC_OP(`CPU_INSTR_LDA)] |
+							DEC_IR0[`DEC_OP(`CPU_INSTR_LDB)] 
+					? 1'b1	
+					:		DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ?
+						1'b0		
+					:	1'b1
 		: 			   1'b0
 	;
 

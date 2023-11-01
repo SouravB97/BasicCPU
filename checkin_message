@@ -1,3 +1,1 @@
--Fixed LDB
-LDB was working with behavioral model but not structural, which meant logic was right
-I added 0.1ns delay to the decoder output and it worked as expected
+-Added HLT and NOP instructions

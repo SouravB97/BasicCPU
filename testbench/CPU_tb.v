@@ -54,6 +54,8 @@ module CPU_tb();
 		repeat(50) @(posedge clk);
 		reset = 0;
 		#(bootdelay+clk_period/2) reset = 1'b1;
+
+		$writememh("output.hex", cpu.RAM.mem);
 	end
 
 
