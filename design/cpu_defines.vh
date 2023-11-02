@@ -6,17 +6,17 @@ IO:  0x8000-0x8004
 */
 	/*
 		SID	|	Register
-		0	|	IR0	
-		1	|	IR1
-		2	|	A
-		3	|	B
-		4	|	Mem
-		5	|	R0
-		6	|       R1
-		7	|       AR0
-		8	|	AR1
-		9	|	PC0
-		10	|	PC1
+		0 	|	IR0	
+		1 	|	Mem 
+		2 	|	A
+		3 	|	B
+		4 	|	AR0
+		5 	|	AR1 
+		6 	| PC0      
+		7 	| PC1      
+		8 	|	IR1
+		9 	| R0	
+		10	|	R1
 		11	|	SP0
 		12	|	SP1
 		13	|	PORTA
@@ -25,17 +25,17 @@ IO:  0x8000-0x8004
 		16	|	PORTD
 
 		MID	|	Register
-		0	|	IR0	
-		1	|	IR1
-		2	|	A
-		3	|	B
-		4	|	Mem
-		5	|	R0
-		6	|       R1
-		7	|       AR0
-		8	|	AR1
-		9	|	PC0
-		10	|	PC1
+		0 	|	IR0	
+		1 	|	Mem 
+		2 	|	A
+		3 	|	B
+		4 	|	AR0
+		5 	|	AR1 
+		6 	| PC0      
+		7 	| PC1      
+		8 	|	IR1
+		9 	| R0	
+		10	|	R1
 		11	|	SP0
 		12	|	SP1
 		13	|	PORTA
@@ -74,8 +74,19 @@ IO:  0x8000-0x8004
 `define OPCODEWORD_ALU_OPCODE_WIDTH 		5
 
 //MVI instruction
-`define CPU_INSTR_LDA 				 8'b0001_0100	//0x14
-`define CPU_INSTR_LDB 				 8'b0001_1100	//0x1C
+//memory_load
+`define CPU_INSTR_LDA 				 8'b0001_0001	//0x11
+`define CPU_INSTR_LDB 				 8'b0001_1001	//0x19
+`define CPU_INSTR_LAR0 				 8'b0010_0001	//0x21
+`define CPU_INSTR_LAR1 				 8'b0010_1001	//0x29
+`define CPU_INSTR_LPC0 				 8'b0011_0001	//0x31
+`define CPU_INSTR_LPC1 				 8'b0011_1001	//0x39
+`define CPU_INSTR_STA 				 8'b0000_1010	//0x0A
+`define CPU_INSTR_STB 				 8'b0000_1011	//0x0B
+`define CPU_INSTR_SAR0 				 8'b0000_1100	//0x0C
+`define CPU_INSTR_SAR1 				 8'b0000_1101	//0x0D
+`define CPU_INSTR_SPC0 				 8'b0000_1110	//0x0E
+`define CPU_INSTR_SPC1 				 8'b0000_1111	//0x0F
 
 //ALU instructions
 `define CPU_INSTR_ADD 				 8'b0100_0111	//0x47

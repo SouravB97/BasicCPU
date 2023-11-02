@@ -1,1 +1,2 @@
--Changed INstruction set architecture to use op_code type, opcode_mid, opcode_sid
+-Added Assembler
+-LDx, STx instructions added, tested

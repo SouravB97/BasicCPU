@@ -5,7 +5,7 @@ module CPU_tb();
 	wire clk_out;
 
 	localparam clk_period = 10;
-	localparam bootdelay = 11;
+	localparam bootdelay = 13;
 	integer i;
 
 	always #(clk_period/2) clk = ~clk;
@@ -38,79 +38,42 @@ module CPU_tb();
 		$dumpvars(0,CPU_tb);
 		$timeformat(-9, 2, " ns", 20);
 		//load memory
-		$readmemh("bootcode.hex", mem); //must be same folder as tb top, where irun is run
-		$readmemh("bootcode.hex", cpu.RAM.mem); //must be same folder as tb top, where irun is run
-
-		$display("HLT DECIR0 = %d", `DEC_OP(`CPU_INSTR_HLT));
-		$display("NOP DECIR0 = %d", `DEC_OP(`CPU_INSTR_NOP));
-		$display("ADD DECIR0 = %d", `DEC_OP(`CPU_INSTR_ADD));
+		$readmemh("micro_codes/bootcode_1.hex", mem); //must be same folder as tb top, where irun is run
+		$readmemh("micro_codes/bootcode_1.hex", cpu.RAM.mem); //must be same folder as tb top, where irun is run
 
 		clk <=0;
 		reset <=0;
 		$printtimescale;
 
 		#bootdelay reset = 1'b1;
-		repeat(50) @(posedge clk);
-		reset = 0;
-		#(bootdelay+clk_period/2) reset = 1'b1;
-
-		$writememh("output.hex", cpu.RAM.mem);
+		//repeat(1000) @(posedge clk);
+		//reset = 0;
+		//#(bootdelay+clk_period/2) reset = 1'b1;
 	end
 
 
 //Sequences
 	initial begin
-		@(posedge reset); repeat(2) #clk_period;
+		@(posedge reset);
 		$display("Starting seqs at time %t", $time);
 		//memory_sweep_check();
 		//mem_test1();
-		repeat(100) @(posedge clk);
-		$display("Ending seqs at time %t", $time);
-		$finish();
+		repeat(50) @(posedge clk);
+		exit();
 	end
+
+	task exit();
+		begin
+		$display("Ending seqs at time %t", $time);
+		$writememh("output.hex", cpu.RAM.mem);
+		$display("RAM mem[%h] = %h", 254, cpu.RAM.mem[254]);
+		$finish();
+		end
+	endtask
 
 //	initial begin
 //		$monitor("Time = %0t /t  = %b",$time, clk_div.div_ratio);
 //	end
-	task fetch();
-		begin
-			//@(negedge clk); //T0
-			AMID <= 0;
-			MID  <= 4; MID_EN <= 1; //OE_M <=1
-			@(negedge clk); //T1
-			SID <= 0; SID_EN <= 1; //WE_IR0 <= 1;
-			PC_INR <= 1;
-			@(negedge clk); //T2
-			SID_EN <= 0; //WE_IR0 <= 0;
-			PC_INR <= 0;
-			@(negedge clk); //T3
-			SID <= 1; SID_EN <= 1; //WE_IR1 <= 1;
-			PC_INR <= 1;
-			@(negedge clk); //T4
-			//OE_PC <= 0;
-			MID_EN <= 0; //OE_M  <= 0;
-			SID_EN <= 0; //WE_IR1 <= 0;
-			PC_INR <= 0;
-
-		//	//@(negedge clk); //T0
-		//	OE_PC <= 1;
-		//	OE_M  <= 1;
-		//	@(negedge clk); //T1
-		//	WE_IR0 <= 1;
-		//	PC_INR <= 1;
-		//	@(negedge clk); //T2
-		//	WE_IR0 <= 0;
-		//	PC_INR <= 0;
-		//	@(negedge clk); //T3
-		//	WE_IR1 <= 1;
-		//	PC_INR <= 1;
-		//	@(negedge clk); //T4
-		//	OE_PC <= 0;
-		//	OE_M  <= 0;
-		//	WE_IR1 <= 0;
-		//	PC_INR <= 0;
-		end
-	endtask
 
 	task rd_mem (input [15:0] address, output [7:0] rdata);
 		begin
@@ -120,15 +83,15 @@ module CPU_tb();
 			end
 			//@(negedge clk); //T0
 			force cpu.address_bus = address;
-			//force cpu.OE_M = 1;
-			MID <= 'h4 ; 
-			MID_EN <= 1;
+			force cpu.OE_M = 1;
+			//MID <= 'h4 ; 
+			//MID_EN <= 1;
 			@(negedge clk); //T1
 			rdata <= cpu.data_bus ;
 			@(negedge clk); //T2
 			release cpu.address_bus ;
-			//release cpu.OE_M ;
-			MID_EN <= 0;
+			release cpu.OE_M ;
+			//MID_EN <= 0;
 		end
 	endtask
 	task wr_mem (input [15:0] address, input [7:0] wdata);
@@ -140,24 +103,34 @@ module CPU_tb();
 			//@(negedge clk); //T0
 			force cpu.address_bus = address;
 			force cpu.data_bus = wdata;
-			//force cpu.WE_M = 1;
-			SID <= 'h4;
-			SID_EN <= 1;
+			force cpu.WE_M = 1;
+			//SID <= 'h4;
+			//SID_EN <= 1;
 			@(negedge clk); //T1
 			release cpu.address_bus ;
 			release cpu.data_bus ;
-			//release cpu.WE_M ;
-			SID_EN <= 0;
+			release cpu.WE_M ;
+			//SID_EN <= 0;
 		end
 	endtask
 
 	task memory_sweep_check();
 		reg [15:0] addr, i;
-		reg [7:0] expected_rdata, actual_rdata;
+		reg [7:0] expected_rdata, actual_rdata, wdata;
 		begin
-			addr = 16'h8000;
+			//pause CPU:
+			force cpu.en_timer_decoder = 0;
+			//WRITE
+			addr = 16'h0000;
 			for(i = 0 ; i < `MEMORY_DEPTH; i++) begin
-				expected_rdata = mem[i];
+				wdata = 255 - i;//mem[i];
+				wr_mem(addr, wdata);
+				addr++;
+			end
+			//READ
+			addr = 16'h0000;
+			for(i = 0 ; i < `MEMORY_DEPTH; i++) begin
+				expected_rdata = 255-i;//mem[i];
 				rd_mem(addr, actual_rdata);
 				if(expected_rdata == actual_rdata) begin
 					$display("MEM_CHECK: %0d) Data match for addr %0h, Actual = %0h, Expected = %0h",i, addr, actual_rdata, expected_rdata);

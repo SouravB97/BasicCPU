@@ -1,0 +1,3 @@
+ $STEM/scripts/assembler.pl -inp bootcode_1.asm ;
+ irun.bat CPU_tb.v ; 
+ gtkwave -f $STEM/dump/CPU_tb.vcd -a $STEM/dump/signals/1.gtkw

@@ -15,8 +15,8 @@ module CPU(
 	wire OE_AR, OE_PC, OE_SP, OE_R0R1;
 	//control bus inputs
 	wire [4:0] ALU_OPCODE	= control_bus[`CB_ALU_OPCODE_RANGE];
-	wire [4:0] MID 				= control_bus[`CB_MID_RANGE]; //data bus master/slave ID
-	wire [4:0] SID 				= control_bus[`CB_SID_RANGE]; //data bus master/slave ID
+	wire [2:0] MID 				= control_bus[`CB_MID_RANGE]; //data bus master/slave ID
+	wire [2:0] SID 				= control_bus[`CB_SID_RANGE]; //data bus master/slave ID
 	wire [1:0] AMID				= control_bus[`CB_AMID_RANGE]; //address master ID
 	wire MID_EN			= control_bus[`CB_MID_EN_RANGE];
 	wire SID_EN			= control_bus[`CB_SID_EN_RANGE];
@@ -34,12 +34,6 @@ module CPU(
 	wire[2:0] timer_out;
 	wire PORT_A_CS;
 
-	//control bus
-	/*assign {
-		ALU_OPCODE, MID, SID, AMID,
-		PC_INR, MID_EN, SID_EN
-	} = control_bus;*/
-	
 	//========================= CPU Registers =====================================
 
 	//Accumulator
@@ -56,21 +50,21 @@ module CPU(
 		.CS(1'b1),.WE(WE_B),.OE(OE_B)
 	);
 
-	//16 bit R0 R1 pair.
-	//Can be used to address memory directly
-	ar_register #(.ADDR_WIDTH(16)) R1R0_pair(
-		.clk(clk), .reset(reset),
-		.data(data_bus), .address(address_bus),
-		.CS(1'b1),.OE_A(OE_R0R1),
-		.WE_H(WE_R1),.OE_H(OE_R1),
-		.WE_L(WE_R0),.OE_L(OE_R1)
-	);
+//	//16 bit R0 R1 pair.
+//	//Can be used to address memory directly
+//	ar_register #(.ADDR_WIDTH(16)) R1R0_pair(
+//		.clk(clk), .reset(reset),
+//		.data(data_bus), .address(address_bus),
+//		.CS(1'b1),.OE_A(OE_R0R1),
+//		.WE_H(WE_R1),.OE_H(OE_R1),
+//		.WE_L(WE_R0),.OE_L(OE_R1)
+//	);
 
 	//status register
 	st_register #(.DATA_WIDTH(4)) status_reg(
 		.clk(clk), .reset(reset),
 		.data_out(data_bus[3:0]), .data_in(alu_status),
-		.CS(1'b1), .WE(1'b1), .OE(OE_SR)
+		.CS(1'b1), .WE(1'b1), .OE(1'b0/*OE_SR*/)
 	);
 
 	//Instruction register (Connects to instruction decoder)
@@ -84,7 +78,7 @@ module CPU(
 	ac_register #(.DATA_WIDTH(8)) instr_reg0 (
 		.clk(clk), .reset(reset),
 		.data(data_bus), .data_out(ir0_reg_out),
-		.CS(1'b1),.WE(WE_IR0),.OE(1'b0)
+		.CS(1'b1),.WE(WE_IR0),.OE(OE_IR0)
 	);
 
 	//========================= ALU =====================================
@@ -95,7 +89,7 @@ module CPU(
 	);
 	tri_state_buffer #(.DATA_WIDTH(8)) alu_tsb(
 		.data_in(alu_out), .data_out(data_bus),
-		.OE(OE_ALU)
+		.OE(1'b0/*OE_ALU*/)
 	);
 
 	//========================= Address Registers =====================================
@@ -116,13 +110,13 @@ module CPU(
 		.WE_L(WE_PC0),.OE_L(OE_PC0)
 	);
 	//Stack pointer SP
-	ar_register #(.ADDR_WIDTH(16)) SP(
-		.clk(clk), .reset(reset),
-		.data(data_bus), .address(address_bus),
-		.CS(1'b1),.OE_A(OE_SP),
-		.WE_H(WE_SP1),.OE_H(OE_SP1),
-		.WE_L(WE_SP0),.OE_L(OE_SP0)
-	);
+//	ar_register #(.ADDR_WIDTH(16)) SP(
+//		.clk(clk), .reset(reset),
+//		.data(data_bus), .address(address_bus),
+//		.CS(1'b1),.OE_A(OE_SP),
+//		.WE_H(WE_SP1),.OE_H(OE_SP1),
+//		.WE_L(WE_SP0),.OE_L(OE_SP0)
+//	);
 	//========================= PORTS =====================================
 	//PORTA
 //	//Address range: 0x8000 to 0x8003
@@ -156,67 +150,45 @@ module CPU(
 	//Slave data_bus ID decode (WE decoder)
 	/*
 		SID	|	Register
-		0	|	IR0	
-		1	|	IR1
-		2	|	A
-		3	|	B
-		4	|	Mem
-		5	|	R0
-		6	|       R1
-		7	|       AR0
-		8	|	AR1
-		9	|	PC0
-		10	|	PC1
-		11	|	SP0
-		12	|	SP1
-		13	|	PORTA
-		14	|	PORTB
-		15	|	PORTC
-		16	|	PORTD
+		0 	|	IR0	
+		1 	|	Mem 
+		2 	|	A
+		3 	|	B
+		4 	|	AR0
+		5 	|	AR1 
+		6 	| PC0      
+		7 	| PC1      
+
 	*/
-	decoder #(.WIDTH(5)) sid_decoder(
+	decoder #(.WIDTH(3)) sid_decoder(
 		.S(SID), .EN(SID_EN),
 		.D({
-			WE_PORTD, WE_PORTC, WE_PORTB, WE_PORTA,
-			WE_SP1, WE_SP0, WE_PC1, WE_PC0,
-			WE_AR1, WE_AR0, WE_R1, WE_R0,
-			WE_M, WE_B, WE_A,
-			WE_IR1, WE_IR0
+			WE_PC1, WE_PC0,
+			WE_AR1, WE_AR0,
+			WE_B, WE_A,
+			WE_M, WE_IR0
 		})
 	);
 
 	//Master data_bus ID decode (WE decoder)
 	/*
 		MID	|	Register
-		0	|	IR0	
-		1	|	IR1
-		2	|	A
-		3	|	B
-		4	|	Mem
-		5	|	R0
-		6	|       R1
-		7	|       AR0
-		8	|	AR1
-		9	|	PC0
-		10	|	PC1
-		11	|	SP0
-		12	|	SP1
-		13	|	PORTA
-		14	|	PORTB
-		15	|	PORTC
-		16	|	PORTD
-		17	|	SR
-		18	|	ALU
+		0 	|	IR0	
+		1 	|	Mem 
+		2 	|	A
+		3 	|	B
+		4 	|	AR0
+		5 	|	AR1 
+		6 	| PC0      
+		7 	| PC1      
 	*/
-	decoder #(.WIDTH(5)) mid_decoder(
+	decoder #(.WIDTH(3)) mid_decoder(
 		.S(MID), .EN(MID_EN),
 		.D({
-			OE_ALU, OE_SR,
-			OE_PORTD, OE_PORTC, OE_PORTB, OE_PORTA,
-			OE_SP1, OE_SP0, OE_PC1, OE_PC0,
-			OE_AR1, OE_AR0, OE_R1, OE_R0,
-			OE_M, OE_B, OE_A,
-			OE_IR1, OE_IR0
+			OE_PC1, OE_PC0,
+			OE_AR1, OE_AR0,
+			OE_B, OE_A,
+			OE_M, OE_IR0
 		})
 	);
 
@@ -272,8 +244,9 @@ module control_unit_m(
 
 	wire [31:0] DEC_IR0;
 	wire [4:0] alu_opcode = ir0_reg_out[`OPCODEWORD_ALU_OPCODE_RANGE];
-	wire [4:0] ir0_mid		= ir0_reg_out[`OPCODEWORD_MID_RANGE];
-	wire [4:0] ir0_sid		= ir0_reg_out[`OPCODEWORD_SID_RANGE];
+	wire [2:0] ir0_mid		= ir0_reg_out[`OPCODEWORD_MID_RANGE];
+	wire [2:0] ir0_sid		= ir0_reg_out[`OPCODEWORD_SID_RANGE];
+	wire op_is_st	= op_is_mvi & ~|(ir0_sid[2:0] ^ 3'h1);	//SID is RAM
 	wire instr_decode = ~T[0]; //don't decode at T0,  during opcode fetch
 
 	//========================= Instruction Decoders =====================================
@@ -287,10 +260,12 @@ module control_unit_m(
 		.D({op_is_sys, op_is_alu, op_is_mvi})
 	);
 
+	//====================================================================================
+
 	assign control_bus[`CB_SID_EN_RANGE]				= mid_sid_en;
 	assign control_bus[`CB_MID_EN_RANGE]				= mid_sid_en;
 	//assign control_bus[`CB_PC_INR_RANGE]				= 1;
-	assign control_bus[`CB_AMID_RANGE]					= 0;	//OE_PC
+	//assign control_bus[`CB_AMID_RANGE]					= 0;	//OE_PC
 	//assign control_bus[`CB_MID_RANGE]						= 4;	//OE_M
 	//assign control_bus[`CB_SID_RANGE]						= 0;	//WE_IR0
 	assign control_bus[`CB_ALU_OPCODE_RANGE]		= alu_opcode;
@@ -300,13 +275,17 @@ module control_unit_m(
 	//FETCH always at T0:T1
 	assign control_bus[`CB_PC_INR_RANGE]				= 
 				T[0] ? 1'b1
-		: 	T[1] ? 1'b1
+		: 	T[1] ? op_is_sys &	(DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] | 
+														 DEC_IR0[`DEC_OP(`CPU_INSTR_NOP)])
+								? 1'b0
+								:	op_is_st ? 1'b0 
+								:	1'b1
 		: 	T[2] ? 1'b0
 		: 	T[3] ? 1'b0
 		: 			   1'b0
 	;
 	assign control_bus[`CB_MID_RANGE]				= 
-				T[0] ? 4		//OE_M, Opcode_fetch
+				T[0] ? 1		//OE_M, Opcode_fetch
 		: 	T[1] ? op_is_mvi ? ir0_mid : 15	//OE_M
 		: 	T[2] ? 15
 		: 	T[3] ? 15
@@ -333,14 +312,15 @@ module control_unit_m(
 	//BOZO 	: 	T[3] ? alu_opcode
 	//BOZO 	: 			 : alu_opcode
 	//BOZO ;
-	/*assign control_bus[`CB_AMID_RANGE]				= 
-				T[0] ? 1'b0	//OE_PC
-		: 	T[1] ? 1'b0	//OE_PC
-		: 	T[2] ? 1'b0	//OE_PC
-		: 	T[3] ? 1'b0	//OE_PC
-		: 			   1'b0	//OE_PC
+	assign control_bus[`CB_AMID_RANGE]				= 
+				T[0] ? 0	//OE_PC
+		: 	T[1] ? op_is_st ? 1	//OE_AR
+						 : 0	//OE_PC
+		: 	T[2] ? 0	//OE_PC
+		: 	T[3] ? 0	//OE_PC
+		: 			   0	//OE_PC
 	;
- */
+ 
 	assign 	control_bus[`CB_HLT_RANGE]			= 
 				|T[2:0] ? op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ? 1'b1 :	1'b0
 					:    1'b0
@@ -352,5 +332,7 @@ module control_unit_m(
 					:		op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ? 1'b0		
 								:	1'b1
 		: 			   1'b0
+
+	
 	;
 endmodule

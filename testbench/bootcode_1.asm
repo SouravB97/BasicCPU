@@ -1,0 +1,21 @@
+;;this is my code file
+
+;;LDA 0xAB
+;;LDB 0xBC	;;mov BC
+;;NOP
+;;LDA 0x32
+;;LDA 0xCD
+;;LAR0	0b11110111
+;;NOP
+;;NOP
+;;LAR0	0xFE
+;;NOP
+;;HLT
+
+LAR0 0xFE
+LAR1 0x00
+LDA 0xDE
+STA
+NOP
+NOP
+HLT
