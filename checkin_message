@@ -1,2 +1,1 @@
--Added Assembler
--LDx, STx instructions added, tested
+-Added syntax checker to assembler

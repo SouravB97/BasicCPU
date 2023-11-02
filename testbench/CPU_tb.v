@@ -58,7 +58,11 @@ module CPU_tb();
 		$display("Starting seqs at time %t", $time);
 		//memory_sweep_check();
 		//mem_test1();
+	//	for(integer i=0; i< 50 | (cpu.HLT != 0); i++) begin
+	//		@(posedge clk);
+	//	end
 		repeat(50) @(posedge clk);
+		
 		exit();
 	end
 

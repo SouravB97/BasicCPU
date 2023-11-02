@@ -1,5 +1,3 @@
-;;this is my code file
-
 LDA 0x34
 LDB 0x12
 LAR0 250 LAR1 0

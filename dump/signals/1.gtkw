@@ -1,24 +1,23 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Thu Nov 02 09:23:02 2023
+[*] Thu Nov 02 11:14:00 2023
 [*]
 [dumpfile] "C:\Users\soura\Documents\Verilog\testing\dump\CPU_tb.vcd"
-[dumpfile_mtime] "Thu Nov 02 09:19:44 2023"
-[dumpfile_size] 921024
+[dumpfile_mtime] "Thu Nov 02 11:07:38 2023"
+[dumpfile_size] 887642
 [savefile] "C:\Users\soura\Documents\Verilog\testing\dump\signals\1.gtkw"
 [timestart] 0
 [size] 2560 1369
 [pos] -1 -1
-*-13.149035 25100 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-15.149035 32700 15000 25000 35000 45000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] CPU_tb.
 [treeopen] CPU_tb.cpu.
-[treeopen] CPU_tb.cpu.B_reg.
 [treeopen] CPU_tb.cpu.B_reg.genblk1[0].
 [treeopen] CPU_tb.cpu.control_unit.
 [sst_width] 211
 [signals_width] 335
 [sst_expanded] 1
-[sst_vpaned_height] 578
+[sst_vpaned_height] 421
 @28
 CPU_tb.cpu.clk
 CPU_tb.cpu.reset
@@ -29,75 +28,29 @@ CPU_tb.cpu.T[7:0]
 (5)CPU_tb.cpu.T[7:0]
 (6)CPU_tb.cpu.T[7:0]
 (7)CPU_tb.cpu.T[7:0]
-@1001200
--group_end
-@c00022
-CPU_tb.cpu.address_bus[15:0]
-@28
-(0)CPU_tb.cpu.address_bus[15:0]
-(1)CPU_tb.cpu.address_bus[15:0]
-(2)CPU_tb.cpu.address_bus[15:0]
-(3)CPU_tb.cpu.address_bus[15:0]
-(4)CPU_tb.cpu.address_bus[15:0]
-(5)CPU_tb.cpu.address_bus[15:0]
-(6)CPU_tb.cpu.address_bus[15:0]
-(7)CPU_tb.cpu.address_bus[15:0]
-(8)CPU_tb.cpu.address_bus[15:0]
-(9)CPU_tb.cpu.address_bus[15:0]
-(10)CPU_tb.cpu.address_bus[15:0]
-(11)CPU_tb.cpu.address_bus[15:0]
-(12)CPU_tb.cpu.address_bus[15:0]
-(13)CPU_tb.cpu.address_bus[15:0]
-(14)CPU_tb.cpu.address_bus[15:0]
-(15)CPU_tb.cpu.address_bus[15:0]
-@1401200
--group_end
 @22
+CPU_tb.cpu.address_bus[15:0]
 CPU_tb.cpu.data_bus[7:0]
 [color] 2
-CPU_tb.cpu.ir0_reg_out[7:0]
-CPU_tb.cpu.alu_in0[7:0]
-CPU_tb.cpu.alu_in1[7:0]
+CPU_tb.cpu.instr_reg0.Q[7:0]
+CPU_tb.cpu.AC.Q[7:0]
+CPU_tb.cpu.B_reg.Q[7:0]
 CPU_tb.cpu.AR.addr_l[7:0]
-CPU_tb.cpu.alu_out[7:0]
 @28
+CPU_tb.cpu.MID[2:0]
+CPU_tb.cpu.MID_EN
+@29
+CPU_tb.cpu.OE_M
+@28
+CPU_tb.cpu.OE_A
+CPU_tb.cpu.SID[2:0]
+CPU_tb.cpu.SID_EN
+CPU_tb.cpu.WE_IR0
 CPU_tb.cpu.WE_A
 CPU_tb.cpu.WE_B
 CPU_tb.cpu.WE_AR0
-CPU_tb.cpu.SID_EN
-CPU_tb.cpu.OE_M
 CPU_tb.cpu.WE_M
-CPU_tb.cpu.MID_EN
-CPU_tb.cpu.PC_INR
-CPU_tb.cpu.AMID[1:0]
-CPU_tb.cpu.OE_AR
-CPU_tb.cpu.OE_PC
-CPU_tb.cpu.RAM.clk
-@22
-CPU_tb.cpu.RAM.address[7:0]
-CPU_tb.cpu.RAM.data[7:0]
-@28
-CPU_tb.cpu.RAM.WE
-CPU_tb.cpu.RAM.clk
-@22
-CPU_tb.cpu.RAM.address[7:0]
-CPU_tb.cpu.RAM.data[7:0]
-@28
-CPU_tb.cpu.RAM.OE
-CPU_tb.cpu.RAM.WE
-CPU_tb.cpu.RAM.CS
-@22
-CPU_tb.cpu.RAM.rdata[7:0]
-@29
-CPU_tb.cpu.mid_decoder.S[2:0]
-@22
-CPU_tb.cpu.mid_decoder.D[7:0]
-@28
-CPU_tb.cpu.mid_decoder.EN
-CPU_tb.cpu.sid_decoder.S[2:0]
-@22
-CPU_tb.cpu.sid_decoder.D[7:0]
-@28
-CPU_tb.cpu.sid_decoder.EN
+@1001200
+-group_end
 [pattern_trace] 1
 [pattern_trace] 0
