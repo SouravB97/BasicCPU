@@ -6,8 +6,8 @@ use List::Util qw(first);
 use Data::Dumper;
 use Getopt::Long;
 
+my $input_file = "$ENV{STEM}/asm_programmes/bootcode.asm";
 my $defines_file = "$ENV{STEM}/design/cpu_defines.vh";
-my $input_file = "$ENV{STEM}/testbench/bootcode_1.asm";
 my $output_file = $input_file;
 my %ins_map;
 my $code_byte_size = 0;
@@ -16,9 +16,10 @@ my $memory_width = 1;	#in bytes
 my $max_val = 2**($memory_width*8)-1;
 my @mem = ($max_val) x $memory_depth;
 my $mem_ptr = 0;
-my $delete_tmp = 0;
+my $delete_tmp = 1;
 my $randomize;
 my $help;
+my $show_map;
 my $help_message = 
 "	Help Message	\
 	source bootenv to setup ENV vars.
@@ -27,13 +28,13 @@ my $help_message =
 #printf ("@mem\nsize mem: %d\n", scalar @mem);
 
 $output_file =~ s/.asm/.hex/g;
-$output_file =~ s/testbench/testbench\/micro_codes/g;
 
 GetOptions ( 
 "f|inp=s" => \$input_file,
 "out=s" => 	\$output_file,
 "h|help" => 	\$help,
 "mem_depth=s" => 	\$memory_depth,
+"show" => 	\$show_map,
 "rand|randomize" => 	\$randomize
 );
 
@@ -61,7 +62,9 @@ while(my $line = <DATA>) {
 	}
 }
 close(DATA);
-#print Dumper(\%ins_map);
+print Dumper(\%ins_map) if defined $show_map;
+printf ("Total instructions: %d", scalar keys %ins_map);
+exit() if defined $show_map ;
 
 #Check syntax error
 open(INP, "<$input_file") or die "Couldn't open file $input_file, $!";

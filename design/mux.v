@@ -32,6 +32,20 @@ module tri_state_mux(input [1:0] D, input S, output Y);
 	tranif1(D[1], Y, S);
 endmodule
 
+//2x1 switch
+module switch_2x1
+#(parameter DATA_WIDTH = `DATA_WIDTH)(
+	input [DATA_WIDTH -1:0] D0, D1,
+	input  S,
+	output [DATA_WIDTH -1:0] Y
+);
+	genvar i;
+	generate 
+		for(i=0;i<DATA_WIDTH;i=i+1)
+			mux m(.D({D1[i], D0[i]}), .S(S), .Y(Y[i]));
+	endgenerate
+endmodule
+
 //N bit array of muxes.
 //useful for bus decode logic
 module mux_array
@@ -70,3 +84,4 @@ module mux_array
 
 
 endmodule
+

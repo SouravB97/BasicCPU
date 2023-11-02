@@ -1,1 +1,3 @@
--Added syntax checker to assembler
+-Added MVI, MOV instruction
+-Added ALU instructions
+-Trouble with accumulator logic, need to change architecture

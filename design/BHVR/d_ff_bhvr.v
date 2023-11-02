@@ -17,10 +17,12 @@ module d_ff(clk, reset, D, Q, Q_bar);
 	end
 endmodule
 
-module latch(D, EN, Q);
-	input D, EN;
-	output reg Q;
-
+module latch
+#(parameter DATA_WIDTH = 1)(
+	input [DATA_WIDTH-1:0] D,
+	input EN,
+	output reg [DATA_WIDTH-1:0] Q
+);
 	always @(*) begin
 		if(EN)
 			Q = D;

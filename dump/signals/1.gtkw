@@ -1,20 +1,20 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Thu Nov 02 11:14:00 2023
+[*] Thu Nov 02 16:19:57 2023
 [*]
 [dumpfile] "C:\Users\soura\Documents\Verilog\testing\dump\CPU_tb.vcd"
-[dumpfile_mtime] "Thu Nov 02 11:07:38 2023"
-[dumpfile_size] 887642
+[dumpfile_mtime] "Thu Nov 02 16:18:25 2023"
+[dumpfile_size] 979413
 [savefile] "C:\Users\soura\Documents\Verilog\testing\dump\signals\1.gtkw"
-[timestart] 0
+[timestart] 51160
 [size] 2560 1369
 [pos] -1 -1
-*-15.149035 32700 15000 25000 35000 45000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-14.149035 115000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] CPU_tb.
 [treeopen] CPU_tb.cpu.
 [treeopen] CPU_tb.cpu.B_reg.genblk1[0].
 [treeopen] CPU_tb.cpu.control_unit.
-[sst_width] 211
+[sst_width] 266
 [signals_width] 335
 [sst_expanded] 1
 [sst_vpaned_height] 421
@@ -31,18 +31,50 @@ CPU_tb.cpu.T[7:0]
 @22
 CPU_tb.cpu.address_bus[15:0]
 CPU_tb.cpu.data_bus[7:0]
+@c00022
 [color] 2
 CPU_tb.cpu.instr_reg0.Q[7:0]
+@28
+[color] 2
+(0)CPU_tb.cpu.instr_reg0.Q[7:0]
+[color] 2
+(1)CPU_tb.cpu.instr_reg0.Q[7:0]
+[color] 2
+(2)CPU_tb.cpu.instr_reg0.Q[7:0]
+[color] 2
+(3)CPU_tb.cpu.instr_reg0.Q[7:0]
+[color] 2
+(4)CPU_tb.cpu.instr_reg0.Q[7:0]
+[color] 2
+(5)CPU_tb.cpu.instr_reg0.Q[7:0]
+[color] 2
+(6)CPU_tb.cpu.instr_reg0.Q[7:0]
+[color] 2
+(7)CPU_tb.cpu.instr_reg0.Q[7:0]
+@1401200
+-group_end
+@c00022
 CPU_tb.cpu.AC.Q[7:0]
+@28
+(0)CPU_tb.cpu.AC.Q[7:0]
+(1)CPU_tb.cpu.AC.Q[7:0]
+(2)CPU_tb.cpu.AC.Q[7:0]
+(3)CPU_tb.cpu.AC.Q[7:0]
+(4)CPU_tb.cpu.AC.Q[7:0]
+(5)CPU_tb.cpu.AC.Q[7:0]
+(6)CPU_tb.cpu.AC.Q[7:0]
+(7)CPU_tb.cpu.AC.Q[7:0]
+@1401200
+-group_end
+@22
 CPU_tb.cpu.B_reg.Q[7:0]
 CPU_tb.cpu.AR.addr_l[7:0]
 @28
 CPU_tb.cpu.MID[2:0]
 CPU_tb.cpu.MID_EN
-@29
 CPU_tb.cpu.OE_M
-@28
 CPU_tb.cpu.OE_A
+CPU_tb.cpu.OE_B
 CPU_tb.cpu.SID[2:0]
 CPU_tb.cpu.SID_EN
 CPU_tb.cpu.WE_IR0
@@ -50,6 +82,29 @@ CPU_tb.cpu.WE_A
 CPU_tb.cpu.WE_B
 CPU_tb.cpu.WE_AR0
 CPU_tb.cpu.WE_M
+CPU_tb.cpu.PC_INR
+@22
+CPU_tb.cpu.alu.A[7:0]
+CPU_tb.cpu.alu.B[7:0]
+CPU_tb.cpu.alu.C[7:0]
+CPU_tb.cpu.alu.opcode[4:0]
+@28
+CPU_tb.cpu.alu.sign
+CPU_tb.cpu.alu.carry
+CPU_tb.cpu.alu.parity
+CPU_tb.cpu.alu.zero
+CPU_tb.cpu.EN_ALU
+CPU_tb.cpu.AC.clk
+@22
+CPU_tb.cpu.AC.D[7:0]
+CPU_tb.cpu.AC.Q[7:0]
+@28
+CPU_tb.cpu.AC.WE
+@22
+CPU_tb.cpu.alu_latch.D[7:0]
+CPU_tb.cpu.alu_latch.Q[7:0]
+@29
+CPU_tb.cpu.alu_latch.EN
 @1001200
 -group_end
 [pattern_trace] 1

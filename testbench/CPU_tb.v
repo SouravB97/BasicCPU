@@ -38,8 +38,8 @@ module CPU_tb();
 		$dumpvars(0,CPU_tb);
 		$timeformat(-9, 2, " ns", 20);
 		//load memory
-		$readmemh("micro_codes/bootcode_1.hex", mem); //must be same folder as tb top, where irun is run
-		$readmemh("micro_codes/bootcode_1.hex", cpu.RAM.mem); //must be same folder as tb top, where irun is run
+		$readmemh("micro_codes/bootcode.hex", mem); //must be same folder as tb top, where irun is run
+		$readmemh("micro_codes/bootcode.hex", cpu.RAM.mem); //must be same folder as tb top, where irun is run
 
 		clk <=0;
 		reset <=0;

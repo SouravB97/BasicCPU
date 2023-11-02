@@ -1,0 +1,22 @@
+;;this is my code file
+LDA 0xAB
+LDB 0x0F
+AND
+LAR0 0xFE
+LAR1 0
+INC
+MOV_A_MEM
+HLT
+;;LDA 0xDE
+;;LDB 0x32
+;;LAR1 0x00
+;;LAR0 0xF0
+;;MOV_B_MEM
+;;MOV_A_B
+;;LDA 0xAB
+;;MOV_A_B
+;;LAR0 0xF1
+;;MOV_B_MEM
+;;NOP
+;;NOP
+;;HLT

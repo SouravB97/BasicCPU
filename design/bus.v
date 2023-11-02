@@ -1,17 +1,21 @@
-
+/*
+Array of muxes which implements a bus
+*/
 module bus
-	#(parameter WIDTH = 3)(
+	#(parameter WIDTH = 3,
+		parameter DATA_WIDTH = `DATA_WIDTH
+)(
 	input [WIDTH -1 :0] select,
 	input EN,
-	inout [`DATA_WIDTH -1 :0] data
+	inout [DATA_WIDTH -1 :0] data
 );
 	
-	wire [`DATA_WIDTH -1 :0] reg_in;
+	wire [DATA_WIDTH -1 :0] reg_in;
 	wire [2 ** WIDTH -1 :0] decode;
 
 	genvar i;
 	generate
-		for(i = 0; i< `DATA_WIDTH; i = i+1) begin
+		for(i = 0; i< DATA_WIDTH; i = i+1) begin
 
 			decoder #(.WIDTH(WIDTH)) out_decoder(
 				.S(select), .EN(EN),

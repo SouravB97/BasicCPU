@@ -27,15 +27,25 @@ module d_ff(clk, reset, D, Q, Q_bar);
 
 endmodule
 
-module latch(D, EN, Q);
-	input D, EN;
-	output Q;
-
-	//level triggered
-	nand u1(Q, A, q_bar);
-	nand u2(q_bar, Q, B);
-	nand u3(A, D, EN);
-	nand u4(B, ~D, EN);
+module latch
+#(parameter DATA_WIDTH = 1)(
+	input [DATA_WIDTH-1:0] D,
+	input EN,
+	output [DATA_WIDTH-1:0] Q
+);
+	genvar i;
+	generate
+	if(DATA_WIDTH == 1) begin
+		//level triggered
+		nand u1(Q, A, q_bar);
+		nand u2(q_bar, Q, B);
+		nand u3(A, D, EN);
+		nand u4(B, ~D, EN);
+	end else begin
+		for(i=0;i<DATA_WIDTH;i=i+1)
+			latch l (.D(D[i]), .EN(EN), .Q(Q[i]));	
+	end
+	endgenerate
 
 endmodule
 `else
@@ -58,10 +68,12 @@ module d_ff(clk, reset, D, Q, Q_bar);
 	end
 endmodule
 
-module latch(D, EN, Q);
-	input D, EN;
-	output reg Q;
-
+module latch
+#(parameter DATA_WIDTH = 1)(
+	input [DATA_WIDTH-1:0] D,
+	input EN,
+	output reg [DATA_WIDTH-1:0] Q
+);
 	always @(*) begin
 		if(EN)
 			Q = D;
