@@ -42,8 +42,7 @@ endmodule
 //A special 16 bit register which is basically the address register 
 //with CNT_EN input
 module pc_register
-#(parameter ADDR_WIDTH = 2*`DATA_WIDTH,
-  parameter DATA_WIDTH = ADDR_WIDTH/2)(
+#(parameter ADDR_WIDTH = 2*`DATA_WIDTH)(
 	input clk, reset,
 	input CS, OE_A, CNT_EN,
 	input WE_L, OE_L, WE_H, OE_H,
@@ -51,6 +50,7 @@ module pc_register
 	output [ADDR_WIDTH-1:0] address,
 	output carry
 );
+	localparam DATA_WIDTH = ADDR_WIDTH/2;
 	wire [DATA_WIDTH-1:0] addr_l, addr_h;
 
 	counter #(.DATA_WIDTH(DATA_WIDTH)) reg_l (

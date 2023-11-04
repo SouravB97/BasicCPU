@@ -1,87 +1,3 @@
-/*
-module register
-#(parameter DATA_WIDTH = `DATA_WIDTH)(
-	input clk, reset,
-	input CS, WE, OE,
-	inout [DATA_WIDTH-1:0] data,
-);
-	wire [DATA_WIDTH-1:0] D,Q;
-
-	genvar i;
-
-	generate
-		for(i=0; i< DATA_WIDTH; i= i+1) begin
-			//dff
-			d_ff dff(.clk(clk), .reset(reset),
-								.D(D[i]), .Q(Q[i]));
-			//latch
-			latch l1(.D(data[i]), .Q(D[i]), .EN(CS & WE));
-
-			//tristate gate
-			tranif1(Q[i], data[i], CS & OE);
-		end
-	endgenerate
-endmodule
-
-
-//A register with seperate data input and output lines.
-//used for status register
-module st_register
-#(parameter DATA_WIDTH = `DATA_WIDTH)(
-	input clk, reset,
-	input CS, WE, OE,
-	input [DATA_WIDTH-1:0] data_in,
-	output [DATA_WIDTH-1:0] data_out
-);
-	wire [DATA_WIDTH-1:0] D,Q;
-
-	genvar i;
-
-	generate
-		for(i=0; i< DATA_WIDTH; i= i+1) begin
-			//dff
-			d_ff dff(.clk(clk), .reset(reset),
-								.D(D[i]), .Q(Q[i]));
-			//latch
-			latch l1(.D(data_in[i]), .Q(D[i]), .EN(CS & WE));
-
-			//tristate gate
-			tranif1(Q[i], data_out[i], CS & OE);
-		end
-	endgenerate
-endmodule
-
-
-//A special register who's data contents are always visible on an additional output data lines
-//It's designed to be used with any register connected as an inpt to the ALU
-module ac_register
-#(parameter DATA_WIDTH = `DATA_WIDTH)(
-	input clk, reset,
-	input CS, WE, OE,
-	inout [DATA_WIDTH-1:0] data,
-	output [DATA_WIDTH-1:0] data_out
-);
-	wire [DATA_WIDTH-1:0] D,Q;
-	assign data_out = Q;
-
-	genvar i;
-
-	generate
-		for(i=0; i< DATA_WIDTH; i= i+1) begin
-			//dff
-			d_ff dff(.clk(clk), .reset(reset),
-								.D(D[i]), .Q(Q[i]));
-			//latch
-			latch l1(.D(data[i]), .Q(D[i]), .EN(CS & WE));
-
-			//tristate gate
-			tranif1(Q[i], data[i], CS & OE);
-		end
-	endgenerate
-
-
-endmodule
-*/
 
 module register
 #(parameter DATA_WIDTH = `DATA_WIDTH,
@@ -118,14 +34,14 @@ endmodule
 //It has an output data bus called "address" to be conected to the address bus
 //"address" contains the 16 bit data when OE_A goes high
 module ar_register
-#(parameter ADDR_WIDTH = 2*`DATA_WIDTH,
-  parameter DATA_WIDTH = ADDR_WIDTH/2)(
+#(parameter ADDR_WIDTH = 2*`DATA_WIDTH)(
 	input clk, reset,
 	input CS, OE_A,
 	input WE_L, OE_L, WE_H, OE_H,
 	inout [DATA_WIDTH-1:0] data,
 	output [ADDR_WIDTH-1:0] address
 );
+	localparam DATA_WIDTH = ADDR_WIDTH/2;
 	wire [DATA_WIDTH-1:0] addr_l, addr_h;
 
 	register #(.DATA_WIDTH(DATA_WIDTH)) reg_l (
@@ -146,7 +62,38 @@ module ar_register
 		.OE(OE_A)
 	);
 
-
 endmodule
 
+//combines a register with ALU inputs to make an accumultor to be used in CPU
+//optionally can be used to attach any combinational logic element in the register feedback path
+//control unit must make sure OPCODE == LD during WE
+module ac_register #(
+	parameter DATA_WIDTH = `DATA_WIDTH)(
+	input clk, reset,
+	input CS, WE, OE,
+	input [DATA_WIDTH-1:0] alu_output,			//connect to ALU output PORT C
+	output [DATA_WIDTH-1:0] alu_input,			//connect to ALU input PORT A
+	output [DATA_WIDTH-1:0] data_out, 
+	inout [DATA_WIDTH-1:0] data
+);
 
+	wire [DATA_WIDTH-1:0] D,Q;
+	assign data_out = Q;
+	assign D = alu_output;
+
+	genvar i;
+
+	generate
+		for(i=0; i< DATA_WIDTH; i= i+1) begin
+			//dff
+			d_ff dff(.clk(clk), .reset(reset),
+								.D(D[i]), .Q(Q[i]));
+			//latch
+			latch l1(.D(data[i]), .Q(alu_input[i]), .EN(CS & WE));
+
+			//tristate gate
+			tranif1(Q[i], data[i], CS & OE);
+		end
+	endgenerate
+
+endmodule

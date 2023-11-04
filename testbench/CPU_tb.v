@@ -6,7 +6,7 @@ module CPU_tb();
 	localparam mem_output	= "../dump/output.hex";
 	localparam dump_file 	= "../dump/CPU_tb.vcd";
 
-	reg clk, reset;
+	reg clk, reset, hlt;
 	wire clk_out;
 
 	localparam clk_period = 10;
@@ -30,7 +30,7 @@ module CPU_tb();
 	};
 
 	//================instantiate DUT==========================
-	CPU cpu(.clk(clk), .reset(reset) /*,.control_bus(control_bus)*/);
+	cpu_m cpu(.clk(clk), .reset(reset), .hlt(hlt));
 	
 	//TB signals
 	reg [7:0] rdata;
@@ -45,15 +45,8 @@ module CPU_tb();
 		//load memory
 		$readmemh(mem_input, mem); //must be same folder as tb top, where irun is run
 		$readmemh(mem_input, cpu.RAM.mem); //must be same folder as tb top, where irun is run
-
-		clk <=0;
-		reset <=0;
 		$printtimescale;
-
-		#bootdelay reset = 1'b1;
-		//repeat(1000) @(posedge clk);
-		//reset = 0;
-		//#(bootdelay+clk_period/2) reset = 1'b1;
+		init();
 	end
 
 
@@ -66,11 +59,22 @@ module CPU_tb();
 	//	for(integer i=0; i< 50 | (cpu.HLT != 0); i++) begin
 	//		@(posedge clk);
 	//	end
-		repeat(50) @(posedge clk);
+		repeat(100) @(posedge clk);
 		
 		exit();
 	end
 
+	task init();
+		begin
+		clk <=0;
+		reset <=0;
+		hlt <= 0;
+		#bootdelay reset = 1'b1;
+		repeat(50) @(posedge clk);
+		reset = 0;
+		#(bootdelay+clk_period/2) reset = 1'b1;
+		end
+	endtask
 	task exit();
 		begin
 		$display("Ending seqs at time %t", $time);

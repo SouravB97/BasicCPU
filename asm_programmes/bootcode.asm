@@ -1,4 +1,6 @@
 ;;this is my code file
+LDA 0x00
+LDB 0x00
 LDA 0xAB
 LDB 0x0F
 LAR0 0xF0
@@ -7,6 +9,7 @@ MOV_A_MEM
 INC_AR
 MOV_B_MEM
 AND
+NOP
 INC
 INC_AR
 INC_AR

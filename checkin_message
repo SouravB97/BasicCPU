@@ -1,6 +1,1 @@
--Changed ac_register to register TYPE0
--Changed sp_register to register TYPE1
--Added INC_AR instruction
--Changed AR module type to pc_counter
--Experimented with configurable size switches. Not possible with icarus, only implemented 2x1
--Prepared TB in prep for accumulator
+-Experimented with Acc
