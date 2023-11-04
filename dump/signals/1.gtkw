@@ -1,21 +1,21 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Thu Nov 02 16:19:57 2023
+[*] Sat Nov 04 09:14:21 2023
 [*]
 [dumpfile] "C:\Users\soura\Documents\Verilog\testing\dump\CPU_tb.vcd"
-[dumpfile_mtime] "Thu Nov 02 16:18:25 2023"
-[dumpfile_size] 979413
+[dumpfile_mtime] "Sat Nov 04 09:04:47 2023"
+[dumpfile_size] 1128690
 [savefile] "C:\Users\soura\Documents\Verilog\testing\dump\signals\1.gtkw"
-[timestart] 51160
+[timestart] 0
 [size] 2560 1369
 [pos] -1 -1
-*-14.149035 115000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-15.149036 75000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] CPU_tb.
 [treeopen] CPU_tb.cpu.
 [treeopen] CPU_tb.cpu.B_reg.genblk1[0].
 [treeopen] CPU_tb.cpu.control_unit.
 [sst_width] 266
-[signals_width] 335
+[signals_width] 342
 [sst_expanded] 1
 [sst_vpaned_height] 421
 @28
@@ -103,8 +103,17 @@ CPU_tb.cpu.AC.WE
 @22
 CPU_tb.cpu.alu_latch.D[7:0]
 CPU_tb.cpu.alu_latch.Q[7:0]
-@29
+@28
 CPU_tb.cpu.alu_latch.EN
+CPU_tb.cpu.status_reg.clk
+CPU_tb.cpu.status_reg.reset
+@22
+CPU_tb.cpu.status_reg.data_in[3:0]
+CPU_tb.cpu.status_reg.data_out[3:0]
+@28
+CPU_tb.cpu.status_reg.CS
+CPU_tb.cpu.status_reg.OE
+CPU_tb.cpu.status_reg.WE
 @1001200
 -group_end
 [pattern_trace] 1

@@ -40,14 +40,14 @@ module CPU(
 	//========================= CPU Registers =====================================
 
 	//Accumulator
-	ac_register #(.DATA_WIDTH(8)) AC (
+	register #(.TYPE(0), .DATA_WIDTH(8)) AC (
 		.clk(clk), .reset(reset),
 		.data(data_bus), .data_out(alu_in0),
 		.CS(1'b1),.WE(WE_A),.OE(OE_A)
 	);
 		
 	//B register
-	ac_register #(.DATA_WIDTH(8)) B_reg (
+	register #(.TYPE(0), .DATA_WIDTH(8)) B_reg (
 		.clk(clk), .reset(reset),
 		.data(data_bus), .data_out(alu_in1),
 		.CS(1'b1),.WE(WE_B),.OE(OE_B)

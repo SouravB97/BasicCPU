@@ -1,6 +1,11 @@
 `include "includes.vh"
 
 module CPU_tb();
+
+	localparam mem_input	= "./micro_codes/bootcode.hex";
+	localparam mem_output	= "../dump/output.hex";
+	localparam dump_file 	= "../dump/CPU_tb.vcd";
+
 	reg clk, reset;
 	wire clk_out;
 
@@ -34,12 +39,12 @@ module CPU_tb();
 	reg [`DATA_WIDTH - 1 :0] mem [0:`MEMORY_DEPTH -1] ;
 
 	initial begin
-		$dumpfile("../dump/CPU_tb.vcd");
+		$dumpfile(dump_file);
 		$dumpvars(0,CPU_tb);
 		$timeformat(-9, 2, " ns", 20);
 		//load memory
-		$readmemh("micro_codes/bootcode.hex", mem); //must be same folder as tb top, where irun is run
-		$readmemh("micro_codes/bootcode.hex", cpu.RAM.mem); //must be same folder as tb top, where irun is run
+		$readmemh(mem_input, mem); //must be same folder as tb top, where irun is run
+		$readmemh(mem_input, cpu.RAM.mem); //must be same folder as tb top, where irun is run
 
 		clk <=0;
 		reset <=0;
@@ -69,8 +74,7 @@ module CPU_tb();
 	task exit();
 		begin
 		$display("Ending seqs at time %t", $time);
-		$writememh("output.hex", cpu.RAM.mem);
-		$display("RAM mem[%h] = %h", 254, cpu.RAM.mem[254]);
+		$writememh(mem_output, cpu.RAM.mem);
 		$finish();
 		end
 	endtask

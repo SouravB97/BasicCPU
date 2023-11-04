@@ -25,9 +25,6 @@ my $help_message =
 	source bootenv to setup ENV vars.
 "
 ;
-#printf ("@mem\nsize mem: %d\n", scalar @mem);
-
-$output_file =~ s/.asm/.hex/g;
 
 GetOptions ( 
 "f|inp=s" => \$input_file,
@@ -46,6 +43,8 @@ if(defined $help){
 print "input file: $input_file\n" ;
 print "Output file: $output_file\n" ;
 
+#printf ("@mem\nsize mem: %d\n", scalar @mem);
+$output_file =~ s/.asm/.hex/g;
 
 open(DATA, "<$defines_file") or die "Couldn't open file $defines_file, $!";
 

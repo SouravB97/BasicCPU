@@ -1,9 +1,9 @@
+/*
 module register
 #(parameter DATA_WIDTH = `DATA_WIDTH)(
 	input clk, reset,
 	input CS, WE, OE,
 	inout [DATA_WIDTH-1:0] data,
-	input [DATA_WIDTH-1:0] reset_val
 );
 	wire [DATA_WIDTH-1:0] D,Q;
 
@@ -81,8 +81,37 @@ module ac_register
 
 
 endmodule
+*/
 
+module register
+#(parameter DATA_WIDTH = `DATA_WIDTH,
+	parameter TYPE = 0	//0: regular register, 1: data_in for input
+)(
+	input clk, reset,
+	input CS, WE, OE,
+	input [DATA_WIDTH-1:0] data_in,
+	output [DATA_WIDTH-1:0] data_out,
+	inout [DATA_WIDTH-1:0] data
+);
+	wire [DATA_WIDTH-1:0] D,Q;
+	assign data_out = Q;
 
+	genvar i;
+
+	generate
+		for(i=0; i< DATA_WIDTH; i= i+1) begin
+			//dff
+			d_ff dff(.clk(clk), .reset(reset),
+								.D(D[i]), .Q(Q[i]));
+			//latch
+			if(TYPE == 1)	latch l1(.D(data_in[i]), .Q(D[i]), .EN(CS & WE));
+			else					latch l1(.D(data[i]), .Q(D[i]), .EN(CS & WE));
+
+			//tristate gate
+			tranif1(Q[i], data[i], CS & OE);
+		end
+	endgenerate
+endmodule
 
 //Address register
 //16 bit register designed to be used as Address registers
@@ -99,13 +128,13 @@ module ar_register
 );
 	wire [DATA_WIDTH-1:0] addr_l, addr_h;
 
-	ac_register #(.DATA_WIDTH(DATA_WIDTH)) reg_l (
+	register #(.DATA_WIDTH(DATA_WIDTH)) reg_l (
 		.clk(clk), .reset(reset),
 		.data(data), .data_out(addr_l),
 		.CS(CS),.WE(WE_L),.OE(OE_L)
 	);
 
-	ac_register #(.DATA_WIDTH(DATA_WIDTH)) reg_h (
+	register #(.DATA_WIDTH(DATA_WIDTH)) reg_h (
 		.clk(clk), .reset(reset),
 		.data(data), .data_out(addr_h),
 		.CS(CS),.WE(WE_H),.OE(OE_H)

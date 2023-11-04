@@ -1,3 +1,5 @@
+ rm -rf ~/Documents/Verilog/compiled/* $STEM/dump/CPU_tb.vcd $STEM/dump/output.hex  $STEM/testbench/micro_codes/bootcode.hex;
  $STEM/scripts/assembler.pl -inp $STEM/asm_programmes/bootcode.asm -out $STEM/testbench/micro_codes/bootcode.hex ;
  irun.bat CPU_tb.v ; 
+ echo "MEM_DUMP: $STEM/dump/output.hex"; tail -17 $STEM/dump/output.hex ;
  gtkwave -f $STEM/dump/CPU_tb.vcd -a $STEM/dump/signals/1.gtkw

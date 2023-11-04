@@ -15,17 +15,12 @@ module counter
 	assign cnt_en[0] = CNT_EN & CS;
 	assign carry = cnt_en[DATA_WIDTH];
 
-	wire sync_clr_bar;
-	assign sync_clr_bar = ~SYNC_CLR;
-
 	genvar i;
 	generate
 		for(i = 0; i < DATA_WIDTH; i=i+1) begin
 			//muxes
-			//mux mux0(.D({D[i], cnt_en[i]}), .S(WE), .Y(J[i]));
-			//mux mux1(.D({~D[i], cnt_en[i]}), .S(WE), .Y(K[i]));
-			mux #(.DATA_WIDTH(4)) mux0(.D({1'b0, 1'b0, D[i], cnt_en[i]}),  .S({SYNC_CLR, WE}), .Y(J[i]));
-			mux #(.DATA_WIDTH(4)) mux1(.D({1'b1, 1'b1, ~D[i], cnt_en[i]}), .S({SYNC_CLR, WE}), .Y(K[i]));
+			mux #(.DATA_WIDTH(4)) mux0(.D({2'b00, D[i], cnt_en[i]}),  .S({SYNC_CLR, WE}), .Y(J[i]));
+			mux #(.DATA_WIDTH(4)) mux1(.D({2'b11, ~D[i], cnt_en[i]}), .S({SYNC_CLR, WE}), .Y(K[i]));
 
 			//JK flip flop
 			jk_ff jk_ff0 (.clk(clk), .reset(reset),

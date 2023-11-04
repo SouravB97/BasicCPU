@@ -21,6 +21,7 @@ module CPU(
 	wire MID_EN			= control_bus[`CB_MID_EN_RANGE];
 	wire SID_EN			= control_bus[`CB_SID_EN_RANGE];
 	wire PC_INR			= control_bus[`CB_PC_INR_RANGE];
+	wire AR_INR			= control_bus[`CB_AR_INR_RANGE];
 	wire HLT				= control_bus[`CB_HLT_RANGE];
 	wire CLR_TIMER	= control_bus[`CB_CLR_TIMER_RANGE];
 	wire EN_ALU			= control_bus[`CB_EN_ALU_RANGE];
@@ -38,14 +39,14 @@ module CPU(
 	//========================= CPU Registers =====================================
 
 	//Accumulator
-	ac_register #(.DATA_WIDTH(8)) AC (
+	register #(.TYPE(0), .DATA_WIDTH(8)) AC (
 		.clk(clk), .reset(reset),
-		.data(acc_in), .data_out(alu_in0),
+		.data(data_bus), .data_out(alu_in0),
 		.CS(1'b1),.WE(WE_A | EN_ALU),.OE(OE_A)
 	);
 		
 	//B register
-	ac_register #(.DATA_WIDTH(8)) B_reg (
+	register #(.TYPE(0), .DATA_WIDTH(8)) B_reg (
 		.clk(clk), .reset(reset),
 		.data(data_bus), .data_out(alu_in1),
 		.CS(1'b1),.WE(WE_B),.OE(OE_B)
@@ -62,9 +63,9 @@ module CPU(
 //	);
 
 	//status register
-	st_register #(.DATA_WIDTH(4)) status_reg(
+	register #(.TYPE(0), .DATA_WIDTH(4)) status_reg(
 		.clk(clk), .reset(reset),
-		.data_out(data_bus[3:0]), .data_in(alu_status),
+		.data(data_bus[3:0]), .data_in(alu_status),
 		.CS(1'b1), .WE(1'b1), .OE(1'b0/*OE_SR*/)
 	);
 
@@ -76,7 +77,7 @@ module CPU(
 		.WE_H(WE_IR1),.OE_H(OE_IR1),
 		.WE_L(WE_IR0),.OE_L(OE_IR0)
 	);*/
-	ac_register #(.DATA_WIDTH(8)) instr_reg0 (
+	register #(.TYPE(0), .DATA_WIDTH(8)) instr_reg0 (
 		.clk(clk), .reset(reset),
 		.data(data_bus), .data_out(ir0_reg_out),
 		.CS(1'b1),.WE(WE_IR0),.OE(OE_IR0)
@@ -92,15 +93,15 @@ module CPU(
 		.D(alu_out), .EN(~clk & EN_ALU), .Q(alu_latch_out)
 	);	
 	switch_2x1 #(.DATA_WIDTH(8)) acc_data_switch(
-		.D1(alu_latch_out), .D0(data_bus),
-		.Y(acc_in), .S(EN_ALU)
+		.data_in({alu_latch_out,data_bus}),
+		.data_out(), .S(EN_ALU)
 	);
 	//========================= Address Registers =====================================
 	//Address register AR
-	ar_register #(.ADDR_WIDTH(16)) AR(
+	pc_register #(.ADDR_WIDTH(16)) AR(
 		.clk(clk), .reset(reset),
 		.data(data_bus), .address(address_bus),
-		.CS(1'b1),.OE_A(OE_AR),
+		.CS(1'b1),.OE_A(OE_AR), .CNT_EN(AR_INR),
 		.WE_H(WE_AR1),.OE_H(OE_AR1),
 		.WE_L(WE_AR0),.OE_L(OE_AR0)
 	);
@@ -310,6 +311,12 @@ module control_unit_m(
 				T[0] ? 1'b0
 		: 	T[1] ? 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] 	? 1'b0		
 								:	1'b1
+		: 			   1'b0
+	;
+	assign control_bus[`CB_AR_INR_RANGE]	= 
+				T[0] ? 1'b0
+		: 	T[1] ? 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_INC_AR)] 	? 1'b1		
+								:	1'b0
 		: 			   1'b0
 	;
 endmodule

@@ -1,10 +1,10 @@
 module mux
-#(	parameter DATA_WIDTH = 2,
-		parameter SEL_WIDTH = $clog2(DATA_WIDTH))(
+#(parameter DATA_WIDTH = 2)(
 	input [DATA_WIDTH - 1:0] D,
 	input [SEL_WIDTH - 1: 0] S,	
 	output Y
 );
+	localparam SEL_WIDTH = $clog2(DATA_WIDTH);
 
 	if(DATA_WIDTH ==2)
 		tri_state_mux stage0_mux(.D(D), .S(S), .Y(Y));
@@ -33,16 +33,25 @@ module tri_state_mux(input [1:0] D, input S, output Y);
 endmodule
 
 //2x1 switch
+
 module switch_2x1
 #(parameter DATA_WIDTH = `DATA_WIDTH)(
-	input [DATA_WIDTH -1:0] D0, D1,
-	input  S,
-	output [DATA_WIDTH -1:0] Y
+	input [SIZE*DATA_WIDTH -1:0] data_in,
+	input [SEL_WIDTH-1:0] S,
+	output [DATA_WIDTH -1:0] data_out
 );
+	localparam SIZE = 2;
+	localparam SEL_WIDTH = $clog2(SIZE);
 	genvar i;
-	generate 
-		for(i=0;i<DATA_WIDTH;i=i+1)
-			mux m(.D({D1[i], D0[i]}), .S(S), .Y(Y[i]));
+	generate
+		for(i=0;i<DATA_WIDTH;i=i+1) begin
+			wire D[SIZE-1:0];
+			//for(j=0;j<SIZE;j=j+1)
+				//assign D[0] = data_in[0*DATA_WIDTH + i];
+				//assign D[1] = data_in[1*DATA_WIDTH + i];
+			//	assign D = {data_in[1*DATA_WIDTH + i],data_in[0*DATA_WIDTH + i]};
+			mux #(.DATA_WIDTH(SIZE)) m(.D({data_in[1*DATA_WIDTH + i],data_in[0*DATA_WIDTH + i]}), .S(S), .Y(data_out[i]));
+		end
 	endgenerate
 endmodule
 
@@ -81,7 +90,40 @@ module mux_array
 
 		end
 	endgenerate
+endmodule
 
+//Verilog doesn't allow an I/O port to be a 2-D array.
+//In Verilog 2001 you could flatten your array into a vector and pass that through the port, but that's somewhat awkward.
+module switch
+#(
+	parameter DATA_WIDTH = `DATA_WIDTH,
+	parameter SIZE = 2
+)(
+	input[SIZE*DATA_WIDTH-1:0] data_in,
+	input[SEL_WIDTH-1:0] S,
+	output[DATA_WIDTH-1:0] data_out	
+);
+	localparam SEL_WIDTH = $clog2(SIZE);
+	wire[DATA_WIDTH-1:0] data_in_arr [0:SIZE-1];
+
+	genvar N;
+	generate
+		for(N =0; N<SIZE; N=N+1) begin : DATA_IN
+			assign data_in_arr[N] = data_in[(N+1)*DATA_WIDTH -1 : N*(DATA_WIDTH)];
+		end
+	endgenerate
+
+	genvar i,j;
+	generate
+		for(i=0;i<DATA_WIDTH;i=i+1) begin	: MUX
+			wire[SIZE-1:0] D;
+			//BREAKS ICARUS VERILOG COMPILER  for(j=0;i<SIZE;j=j+1) begin
+			//BREAKS ICARUS VERILOG COMPILER  	assign D[j] = data_in_arr[j][i];
+			//BREAKS ICARUS VERILOG COMPILER  	//assign D[j] = data_in[j*DATA_WIDTH+i];
+			//BREAKS ICARUS VERILOG COMPILER  end
+			mux #(.DATA_WIDTH(SIZE)) m (.D(D), .S(S), .Y(data_out[i]));
+		end
+	endgenerate
 
 endmodule
 
