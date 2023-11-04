@@ -1,28 +1,28 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Sat Nov 04 14:29:20 2023
+[*] Sat Nov 04 23:27:40 2023
 [*]
 [dumpfile] "C:\Users\soura\Documents\Verilog\testing\dump\CPU_tb.vcd"
-[dumpfile_mtime] "Sat Nov 04 14:02:13 2023"
-[dumpfile_size] 1453423
+[dumpfile_mtime] "Sat Nov 04 22:45:10 2023"
+[dumpfile_size] 1329936
 [savefile] "C:\Users\soura\Documents\Verilog\testing\dump\signals\1.gtkw"
-[timestart] 0
-[size] 2560 1369
+[timestart] 2000
+[size] 1902 991
 [pos] -1 -1
-*-16.149036 205200 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-15.332601 125000 35000 45000 55000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] CPU_tb.
 [treeopen] CPU_tb.cpu.
-[treeopen] CPU_tb.cpu.A.
-[treeopen] CPU_tb.cpu.A.genblk1[0].
 [treeopen] CPU_tb.cpu.B_reg.genblk1[0].
-[treeopen] CPU_tb.cpu.control_unit.
 [sst_width] 266
 [signals_width] 342
 [sst_expanded] 1
-[sst_vpaned_height] 421
+[sst_vpaned_height] 289
+@800200
+-CPU main signals
 @28
 CPU_tb.cpu.clk
 CPU_tb.cpu.reset
+CPU_tb.cpu.time_cycle[1:0]
 @800022
 CPU_tb.cpu.T[3:0]
 @28
@@ -30,79 +30,75 @@ CPU_tb.cpu.T[3:0]
 (1)CPU_tb.cpu.T[3:0]
 (2)CPU_tb.cpu.T[3:0]
 (3)CPU_tb.cpu.T[3:0]
-@1001200
--group_end
-@800200
--CPU_tb.cpu.T
 @22
 CPU_tb.cpu.address_bus[15:0]
-CPU_tb.cpu.data_bus[7:0]
-@c00022
-[color] 2
-CPU_tb.cpu.instr_reg0.Q[7:0]
 @28
-[color] 2
-(0)CPU_tb.cpu.instr_reg0.Q[7:0]
-[color] 2
-(1)CPU_tb.cpu.instr_reg0.Q[7:0]
-[color] 2
-(2)CPU_tb.cpu.instr_reg0.Q[7:0]
-[color] 2
-(3)CPU_tb.cpu.instr_reg0.Q[7:0]
-[color] 2
-(4)CPU_tb.cpu.instr_reg0.Q[7:0]
-[color] 2
-(5)CPU_tb.cpu.instr_reg0.Q[7:0]
-[color] 2
-(6)CPU_tb.cpu.instr_reg0.Q[7:0]
-[color] 2
-(7)CPU_tb.cpu.instr_reg0.Q[7:0]
-@1401200
--group_end
-@22
-CPU_tb.cpu.A.Q[7:0]
-CPU_tb.cpu.B_reg.Q[7:0]
-CPU_tb.cpu.AR.addr_l[7:0]
-@28
-CPU_tb.cpu.MID[2:0]
-CPU_tb.cpu.MID_EN
-CPU_tb.cpu.OE_M
-@29
-CPU_tb.cpu.OE_A
-@28
-CPU_tb.cpu.OE_B
-CPU_tb.cpu.SID[2:0]
-CPU_tb.cpu.SID_EN
-CPU_tb.cpu.WE_IR0
-CPU_tb.cpu.WE_A
-CPU_tb.cpu.WE_B
-CPU_tb.cpu.WE_AR0
-CPU_tb.cpu.WE_M
 CPU_tb.cpu.PC_INR
 @22
-CPU_tb.cpu.alu.A[7:0]
-CPU_tb.cpu.alu.B[7:0]
-CPU_tb.cpu.alu.C[7:0]
-CPU_tb.cpu.alu.opcode[4:0]
+CPU_tb.cpu.data_bus[7:0]
+[color] 2
+CPU_tb.cpu.ir0_reg_out[7:0]
 @28
-CPU_tb.cpu.alu.sign
-CPU_tb.cpu.alu.carry
-CPU_tb.cpu.alu.parity
-CPU_tb.cpu.alu.zero
-CPU_tb.cpu.A.clk
+[color] 2
+CPU_tb.cpu.WE_IR0
 @22
-CPU_tb.cpu.A.data[7:0]
-CPU_tb.cpu.A.alu_input[7:0]
+CPU_tb.cpu.A_reg.Q[7:0]
 @28
-CPU_tb.cpu.A.WE
-CPU_tb.cpu.A.OE
+CPU_tb.cpu.WE_A
 @22
-CPU_tb.cpu.A.alu_output[7:0]
-CPU_tb.cpu.A.D[7:0]
-CPU_tb.cpu.A.Q[7:0]
+CPU_tb.cpu.B_reg.Q[7:0]
 @28
-CPU_tb.cpu.A.WE
-@1000200
+CPU_tb.cpu.WE_B
+@22
+CPU_tb.cpu.AR.addr_l[7:0]
+@1001200
 -group_end
+@28
+CPU_tb.cpu.OE_M
+CPU_tb.cpu.OE_A
+CPU_tb.cpu.OE_B
+CPU_tb.cpu.WE_M
+@1000200
+-CPU main signals
+@800200
+-RAM
+@29
+CPU_tb.cpu.RAM.clk
+@28
+CPU_tb.cpu.RAM.reset
+@22
+CPU_tb.cpu.RAM.address[7:0]
+CPU_tb.cpu.RAM.data[7:0]
+@28
+CPU_tb.cpu.RAM.WE
+CPU_tb.cpu.RAM.OE
+@1000200
+-RAM
+@c00200
+-A_reg
+@28
+CPU_tb.cpu.A_reg.clk
+@22
+CPU_tb.cpu.A_reg.D[7:0]
+CPU_tb.cpu.A_reg.alu_input[7:0]
+CPU_tb.cpu.A_reg.Q[7:0]
+CPU_tb.cpu.A_reg.alu_output[7:0]
+@28
+CPU_tb.cpu.A_reg.WE
+CPU_tb.cpu.A_reg.OE
+@1401200
+-A_reg
+@800200
+-instr_reg0
+@28
+CPU_tb.cpu.instr_reg0.clk
+@22
+CPU_tb.cpu.instr_reg0.data[7:0]
+CPU_tb.cpu.instr_reg0.D[7:0]
+CPU_tb.cpu.instr_reg0.Q[7:0]
+@28
+CPU_tb.cpu.instr_reg0.WE
+@1000200
+-instr_reg0
 [pattern_trace] 1
 [pattern_trace] 0

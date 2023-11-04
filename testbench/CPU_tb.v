@@ -10,7 +10,7 @@ module CPU_tb();
 	wire clk_out;
 
 	localparam clk_period = 10;
-	localparam bootdelay = 13;
+	localparam bootdelay = 3*clk_period + 3;
 	integer i;
 
 	always #(clk_period/2) clk = ~clk;
@@ -131,7 +131,7 @@ module CPU_tb();
 		reg [7:0] expected_rdata, actual_rdata, wdata;
 		begin
 			//pause CPU:
-			force cpu.en_timer_decoder = 0;
+			force cpu.control_unit.en_timer_decoder = 0;
 			//WRITE
 			addr = 16'h0000;
 			for(i = 0 ; i < `MEMORY_DEPTH; i++) begin

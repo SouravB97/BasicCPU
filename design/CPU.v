@@ -25,16 +25,20 @@ module cpu_m(
 	wire HLT				= control_bus[`CB_HLT_RANGE] | hlt;
 	wire CLR_TIMER	= control_bus[`CB_CLR_TIMER_RANGE];
 ;
+	//========================= timing and clocks =====================================
+	wire clk1 = clk;
+	wire clk2 = reset & ~clk;
+	wire clk3 = reset_q & clk;
 
 	//========================= random wires in CPU =====================================
 	wire[7:0] alu_in0, alu_in1, alu_out, ir0_reg_out, acc_in, alu_latch_out;
+	wire[4:0] alu_opcode_latched;
 	wire[3:0] alu_status;
-	wire[1:0] time_cycle;
-	wire[3:0] T;
+	wire[15:0] address_bus1;
 
 	//========================= CPU Registers =====================================
 	//Accumulator
-	ac_register #(.DATA_WIDTH(8)) A (
+	ac_register #(.DATA_WIDTH(8)) A_reg (
 		.clk(clk), .reset(reset),
 		.data(data_bus),
 		.alu_output(alu_out),
@@ -70,6 +74,11 @@ module cpu_m(
 		.C(alu_out), .status(alu_status)
 	);
 
+	latch #(.DATA_WIDTH(5)) alu_opcode_latch(
+		.D(ALU_OPCODE), .Q(alu_opcode_latched),
+		.EN(~clk)
+	);
+
 	//========================= Address Registers =====================================
 	//Address register AR
 	pc_register #(.ADDR_WIDTH(16)) AR(
@@ -87,6 +96,11 @@ module cpu_m(
 		.WE_H(WE_PC1),.OE_H(OE_PC1),
 		.WE_L(WE_PC0),.OE_L(OE_PC0)
 	);
+	//latch
+	//latch #(.DATA_WIDTH(16)) address_latch(
+	//	.D(address_bus1), .Q(address_bus), .EN(~clk)	
+	//);
+
 	//Stack pointer SP
 //	ar_register #(.ADDR_WIDTH(16)) SP(
 //		.clk(clk), .reset(reset),
@@ -116,6 +130,7 @@ module cpu_m(
 		.address(address_bus[7:0]), .data(data_bus), 
 		.OE(OE_M), .WE(WE_M), .CS(~address_bus[15])
 	);
+	//assign data_bus = `CPU_INSTR_NOP;
 
 	//========================= DATA bus Decoders =====================================
 	//Slave data_bus ID decode (WE decoder)
@@ -181,38 +196,32 @@ module cpu_m(
 		})
 	);
 
-	//========================= Timer =====================================
-	//timer counter
-	counter #(.DATA_WIDTH(2)) timer_reg(
-		.clk(clk), .reset(reset),
-		.data_out(time_cycle),
-		.CS(1'b1), .CNT_EN(cnt_en_timer), .WE(1'b0), .SYNC_CLR(CLR_TIMER)
-	);
-	//synchronizing flop
-	d_ff cnt_en_timer_dff(.clk(clk), .reset(reset), .D(~HLT), .Q(cnt_en_timer)); //ensure T[0] at first clk after reset
-
-	//timing generator
-	decoder #(.WIDTH(2)) timer_decoder(
-		.S(time_cycle), .EN(en_timer_decoder), .D(T)
-	);
-	latch en_timer(.D(reset), .EN(clk), .Q(en_timer_decoder)); //ensure T[0] ==0 at reset no posedge clk
 	//========================= Control Unit =====================================
 	control_unit_m control_unit(
+		.clk(clk), .reset(reset), .hlt(hlt),
 		.ir0_reg_out(ir0_reg_out), .alu_status(alu_status),
-	 	.time_cycle(time_cycle), .T(T),
 	 	.control_bus(control_bus)
 	);
+	//========================= Control Unit =====================================
+
+	//reset delay flop
+	d_ff reset_delay(.clk(clk), .reset(reset), .D(reset), .Q(reset_q)); 
 
 endmodule
 
 module control_unit_m(
-	input [1:0] time_cycle,
-	input [3:0] T,
+	input clk, reset, hlt,
 	input	[7:0] ir0_reg_out, input [3:0] alu_status,
 	output [32:0] control_bus
 );
 
-	;
+	//timing controls
+	wire [1:0] time_cycle;
+	wire [3:0] T;
+
+	wire HLT				= control_bus[`CB_HLT_RANGE] | hlt;
+	wire CLR_TIMER	= control_bus[`CB_CLR_TIMER_RANGE];
+
 	wire [31:0] DEC_IR0;
 	wire [4:0] alu_opcode = ir0_reg_out[`OPCODEWORD_ALU_OPCODE_RANGE];
 	wire [2:0] ir0_mid		= ir0_reg_out[`OPCODEWORD_MID_RANGE];
@@ -222,6 +231,24 @@ module control_unit_m(
 	wire op_is_mov_ins = op_is_mov | op_is_mvi ;
 	wire op_is_mem	= (op_is_mov_ins) & ~|(ir0_sid[2:0] ^ 3'h1);	//SID is RAM
 	wire mid_sid_is_ram	=  |(ir0_sid[2:0] ^ 3'h1) | |(ir0_mid[2:0] ^ 3'h1);	//MID or SID is RAM
+
+	//========================= Timer =====================================
+	//timer counter
+	counter #(.DATA_WIDTH(2)) timer_reg(
+		.clk(clk), .reset(reset),
+		.data_out(time_cycle),
+		.CS(1'b1), .CNT_EN(cnt_en_timer), .WE(1'b0), .SYNC_CLR(CLR_TIMER)
+	);
+	//synchronizing flop
+	d_ff cnt_en_timer_dff(.clk(clk), .reset(reset), .D(~HLT), .Q(cnt_en_timer)); //ensure T[0] at first clk after reset
+	//d_ff reset_delay(.clk(clk), .reset(1'b1), .D(reset), .Q(reset_q));
+
+	//timing generator
+	decoder #(.WIDTH(2)) timer_decoder(
+		.S(time_cycle), .EN(en_timer_decoder), .D(T)
+	);
+	//latch en_timer(.D(reset), .EN(clk), .Q(en_timer_decoder)); //ensure T[0] ==0 at reset no posedge clk
+	d_ff en_timer_dff(.clk(clk), .reset(reset), .D(1'b1), .Q(en_timer_decoder)); //ensure T[0] at first clk after reset
 
 	//========================= Instruction Decoders =====================================
 	decoder #(.WIDTH(`OPCODEWORD_ALU_OPCODE_WIDTH)) ir0_decoder(

@@ -26,6 +26,8 @@ module memory
 		$display("=============================================================================================");
 		$display("");
 		$display("");
+		@(posedge reset);
+		rdata = mem[address];
 
 /*
 		//clear memory
