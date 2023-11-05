@@ -55,7 +55,7 @@ IO:  0x8000-0x8004
 `define CB_HLT_RANGE	 				 18:18  
 `define CB_CLR_TIMER_RANGE	 	 19:19  
 `define CB_AR_INR_RANGE	 	 		 20:20  
-`define CB_ALU_LE_RANGE	 	 		 21:21  
+`define CB_ALU_EN_RANGE	 	 		 21:21  
 
 `define DEC_OP(op) \ //gives same output as ir0_decoder
 	(op >> `OPCODEWORD_DECODE_OFFSET)	& {`OPCODEWORD_ALU_OPCODE_WIDTH{1'b1}}

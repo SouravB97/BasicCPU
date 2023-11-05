@@ -26,8 +26,6 @@ module memory
 		$display("=============================================================================================");
 		$display("");
 		$display("");
-		@(posedge reset);
-		rdata = mem[address];
 
 /*
 		//clear memory
@@ -44,6 +42,9 @@ module memory
 		//print_mem();
 	end
 
+	always	@(posedge reset) begin
+		rdata = mem[address];
+	end
 	always @(posedge clk) begin
 		if(reset) begin
 		  if(CS) begin

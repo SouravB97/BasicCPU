@@ -24,7 +24,7 @@ module cpu_m(
 	wire AR_INR						= control_bus[`CB_AR_INR_RANGE];
 	wire HLT							= control_bus[`CB_HLT_RANGE] | hlt;
 	wire CLR_TIMER				= control_bus[`CB_CLR_TIMER_RANGE];
-	wire ALU_LE						= control_bus[`CB_ALU_LE_RANGE];
+	wire ALU_EN						= control_bus[`CB_ALU_EN_RANGE];
 ;
 	//========================= timing and clocks =====================================
 	wire clk1 = reset_q & clk;
@@ -45,7 +45,7 @@ module cpu_m(
 		.alu_input(alu_in1),
 		.alu_opcode(ALU_OPCODE),
 		.alu_status(alu_status),
-		.CS(1'b1),.WE(WE_A),.OE(OE_A),.OPCODE_LE(ALU_LE)
+		.CS(1'b1),.WE(WE_A),.OE(OE_A),.ALU_EN(ALU_EN)
 	);
 	
 	//========================= CPU Registers =====================================
@@ -189,15 +189,15 @@ module cpu_m(
 
 	//========================= Control Unit =====================================
 	control_unit_m control_unit(
-		.clk(clk1), .reset(reset), .hlt(hlt),
+		.clk(clk2), .reset(reset), .hlt(hlt),
 		.ir0_reg_out(ir0_reg_out), .alu_status(alu_status),
 	 	.control_bus(control_bus)
 	);
 	//========================= Control Unit =====================================
 
 	//reset delay flops
-	d_ff reset_delay (.clk(clk), .reset(reset), .D(reset),   .Q(reset_q)); 
-	d_ff reset_delay2(.clk(clk), .reset(reset), .D(reset_q), .Q(reset_qq)); 
+	d_ff reset_delay0 (.clk(clk), .reset(reset), .D(reset),   .Q(reset_q)); 
+	d_ff reset_delay1 (.clk(clk), .reset(reset), .D(reset_q), .Q(reset_qq)); 
 
 endmodule
 
@@ -228,24 +228,20 @@ module control_unit_m(
 	genvar i;
 	generate
 		for(i=0;i<4;i=i+1)
-			assign #2 T_edge[i] = T[i];// & clk;
+			assign #0 T_edge[i] = T[i];// & clk;
 	endgenerate
 	//========================= Timer =====================================
 	//timer counter
 	counter #(.DATA_WIDTH(2)) timer_reg(
 		.clk(clk), .reset(reset),
 		.data_out(time_cycle),
-		.CS(1'b1), .CNT_EN(cnt_en_timer), .WE(1'b0), .SYNC_CLR(CLR_TIMER)
+		.CS(1'b1), .CNT_EN(~HLT), .WE(1'b0), .SYNC_CLR(CLR_TIMER)
 	);
-	//synchronizing flop
-	d_ff cnt_en_timer_dff(.clk(clk), .reset(reset), .D(~HLT), .Q(cnt_en_timer)); //ensure T[0] at first clk after reset
-	//d_ff reset_delay(.clk(clk), .reset(1'b1), .D(reset), .Q(reset_q));
 
 	//timing generator
 	decoder #(.WIDTH(2)) timer_decoder(
 		.S(time_cycle), .EN(en_timer_decoder), .D(T)
 	);
-	//latch en_timer(.D(reset), .EN(clk), .Q(en_timer_decoder)); //ensure T[0] ==0 at reset no posedge clk
 	d_ff en_timer_dff(.clk(clk), .reset(reset), .D(1'b1), .Q(en_timer_decoder)); //ensure T[0] at first clk after reset
 
 	//========================= Instruction Decoders =====================================
@@ -264,7 +260,7 @@ module control_unit_m(
 	assign control_bus[`CB_SID_EN_RANGE]				= mid_sid_en;
 	assign control_bus[`CB_MID_EN_RANGE]				= mid_sid_en;
 	assign control_bus[`CB_ALU_OPCODE_RANGE]		= alu_opcode;
-	assign control_bus[`CB_ALU_LE_RANGE]				= op_is_alu; //LD opcode
+	assign control_bus[`CB_ALU_EN_RANGE]				= op_is_alu; //LD opcode
 
 	//FETCH always at T0:T1
 	assign control_bus[`CB_PC_INR_RANGE]				= 

@@ -1,5 +1,6 @@
 module mux
-#(parameter DATA_WIDTH = 2)(
+#(parameter DATA_WIDTH = 2,
+	parameter TRI_STATE_MUX = 1)(
 	input [DATA_WIDTH - 1:0] D,
 	input [SEL_WIDTH - 1: 0] S,	
 	output Y
@@ -7,7 +8,10 @@ module mux
 	localparam SEL_WIDTH = $clog2(DATA_WIDTH);
 
 	if(DATA_WIDTH ==2)
-		tri_state_mux stage0_mux(.D(D), .S(S), .Y(Y));
+		if(TRI_STATE_MUX == 1)
+			tri_state_mux stage0_mux(.D(D), .S(S), .Y(Y));
+		else
+			mux_2x1 stage0_mux(.D(D), .S(S), .Y(Y));
 	else begin
 		wire[1:0] stage0_in;
 		
@@ -26,11 +30,17 @@ module mux
 
 endmodule
 
-
 module tri_state_mux(input [1:0] D, input S, output Y);
 	tranif0(D[0], Y, S);
 	tranif1(D[1], Y, S);
 endmodule
+
+module mux_2x1 (input [1:0] D, input S, output Y);
+	wire a = D[1] & S;
+	wire b = D[0] & ~S;
+	assign Y = a | b;
+endmodule
+
 
 //2x1 switch
 
