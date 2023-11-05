@@ -26,9 +26,9 @@ module cpu_m(
 	wire CLR_TIMER	= control_bus[`CB_CLR_TIMER_RANGE];
 ;
 	//========================= timing and clocks =====================================
-	wire clk1 = clk;
-	wire clk2 = reset & ~clk;
-	wire clk3 = reset_q & clk;
+	wire clk1 = reset_q & clk;
+	wire clk2 = reset_q & ~clk;
+	wire clk3 = reset_qq & clk;
 
 	//========================= random wires in CPU =====================================
 	wire[7:0] alu_in0, alu_in1, alu_out, ir0_reg_out, acc_in, alu_latch_out;
@@ -39,7 +39,7 @@ module cpu_m(
 	//========================= CPU Registers =====================================
 	//Accumulator
 	ac_register #(.DATA_WIDTH(8)) A_reg (
-		.clk(clk), .reset(reset),
+		.clk(clk1), .reset(reset),
 		.data(data_bus),
 		.alu_output(alu_out),
 		.alu_input(alu_in0),
@@ -48,21 +48,21 @@ module cpu_m(
 		
 	//B register
 	register #(.TYPE(0), .DATA_WIDTH(8)) B_reg (
-		.clk(clk), .reset(reset),
+		.clk(clk1), .reset(reset),
 		.data(data_bus), .data_out(alu_in1),
 		.CS(1'b1),.WE(WE_B),.OE(OE_B)
 	);
 
 	//status register
 	register #(.TYPE(0), .DATA_WIDTH(4)) status_reg(
-		.clk(clk), .reset(reset),
+		.clk(clk1), .reset(reset),
 		.data(data_bus[3:0]), .data_in(alu_status),
 		.CS(1'b1), .WE(1'b1), .OE(1'b0/*OE_SR*/)
 	);
 
 	//Instruction register (Connects to instruction decoder)
 	register #(.TYPE(0), .DATA_WIDTH(8)) instr_reg0 (
-		.clk(clk), .reset(reset),
+		.clk(clk1), .reset(reset),
 		.data(data_bus), .data_out(ir0_reg_out),
 		.CS(1'b1),.WE(WE_IR0),.OE(OE_IR0)
 	);
@@ -82,7 +82,7 @@ module cpu_m(
 	//========================= Address Registers =====================================
 	//Address register AR
 	pc_register #(.ADDR_WIDTH(16)) AR(
-		.clk(clk), .reset(reset),
+		.clk(clk1), .reset(reset),
 		.data(data_bus), .address(address_bus),
 		.CS(1'b1),.OE_A(OE_AR), .CNT_EN(AR_INR),
 		.WE_H(WE_AR1),.OE_H(OE_AR1),
@@ -90,7 +90,7 @@ module cpu_m(
 	);
 	//Programme Counter PC
 	pc_register #(.ADDR_WIDTH(16)) PC(
-		.clk(clk), .reset(reset),
+		.clk(clk1), .reset(reset),
 		.data(data_bus), .address(address_bus),
 		.CS(1'b1),.OE_A(OE_PC), .CNT_EN(PC_INR),
 		.WE_H(WE_PC1),.OE_H(OE_PC1),
@@ -103,7 +103,7 @@ module cpu_m(
 
 	//Stack pointer SP
 //	ar_register #(.ADDR_WIDTH(16)) SP(
-//		.clk(clk), .reset(reset),
+//		.clk(clk1), .reset(reset),
 //		.data(data_bus), .address(address_bus),
 //		.CS(1'b1),.OE_A(OE_SP),
 //		.WE_H(WE_SP1),.OE_H(OE_SP1),
@@ -113,7 +113,7 @@ module cpu_m(
 	//PORTA
 //	//Address range: 0x8000 to 0x8003
 //	port_module PORTA(
-//		.clk(clk), .reset(reset), 
+//		.clk(clk1), .reset(reset), 
 //		.address(address_bus[1:0]), .data(data_bus), 
 //		.gpio(PORTA),
 //		.OE(OE_PORTA), .WE(WE_PORTA), .CS(PORT_A_CS)
@@ -126,7 +126,7 @@ module cpu_m(
 	memory #(.DEPTH(`MEMORY_DEPTH),
 					 .ADDR_WIDTH(8))
 	RAM(
-		.clk(~clk), .reset(reset), 
+		.clk(clk2), .reset(reset), 
 		.address(address_bus[7:0]), .data(data_bus), 
 		.OE(OE_M), .WE(WE_M), .CS(~address_bus[15])
 	);
@@ -198,14 +198,15 @@ module cpu_m(
 
 	//========================= Control Unit =====================================
 	control_unit_m control_unit(
-		.clk(clk), .reset(reset), .hlt(hlt),
+		.clk(clk1), .reset(reset), .hlt(hlt),
 		.ir0_reg_out(ir0_reg_out), .alu_status(alu_status),
 	 	.control_bus(control_bus)
 	);
 	//========================= Control Unit =====================================
 
-	//reset delay flop
+	//reset delay flops
 	d_ff reset_delay(.clk(clk), .reset(reset), .D(reset), .Q(reset_q)); 
+	d_ff reset_delay2(.clk(clk), .reset(reset), .D(reset_q), .Q(reset_qq)); 
 
 endmodule
 

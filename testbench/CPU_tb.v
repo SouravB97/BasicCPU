@@ -60,7 +60,6 @@ module CPU_tb();
 	//		@(posedge clk);
 	//	end
 		repeat(100) @(posedge clk);
-		
 		exit();
 	end
 
@@ -72,7 +71,7 @@ module CPU_tb();
 		#bootdelay reset = 1'b1;
 		repeat(50) @(posedge clk);
 		reset = 0;
-		#(bootdelay+clk_period/2) reset = 1'b1;
+		#(bootdelay) reset = 1'b1;
 		end
 	endtask
 	task exit();

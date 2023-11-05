@@ -1,2 +1,4 @@
-- Moved timing logic insiide control unit
-- Planning to use different phase shifted clocks
+- Experimented with phase shifting RAM and CU.
+- Even though both RAM and CU should be in phase shifted clocks, it only works with CU in default clock
+- The data in the registers is just geting latched due to the output delay of decoder
+- Need to experiment more with decoder delay
