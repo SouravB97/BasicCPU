@@ -81,10 +81,10 @@ IO:  0x8000-0x8004
 //MVI instruction
 `define CPU_INSTR_LDA 				 8'b0101_0001	//0x11
 `define CPU_INSTR_LDB 				 8'b0101_1001	//0x19
-`define CPU_INSTR_LAR0 				 8'b0110_0001	//0x21
-`define CPU_INSTR_LAR1 				 8'b0110_1001	//0x29
-`define CPU_INSTR_LPC0 				 8'b0111_0001	//0x31
-`define CPU_INSTR_LPC1 				 8'b0111_1001	//0x39
+`define CPU_INSTR_LDAR0 			 8'b0110_0001	//0x21
+`define CPU_INSTR_LDAR1 			 8'b0110_1001	//0x29
+`define CPU_INSTR_LDPC0 			 8'b0111_0001	//0x31
+`define CPU_INSTR_LDPC1 			 8'b0111_1001	//0x39
 
 `define CPU_INSTR_STA 				 8'b0000_1010	//0x0A
 `define CPU_INSTR_STB 				 8'b0000_1011	//0x0B
@@ -142,6 +142,10 @@ IO:  0x8000-0x8004
 `define CPU_INSTR_MOV_PC1_AR0		 8'b00100111
 `define CPU_INSTR_MOV_PC1_AR1		 8'b00101111
 `define CPU_INSTR_MOV_PC1_PC0		 8'b00110111
+
+//unconditional branch, same as LD_PC0
+`define CPU_INSTR_JMP			 			 8'b0111_0001	//0x31
+`define CPU_INSTR_BUN			 			 8'b0111_0001	//0x31
 
 
 //ALU instructions

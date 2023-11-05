@@ -1,5 +1,3 @@
--Made a true accumulator with a flop, mux and two tristate gates and the ALU
--This solved the timing problem of ALU result changing back to A
--Earlier Control unit was clocked by clk1. This was wrong as data was getting latched by just the 0.1ns delay of the decoder output
--Changed CU clk to clk2. Now there are no XX, and its beautiful waves in every operation
--Logical operations are working!
+-TB optimisations
+-Tested LDPC, MOV_A_PC opcodes
+-Added JMP, BUN instructions. Same as LDPC0

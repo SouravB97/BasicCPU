@@ -7,13 +7,14 @@ module CPU_tb();
 	localparam dump_file 	= "../dump/CPU_tb.vcd";
 
 	reg clk, reset, hlt;
-	wire clk_out;
 
-	localparam clk_period = 10;
-	localparam bootdelay = 3*clk_period + 3;
+	localparam clk_period = 2;	//ns
+	localparam bootdelay = 3*clk_period + 2; //time after which to raise reset
+	localparam max_cycles = 200; //max cycles after reset assertion to kill test
+	localparam drain_cycles = 10; //additional cycles after hlt for check, report phase
+
+	integer cycle = 0;	//current cycle
 	integer i;
-
-	always #(clk_period/2) clk = ~clk;
 
 	//========================= CONTROL UNIT OUTPUTS =====================================
 	wire[32:0] control_bus;
@@ -42,25 +43,35 @@ module CPU_tb();
 		$dumpfile(dump_file);
 		$dumpvars(0,CPU_tb);
 		$timeformat(-9, 2, " ns", 20);
+		$printtimescale;
+
 		//load memory
 		$readmemh(mem_input, mem); //must be same folder as tb top, where irun is run
 		$readmemh(mem_input, cpu.RAM.mem); //must be same folder as tb top, where irun is run
-		$printtimescale;
 		init();
 	end
 
+	//start clk
+	always #(clk_period/2) clk = ~clk;
 
 //Sequences
-	initial begin
+	initial begin : main_seq
 		@(posedge reset);
-		$display("Starting seqs at time %t", $time);
-		//memory_sweep_check();
-		//mem_test1();
-	//	for(integer i=0; i< 50 | (cpu.HLT != 0); i++) begin
-	//		@(posedge clk);
-	//	end
-		repeat(100) @(posedge clk);
+		$display("%d Starting seqs at time %t",cycle, $time);
+		repeat(max_cycles) @(posedge clk);
+		$display("%d Reached max_cycles %d. Exiting test", cycle, $time, max_cycles);
 		exit();
+	end
+	initial begin : wait_for_hlt
+		@(posedge reset);
+		@(posedge (hlt | cpu.control_unit.HLT));
+		$display("%d CPU hlt detected at %t. Exiting test",cycle, $time);
+		repeat(drain_cycles) @(posedge clk);
+		exit();
+	end
+	always begin : inc_cycle
+		@(posedge clk) cycle += 1;
+		//$display("%t cycle = %d",$time, cycle);
 	end
 
 	task init();
@@ -69,22 +80,19 @@ module CPU_tb();
 		reset <=0;
 		hlt <= 0;
 		#bootdelay reset = 1'b1;
-		repeat(50) @(posedge clk);
-		reset = 0;
-		#(bootdelay) reset = 1'b1;
+		//repeat(10) @(posedge clk);
+		//hlt = 1;
+		//reset = 0;
+		//#(bootdelay) reset = 1'b1;
 		end
 	endtask
 	task exit();
 		begin
-		$display("Ending seqs at time %t", $time);
+		$display("%d Ending seqs at time %t",cycle, $time);
 		$writememh(mem_output, cpu.RAM.mem);
 		$finish();
 		end
 	endtask
-
-//	initial begin
-//		$monitor("Time = %0t /t  = %b",$time, clk_div.div_ratio);
-//	end
 
 	task rd_mem (input [15:0] address, output [7:0] rdata);
 		begin

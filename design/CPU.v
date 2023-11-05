@@ -210,7 +210,6 @@ module control_unit_m(
 	//timing controls
 	wire [1:0] time_cycle;
 	wire [3:0] T;
-	wire [3:0] T_edge;
 
 	wire HLT				= control_bus[`CB_HLT_RANGE] | hlt;
 	wire CLR_TIMER	= control_bus[`CB_CLR_TIMER_RANGE];
@@ -225,11 +224,6 @@ module control_unit_m(
 	wire op_is_mem	= (op_is_mov_ins) & ~|(ir0_sid[2:0] ^ 3'h1);	//SID is RAM
 	wire mid_sid_is_ram	=  |(ir0_sid[2:0] ^ 3'h1) | |(ir0_mid[2:0] ^ 3'h1);	//MID or SID is RAM
 
-	genvar i;
-	generate
-		for(i=0;i<4;i=i+1)
-			assign #0 T_edge[i] = T[i];// & clk;
-	endgenerate
 	//========================= Timer =====================================
 	//timer counter
 	counter #(.DATA_WIDTH(2)) timer_reg(
@@ -264,45 +258,45 @@ module control_unit_m(
 
 	//FETCH always at T0:T1
 	assign control_bus[`CB_PC_INR_RANGE]				= 
-				T_edge[0] ? 1'b1
-		:		T_edge[1] ? op_is_mvi ? 1'b1 : 1'b0
+				T[0] ? 1'b1
+		:		T[1] ? op_is_mvi ? 1'b1 : 1'b0
 		: 			   1'b0
 	;
 	assign control_bus[`CB_MID_RANGE]				= 
-				T_edge[0] ? 1		//OE_M, Opcode_fetch
-		: 	T_edge[1] ? op_is_mov_ins ? ir0_mid : 15	//OE_M
+				T[0] ? 1		//OE_M, Opcode_fetch
+		: 	T[1] ? op_is_mov_ins ? ir0_mid : 15	//OE_M
 		: 			   15
 	;
 	assign control_bus[`CB_SID_RANGE]				= 
-				T_edge[0] ? 0		//IR0, opcode_fetch
-		: 	T_edge[1] ? op_is_mov_ins ? ir0_sid : 15	//WE_A, B
+				T[0] ? 0		//IR0, opcode_fetch
+		: 	T[1] ? op_is_mov_ins ? ir0_sid : 15	//WE_A, B
 		: 			   15
 	;
 	assign mid_sid_en				= 
-				T_edge[0] ? 1'b1 //OPCODE_FETCH
-		:		T_edge[1] ? op_is_mov_ins ? 1'b1 : 1'b0
+				T[0] ? 1'b1 //OPCODE_FETCH
+		:		T[1] ? op_is_mov_ins ? 1'b1 : 1'b0
 		: 			   1'b0	
 	;
 
 	assign control_bus[`CB_AMID_RANGE]				= 
-				T_edge[0] ? 0	//OE_PC
-		: 	T_edge[1] ? op_is_mov & mid_sid_is_ram ? 1	//OE_AR
+				T[0] ? 0	//OE_PC
+		: 	T[1] ? op_is_mov & mid_sid_is_ram ? 1	//OE_AR
 						 : 0	//OE_PC
 		: 			   0	//OE_PC
 	;
 	assign 	control_bus[`CB_HLT_RANGE]			= 
-				|T_edge[2:0] ? op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ? 1'b1 :	1'b0
+				|T[2:0] ? op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ? 1'b1 :	1'b0
 					:    1'b0
 	;
 	assign control_bus[`CB_CLR_TIMER_RANGE]	= 
-				T_edge[0] ? 1'b0
-		: 	T_edge[1] ? 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] 	? 1'b0		
+				T[0] ? 1'b0
+		: 	T[1] ? 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] 	? 1'b0		
 								:	1'b1
 		: 			   1'b0
 	;
 	assign control_bus[`CB_AR_INR_RANGE]	= 
-				T_edge[0] ? 1'b0
-		: 	T_edge[1] ? 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_INC_AR)] 	? 1'b1		
+				T[0] ? 1'b0
+		: 	T[1] ? 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_INC_AR)] 	? 1'b1		
 								:	1'b0
 		: 			   1'b0
 	;

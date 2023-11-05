@@ -49,7 +49,3 @@
 `include "../design/ALU.v"
 `include "../design/accumulator.v"
 `include "../design/CPU.v"
-
-
-
-//`include "../design/clk_divider.v"
