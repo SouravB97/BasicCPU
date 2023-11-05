@@ -29,7 +29,6 @@ module counter
 			//tri state buffer and latch
 			tranif1(Q[i], data[i], OE & CS);
 			latch latch0 (.D(data[i]), .Q(D[i]), .EN((WE & CS)));
-			//latch latch0 (.D(SYNC_CLR ? 1'b0 : data[i]), .Q(D[i]), .EN((WE & CS) | SYNC_CLR));
 
 			assign cnt_en[i+1] = cnt_en[i] & Q[i];
 		end

@@ -47,6 +47,7 @@
 `include "../design/BHVR/memory_bhvr2.v"
 `include "../design/ALU_components.v"
 `include "../design/ALU.v"
+`include "../design/accumulator.v"
 `include "../design/CPU.v"
 
 

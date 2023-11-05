@@ -14,16 +14,17 @@ module cpu_m(
 	//Control outputs for address bus
 	wire OE_AR, OE_PC, OE_SP, OE_R0R1;
 	//control bus inputs
-	wire [4:0] ALU_OPCODE	= control_bus[`CB_ALU_OPCODE_RANGE];
-	wire [2:0] MID 				= control_bus[`CB_MID_RANGE]; //data bus master/slave ID
-	wire [2:0] SID 				= control_bus[`CB_SID_RANGE]; //data bus master/slave ID
+	wire [`OPCODEWORD_ALU_OPCODE_WIDTH-1:0] ALU_OPCODE	= control_bus[`CB_ALU_OPCODE_RANGE];
+	wire [`OPCODEWORD_MID_WIDTH-1:0] MID 				= control_bus[`CB_MID_RANGE]; //data bus master/slave ID
+	wire [`OPCODEWORD_SID_WIDTH-1:0] SID 				= control_bus[`CB_SID_RANGE]; //data bus master/slave ID
 	wire [1:0] AMID				= control_bus[`CB_AMID_RANGE]; //address master ID
-	wire MID_EN			= control_bus[`CB_MID_EN_RANGE];
-	wire SID_EN			= control_bus[`CB_SID_EN_RANGE];
-	wire PC_INR			= control_bus[`CB_PC_INR_RANGE];
-	wire AR_INR			= control_bus[`CB_AR_INR_RANGE];
-	wire HLT				= control_bus[`CB_HLT_RANGE] | hlt;
-	wire CLR_TIMER	= control_bus[`CB_CLR_TIMER_RANGE];
+	wire MID_EN						= control_bus[`CB_MID_EN_RANGE];
+	wire SID_EN						= control_bus[`CB_SID_EN_RANGE];
+	wire PC_INR						= control_bus[`CB_PC_INR_RANGE];
+	wire AR_INR						= control_bus[`CB_AR_INR_RANGE];
+	wire HLT							= control_bus[`CB_HLT_RANGE] | hlt;
+	wire CLR_TIMER				= control_bus[`CB_CLR_TIMER_RANGE];
+	wire ALU_LE						= control_bus[`CB_ALU_LE_RANGE];
 ;
 	//========================= timing and clocks =====================================
 	wire clk1 = reset_q & clk;
@@ -31,21 +32,23 @@ module cpu_m(
 	wire clk3 = reset_qq & clk;
 
 	//========================= random wires in CPU =====================================
-	wire[7:0] alu_in0, alu_in1, alu_out, ir0_reg_out, acc_in, alu_latch_out;
+	wire[7:0] alu_in0, alu_in1, alu_out, ir0_reg_out;
 	wire[4:0] alu_opcode_latched;
 	wire[3:0] alu_status;
 	wire[15:0] address_bus1;
 
-	//========================= CPU Registers =====================================
+	//========================= Accumulator =====================================
 	//Accumulator
-	ac_register #(.DATA_WIDTH(8)) A_reg (
+	accumulator #(.DATA_WIDTH(8)) A_reg (
 		.clk(clk1), .reset(reset),
 		.data(data_bus),
-		.alu_output(alu_out),
-		.alu_input(alu_in0),
-		.CS(1'b1),.WE(WE_A),.OE(OE_A)
+		.alu_input(alu_in1),
+		.alu_opcode(ALU_OPCODE),
+		.alu_status(alu_status),
+		.CS(1'b1),.WE(WE_A),.OE(OE_A),.OPCODE_LE(ALU_LE)
 	);
-		
+	
+	//========================= CPU Registers =====================================
 	//B register
 	register #(.TYPE(0), .DATA_WIDTH(8)) B_reg (
 		.clk(clk1), .reset(reset),
@@ -54,29 +57,17 @@ module cpu_m(
 	);
 
 	//status register
-	register #(.TYPE(0), .DATA_WIDTH(4)) status_reg(
+	register #(.TYPE(1), .DATA_WIDTH(4)) status_reg(
 		.clk(clk1), .reset(reset),
 		.data(data_bus[3:0]), .data_in(alu_status),
 		.CS(1'b1), .WE(1'b1), .OE(1'b0/*OE_SR*/)
 	);
 
 	//Instruction register (Connects to instruction decoder)
-	register #(.TYPE(0), .DATA_WIDTH(8)) instr_reg0 (
+	register #(.TYPE(0), .DATA_WIDTH(8)) instr_reg0(
 		.clk(clk1), .reset(reset),
 		.data(data_bus), .data_out(ir0_reg_out),
 		.CS(1'b1),.WE(WE_IR0),.OE(OE_IR0)
-	);
-
-	//========================= ALU =====================================
-	ALU alu(
-		.A(alu_in0), .B(alu_in1),
-		.opcode(ALU_OPCODE), 
-		.C(alu_out), .status(alu_status)
-	);
-
-	latch #(.DATA_WIDTH(5)) alu_opcode_latch(
-		.D(ALU_OPCODE), .Q(alu_opcode_latched),
-		.EN(~clk)
 	);
 
 	//========================= Address Registers =====================================
@@ -205,7 +196,7 @@ module cpu_m(
 	//========================= Control Unit =====================================
 
 	//reset delay flops
-	d_ff reset_delay(.clk(clk), .reset(reset), .D(reset), .Q(reset_q)); 
+	d_ff reset_delay (.clk(clk), .reset(reset), .D(reset),   .Q(reset_q)); 
 	d_ff reset_delay2(.clk(clk), .reset(reset), .D(reset_q), .Q(reset_qq)); 
 
 endmodule
@@ -219,20 +210,26 @@ module control_unit_m(
 	//timing controls
 	wire [1:0] time_cycle;
 	wire [3:0] T;
+	wire [3:0] T_edge;
 
 	wire HLT				= control_bus[`CB_HLT_RANGE] | hlt;
 	wire CLR_TIMER	= control_bus[`CB_CLR_TIMER_RANGE];
 
 	wire [31:0] DEC_IR0;
-	wire [4:0] alu_opcode = ir0_reg_out[`OPCODEWORD_ALU_OPCODE_RANGE];
-	wire [2:0] ir0_mid		= ir0_reg_out[`OPCODEWORD_MID_RANGE];
-	wire [2:0] ir0_sid		= ir0_reg_out[`OPCODEWORD_SID_RANGE];
+	wire [`OPCODEWORD_ALU_OPCODE_WIDTH:0] alu_opcode = ir0_reg_out[`OPCODEWORD_ALU_OPCODE_RANGE];
+	wire [`OPCODEWORD_MID_WIDTH-1:0] ir0_mid		= ir0_reg_out[`OPCODEWORD_MID_RANGE];
+	wire [`OPCODEWORD_SID_WIDTH-1:0] ir0_sid		= ir0_reg_out[`OPCODEWORD_SID_RANGE];
 	wire instr_decode = ~T[0]; //don't decode at T0,  during opcode fetch
 
 	wire op_is_mov_ins = op_is_mov | op_is_mvi ;
 	wire op_is_mem	= (op_is_mov_ins) & ~|(ir0_sid[2:0] ^ 3'h1);	//SID is RAM
 	wire mid_sid_is_ram	=  |(ir0_sid[2:0] ^ 3'h1) | |(ir0_mid[2:0] ^ 3'h1);	//MID or SID is RAM
 
+	genvar i;
+	generate
+		for(i=0;i<4;i=i+1)
+			assign #2 T_edge[i] = T[i];// & clk;
+	endgenerate
 	//========================= Timer =====================================
 	//timer counter
 	counter #(.DATA_WIDTH(2)) timer_reg(
@@ -266,50 +263,50 @@ module control_unit_m(
 
 	assign control_bus[`CB_SID_EN_RANGE]				= mid_sid_en;
 	assign control_bus[`CB_MID_EN_RANGE]				= mid_sid_en;
-	assign control_bus[`CB_ALU_OPCODE_RANGE]		= op_is_alu ? alu_opcode : 5'h0; //LD opcode
+	assign control_bus[`CB_ALU_OPCODE_RANGE]		= alu_opcode;
+	assign control_bus[`CB_ALU_LE_RANGE]				= op_is_alu; //LD opcode
 
 	//FETCH always at T0:T1
 	assign control_bus[`CB_PC_INR_RANGE]				= 
-				T[0] ? 1'b1
-		:		T[1] ? op_is_mvi ? 1'b1 : 1'b0
+				T_edge[0] ? 1'b1
+		:		T_edge[1] ? op_is_mvi ? 1'b1 : 1'b0
 		: 			   1'b0
 	;
 	assign control_bus[`CB_MID_RANGE]				= 
-				T[0] ? 1		//OE_M, Opcode_fetch
-		: 	T[1] ? op_is_mov_ins ? ir0_mid : 15	//OE_M
+				T_edge[0] ? 1		//OE_M, Opcode_fetch
+		: 	T_edge[1] ? op_is_mov_ins ? ir0_mid : 15	//OE_M
 		: 			   15
 	;
 	assign control_bus[`CB_SID_RANGE]				= 
-				T[0] ? 0		//IR0, opcode_fetch
-		: 	T[1] ? op_is_mov_ins ? ir0_sid : 15	//WE_A, B
+				T_edge[0] ? 0		//IR0, opcode_fetch
+		: 	T_edge[1] ? op_is_mov_ins ? ir0_sid : 15	//WE_A, B
 		: 			   15
 	;
 	assign mid_sid_en				= 
-				T[0] ? 1'b1 //OPCODE_FETCH
-		:		T[1] ? op_is_mov_ins ? 1'b1 : 1'b0
+				T_edge[0] ? 1'b1 //OPCODE_FETCH
+		:		T_edge[1] ? op_is_mov_ins ? 1'b1 : 1'b0
 		: 			   1'b0	
 	;
 
 	assign control_bus[`CB_AMID_RANGE]				= 
-				T[0] ? 0	//OE_PC
-		: 	T[1] ? op_is_mov & mid_sid_is_ram ? 1	//OE_AR
+				T_edge[0] ? 0	//OE_PC
+		: 	T_edge[1] ? op_is_mov & mid_sid_is_ram ? 1	//OE_AR
 						 : 0	//OE_PC
 		: 			   0	//OE_PC
 	;
- 
 	assign 	control_bus[`CB_HLT_RANGE]			= 
-				|T[2:0] ? op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ? 1'b1 :	1'b0
+				|T_edge[2:0] ? op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ? 1'b1 :	1'b0
 					:    1'b0
 	;
 	assign control_bus[`CB_CLR_TIMER_RANGE]	= 
-				T[0] ? 1'b0
-		: 	T[1] ? 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] 	? 1'b0		
+				T_edge[0] ? 1'b0
+		: 	T_edge[1] ? 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] 	? 1'b0		
 								:	1'b1
 		: 			   1'b0
 	;
 	assign control_bus[`CB_AR_INR_RANGE]	= 
-				T[0] ? 1'b0
-		: 	T[1] ? 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_INC_AR)] 	? 1'b1		
+				T_edge[0] ? 1'b0
+		: 	T_edge[1] ? 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_INC_AR)] 	? 1'b1		
 								:	1'b0
 		: 			   1'b0
 	;

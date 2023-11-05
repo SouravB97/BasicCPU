@@ -10,6 +10,7 @@ module register
 	inout [DATA_WIDTH-1:0] data
 );
 	wire [DATA_WIDTH-1:0] D,Q;
+	wire [DATA_WIDTH-1:0] data_in_type = (TYPE == 0) ? data : data_in;
 	assign data_out = Q;
 
 	genvar i;
@@ -17,14 +18,12 @@ module register
 	generate
 		for(i=0; i< DATA_WIDTH; i= i+1) begin
 			//dff
-			d_ff dff(.clk(clk), .reset(reset),
+			d_ff dff(.clk(clk & WE & CS), .reset(reset),
 								.D(D[i]), .Q(Q[i]));
-			//latch
-			if(TYPE == 1)	latch l1(.D(data_in[i]), .Q(D[i]), .EN(CS & WE));
-			else					latch l1(.D(data[i]), .Q(D[i]), .EN(CS & WE));
 
 			//tristate gate
-			tranif1(Q[i], data[i], CS & OE);
+			tranif1(data_in_type[i], D[i], CS & WE); //input
+			tranif1(Q[i], data[i], CS & OE); //output
 		end
 	endgenerate
 endmodule
@@ -64,36 +63,3 @@ module ar_register
 
 endmodule
 
-//combines a register with ALU inputs to make an accumultor to be used in CPU
-//optionally can be used to attach any combinational logic element in the register feedback path
-//control unit must make sure OPCODE == LD during WE
-module ac_register #(
-	parameter DATA_WIDTH = `DATA_WIDTH)(
-	input clk, reset,
-	input CS, WE, OE,
-	input [DATA_WIDTH-1:0] alu_output,			//connect to ALU output PORT C
-	output [DATA_WIDTH-1:0] alu_input,			//connect to ALU input PORT A
-	output [DATA_WIDTH-1:0] data_out, 
-	inout [DATA_WIDTH-1:0] data
-);
-
-	wire [DATA_WIDTH-1:0] D,Q;
-	assign data_out = Q;
-	assign D = alu_output;
-
-	genvar i;
-
-	generate
-		for(i=0; i< DATA_WIDTH; i= i+1) begin
-			//dff
-			d_ff dff(.clk(clk), .reset(reset),
-								.D(D[i]), .Q(Q[i]));
-			//latch
-			latch l1(.D(data[i]), .Q(alu_input[i]), .EN(CS & WE));
-
-			//tristate gate
-			tranif1(Q[i], data[i], CS & OE);
-		end
-	endgenerate
-
-endmodule

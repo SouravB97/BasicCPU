@@ -1,4 +1,5 @@
-- Experimented with phase shifting RAM and CU.
-- Even though both RAM and CU should be in phase shifted clocks, it only works with CU in default clock
-- The data in the registers is just geting latched due to the output delay of decoder
-- Need to experiment more with decoder delay
+-Moved ALU inside accumulator
+-A_reg is now of type accumulator, contains ALU
+-Added ALU_LE 'latch enable' signal
+-Removed input latch from register, changed it to tri-state gate
+-Register is now clocked by clk & WE
