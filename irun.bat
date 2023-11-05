@@ -1,3 +1,4 @@
+#!/bin/bash
 ::mv this file to install folder, c:/iverilog/bin
 ECHO OFF
 ::no more print
