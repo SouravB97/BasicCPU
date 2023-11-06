@@ -116,11 +116,11 @@ while(my $line = <INP>){
 				$line =~ /define\s+(\S+)/i;
 				print "\tNo r-value for define macro $1\n";
 			}
-		} elsif($pp_in_line eq 'orig'){
-			if($line !~ /^\s*#orig\s+(\S+)\s*$/i){
+		} elsif($pp_in_line eq 'orig|db'){
+			if($line !~ /^\s*#(orig|db)\s+(\S+)\s*$/i){
 				$syntax_errors+=1;
 				print "Unrecognized preprocessor directive in line $. : $line";
-				print "\tNo r-value for orig macro\n";
+				print "\tNo r-value for $1 macro\n";
 			}
 
 		}
@@ -193,15 +193,18 @@ $file_content =~ s/\n/ /g;
 my @ins_word = ($file_content =~ /\S+/g);
 #print "@ins_word\n";
 
-for(my $i=0; $i< scalar @ins_word ; $i=$i+1){
+for(my $i=0; $i< scalar @ins_word ; $i+=1){
 	my $instr = uc $ins_word[$i];
 
-	#ORIG directive
-	if($instr =~ /#ORIG/){
-		$i=$i+1;	
-		my $orig_val = uc $ins_word[$i];
-		$orig_val = to_int($orig_val);
-		$mem_ptr = $orig_val;
+	#Assembler directive
+	if($instr =~ /#(\w+)/){
+		$i+=1;	
+		my $val = to_int(uc $ins_word[$i]);
+		if($1 eq "ORIG"){ 
+			$mem_ptr = $val;
+		} elsif($1 eq "DB"){
+			$mem[$mem_ptr] = to_int($val);
+		}
 	}
 	#RISC opcode
 	elsif(exists($ins_map{$instr})){

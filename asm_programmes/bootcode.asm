@@ -23,10 +23,16 @@ RSH
 MOV_A_MEM INC_AR
 HLT
 
+#ORIG D0H
+#DB 45H
+
 #orig 0xF0
 NOP
 NOP
 HLT
+
+#ORIG 0xE0
+#DB 10
 
 ;;NOP
 ;;LDA 0
