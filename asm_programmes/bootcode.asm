@@ -1,10 +1,16 @@
-;;this is my code file
+;this is my code
 
+#define origin	0x20
+#define sourav 25
 
+#ORIG 00
+JMP origin
+
+#orig origin
 LDAR1 0
 LDAR0 0xF0
 
-LDA 25
+LDA sourav
 MOV_A_MEM INC_AR
 LDB 50
 ADD 
@@ -17,6 +23,10 @@ RSH
 MOV_A_MEM INC_AR
 HLT
 
+#orig 0xF0
+NOP
+NOP
+HLT
 
 ;;NOP
 ;;LDA 0

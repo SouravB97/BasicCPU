@@ -1,1 +1,2 @@
--Moved most control signals from ternary to logic based besides MID, SID AMID
+-Added assmbler directives define and orig to assembler
+-directory reorganisation

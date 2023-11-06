@@ -189,6 +189,8 @@ IO:  0x8000-0x8004
 `define CPU_INSTR_HLT 				 8'b1100_0001
 `define CPU_INSTR_INC_AR 			 8'b1100_0010
 
+//CISC INSTRUCTIONS
+`define CISC_INSTR_	0
 /*
 
 

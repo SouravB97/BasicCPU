@@ -2,7 +2,7 @@
 
 module CPU_tb();
 
-	localparam mem_input	= "./micro_codes/bootcode.hex";
+	localparam mem_input	= "../asm_programmes/compiled_hex/bootcode.hex";
 	localparam mem_output	= "../dump/output.hex";
 	localparam dump_file 	= "../dump/CPU_tb.vcd";
 
