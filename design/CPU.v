@@ -258,54 +258,34 @@ module control_unit_m(
 
 	//FETCH always at T0
 	assign control_bus[`CB_PC_INR_RANGE]				= 
-				(T[0] & 1'b1) |
+				(T[0]) |
 				(T[1] & op_is_mvi)
 	;
-	assign control_bus[`CB_MID_RANGE]				= 
-				T[0] ? 1														//OE_M, Opcode_fetch
-		: 	T[1] ? op_is_mov_ins ? ir0_mid : 15	//OE_M
-		: 			   15
-	;
-	assign control_bus[`CB_SID_RANGE]				= 
-				T[0] ? 0		//IR0, opcode_fetch
-		: 	T[1] ? op_is_mov_ins ? ir0_sid : 15	//WE_A, B
-		: 			   15
-	;
 	assign mid_sid_en				= 
-				T[0] ? 1'b1 //OPCODE_FETCH
-		:		T[1] ? op_is_mov_ins ? 1'b1 : 1'b0
-		: 			   1'b0	
-	;
-
-	assign control_bus[`CB_AMID_RANGE]				= 
-				T[0] ? 0	//OE_PC
-		: 	T[1] ? op_is_mov & mid_sid_is_ram ? 1	//OE_AR
-						 : 0	//OE_PC
-		: 			   0	//OE_PC
+				(T[0])	| 							//OPCODE_FETCH
+				(T[1] & op_is_mov_ins)
 	;
 	assign 	control_bus[`CB_HLT_RANGE]			= 
-				|T[2:0] ? op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ? 1'b1 :	1'b0
-					:    1'b0
+				|T[2:0] & op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)]
 	;
 	assign control_bus[`CB_CLR_TIMER_RANGE]	= 
-				T[0] ? 1'b0
-		: 	T[1] ? 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] 	? 1'b0		
-								:	1'b1
-		: 			   1'b0
+				(~T[0]) &			//0 at T[0]
+		 		(T[1] & 	~(op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)]))	//don't clear if halt
 	;
 	assign control_bus[`CB_AR_INR_RANGE]	= 
-				T[0] ? 1'b0
-		: 	T[1] ? 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_INC_AR)] 	? 1'b1		
-								:	1'b0
-		: 			   1'b0
+				(~T[0]) &		
+		 		(T[1] & 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_INC_AR)])
 	;
-/*
-	//FETCH always at T0
-	assign control_bus[`CB_PC_INR_RANGE]				= 
-				T[0] ? 1'b1
-		:		T[1] ? op_is_mvi ? 1'b1 : 1'b0
-		: 			   1'b0
-	;
+	/*
+	switch #(.SIZE(2), .DATA_WIDTH(`OPCODEWORD_MID_WIDTH)) control_bus_mid_range_switch(
+		.data_in({
+				(~(~ir0_mid | {`OPCODEWORD_MID_WIDTH{op_is_mov_ins}})),				//T1
+				`OPCODEWORD_MID_WIDTH'h1						//T0, OE_M opcode fetch
+			}),
+		.S(~T[0]),
+		.data_out(control_bus[`CB_MID_RANGE])
+	);
+	*/
 	assign control_bus[`CB_MID_RANGE]				= 
 				T[0] ? 1		//OE_M, Opcode_fetch
 		: 	T[1] ? op_is_mov_ins ? ir0_mid : 15	//OE_M
@@ -316,17 +296,17 @@ module control_unit_m(
 		: 	T[1] ? op_is_mov_ins ? ir0_sid : 15	//WE_A, B
 		: 			   15
 	;
-	assign mid_sid_en				= 
-				T[0] ? 1'b1 //OPCODE_FETCH
-		:		T[1] ? op_is_mov_ins ? 1'b1 : 1'b0
-		: 			   1'b0	
-	;
-
 	assign control_bus[`CB_AMID_RANGE]				= 
 				T[0] ? 0	//OE_PC
 		: 	T[1] ? op_is_mov & mid_sid_is_ram ? 1	//OE_AR
 						 : 0	//OE_PC
 		: 			   0	//OE_PC
+	;
+	/*
+	assign mid_sid_en				= 
+				T[0] ? 1'b1 //OPCODE_FETCH
+		:		T[1] ? op_is_mov_ins ? 1'b1 : 1'b0
+		: 			   1'b0	
 	;
 	assign 	control_bus[`CB_HLT_RANGE]			= 
 				|T[2:0] ? op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)] ? 1'b1 :	1'b0

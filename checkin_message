@@ -1,2 +1,1 @@
--Added N bit switch module
--Prepared CPU design to move to switch based instead of using ternary operator
+-Moved most control signals from ternary to logic based besides MID, SID AMID

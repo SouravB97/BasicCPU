@@ -1,17 +1,18 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Sun Nov 05 23:09:49 2023
+[*] Mon Nov 06 01:35:29 2023
 [*]
 [dumpfile] "C:\Users\soura\Documents\Verilog\testing\dump\CPU_tb.vcd"
-[dumpfile_mtime] "Sun Nov 05 23:08:22 2023"
-[dumpfile_size] 1981156
+[dumpfile_mtime] "Mon Nov 06 01:35:25 2023"
+[dumpfile_size] 1164770
 [savefile] "C:\Users\soura\Documents\Verilog\testing\dump\signals\1.gtkw"
 [timestart] 0
 [size] 1902 991
 [pos] -1 -1
-*-14.332600 33000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-14.332600 52200 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] CPU_tb.
 [treeopen] CPU_tb.cpu.
+[treeopen] CPU_tb.cpu.A_reg.
 [treeopen] CPU_tb.cpu.A_reg.genblk1[7].
 [treeopen] CPU_tb.cpu.A_reg.genblk1[7].m.genblk1.
 [treeopen] CPU_tb.cpu.B_reg.genblk1[0].
@@ -30,7 +31,6 @@ CPU_tb.cpu.clk
 CPU_tb.cycle
 @28
 CPU_tb.cpu.reset
-@29
 CPU_tb.cpu.control_unit.time_cycle[1:0]
 @800022
 CPU_tb.cpu.control_unit.T[3:0]
@@ -106,7 +106,7 @@ CPU_tb.cpu.RAM.WE
 CPU_tb.cpu.RAM.OE
 @1000200
 -RAM
-@c00200
+@800200
 -A_reg
 @28
 CPU_tb.cpu.A_reg.clk
@@ -130,8 +130,9 @@ CPU_tb.cpu.A_reg.D[7:0]
 CPU_tb.cpu.A_reg.alu_input[7:0]
 CPU_tb.cpu.A_reg.Q[7:0]
 CPU_tb.cpu.A_reg.alu_opcode[4:0]
-@28
+@29
 CPU_tb.cpu.A_reg.WE
+@28
 CPU_tb.cpu.A_reg.OE
 @22
 CPU_tb.cpu.A_reg.alu.A[7:0]
@@ -139,16 +140,11 @@ CPU_tb.cpu.A_reg.alu.B[7:0]
 CPU_tb.cpu.A_reg.alu.opcode[4:0]
 CPU_tb.cpu.A_reg.alu.C[7:0]
 @28
-CPU_tb.cpu.A_reg.WE
-@22
-CPU_tb.cpu.A_reg.a[7:0]
-CPU_tb.cpu.A_reg.alu_portA[7:0]
-CPU_tb.cpu.A_reg.b[7:0]
-@28
-CPU_tb.cpu.A_reg.ALU_EN
-@22
-CPU_tb.cpu.A_reg.D[7:0]
-@1401200
+CPU_tb.cpu.A_reg.alu.sign
+CPU_tb.cpu.A_reg.alu.zero
+CPU_tb.cpu.A_reg.alu.carry
+CPU_tb.cpu.A_reg.alu.parity
+@1000200
 -A_reg
 @c00200
 -instr_reg0
@@ -201,5 +197,7 @@ CPU_tb.cpu.B_reg.WE
 CPU_tb.cpu.B_reg.OE
 @1401200
 -B_reg
+@28
+CPU_tb.cpu.control_unit.CLR_TIMER
 [pattern_trace] 1
 [pattern_trace] 0
