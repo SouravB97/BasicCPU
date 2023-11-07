@@ -27,22 +27,9 @@ module memory
 		$display("");
 		$display("");
 
-/*
-		//clear memory
-		for(i = 0; i < DEPTH; i = i+1)
-			if(ID == 1) mem[i] = 0;
-			else mem[i] = ~0;
-
-		//backdoor memory load task here.
-		if(ID == 0)
-			$readmemh("bootcode.hex", mem); //must be same folder as tb top, where irun is run
-		else if(ID == 1)
-			$readmemh("micro_code.hex", mem); */
-
-		//print_mem();
 	end
 
-	always	@(posedge reset) begin
+	always	@(*) begin
 		rdata = mem[address];
 	end
 	always @(posedge clk) begin

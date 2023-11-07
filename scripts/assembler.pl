@@ -21,7 +21,7 @@ my $memory_width = 1;	#in bytes
 my $max_val = 2**($memory_width*8)-1;
 my @mem = ($max_val) x $memory_depth;
 my $mem_ptr = 0;
-my $delete_tmp;
+my $retain_temps;
 my $randomize;
 my $help;
 my $show_map;
@@ -38,7 +38,7 @@ GetOptions (
 	"mem_depth=s" => 	\$memory_depth,
 	"mem_width=s" => 	\$memory_width,
 	"show" => 	\$show_map,
-	"remove_temp" => 	\$delete_tmp,
+	"retain_temps" => 	\$retain_temps,
 	"rand|randomize" => 	\$randomize
 );
 
@@ -259,12 +259,12 @@ close(OUT);
 print "Program size = $code_byte_size\n";
 print "Output file: $output_file\n" ;
 
-if($delete_tmp){
+unless($retain_temps){
 	`rm -rf $input_file_tmp1 $input_file_tmp2` 
 };
 
 sub to_int{
-	my $input_str = @_[0];
+	my $input_str = $_[0];
 	my $output_int = 0;
 	
 	die "Invalid arguement $input_str " if($input_str !~ /0X[A-F0-9]+|[A-F0-9]+H|0B[01]+|[0-9]+/i); 

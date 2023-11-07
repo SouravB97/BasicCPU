@@ -1,7 +1,6 @@
--Mux:
-	-	Combined 2x1 muxes into single module
-	-	Renamed DATA_WIDTh param to SIZE for consistency
 -CPU.v:	
-	- Added support for 3rd T state T[2]
-	- Ported MID SID RANGE signals from ternary assignment to switch based assignment
-	- support for conditional jumps is WIP
+	- Removed support for 3 T stages as compare instructions don't need them (2 T states instead)
+	- Optimized MID SID switches
+  - Might need to latch ALU status during T1 phase
+-Memory:
+	- Continuously assigned Rdata

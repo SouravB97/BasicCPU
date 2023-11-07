@@ -9,7 +9,7 @@ module CPU_tb();
 	reg clk, reset, hlt;
 
 	localparam clk_period = 2;	//ns
-	localparam bootdelay = 2*clk_period + 7; //time after which to raise reset
+	localparam bootdelay = 2*clk_period + 2; //time after which to raise reset
 	localparam max_cycles = 200; //max cycles after reset assertion to kill test
 	localparam drain_cycles = 10; //additional cycles after hlt for check, report phase
 

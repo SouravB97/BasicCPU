@@ -1,4 +1,4 @@
-;;LDA 0
-INC
-JMP 0
+LDA 1
+LSH
+JCAR 2
 HLT
