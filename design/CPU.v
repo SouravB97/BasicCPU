@@ -260,14 +260,13 @@ module control_unit_m(
 	assign control_bus[`CB_PC_INR_RANGE]				= 
 				(T[0]) |
 				(T[1] & 
-					op_is_mvi |
-					(op_is_cmp & ~cmp_pass))
+					(op_is_mvi |
+					(op_is_cmp & ~cmp_pass)))
 	;
 	assign mid_sid_en				= 
 				(T[0])	| 							//OPCODE_FETCH
 				(T[1] & 
-					op_is_mov_ins |
-					(op_is_cmp & cmp_pass))
+					(op_is_mov_ins | (op_is_cmp & ~cmp_pass)))
 	;
 	assign control_bus[`CB_HLT_RANGE]			= 
 				en_timer & op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)]

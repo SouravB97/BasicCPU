@@ -1,6 +1,6 @@
--Register, Accumulator
-	-Removed input tstate gate, not needed after clk modification
--Memory
-	Reverted last checkin
+-Memory:
+	Removed clock dependency on reads
+	-Renamed file
 -CPU.v:	
-  - latched ALU status in status register. Not accessible on data bus
+	Successfully tested conditional jumps!
+	CPU is now turing complete

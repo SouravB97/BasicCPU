@@ -1,21 +1,23 @@
 
 module memory
  #(parameter DEPTH = 256,
+ 	 parameter ID = 0,
  	 parameter DATA_WIDTH = `DATA_WIDTH,
 	 parameter ADDR_WIDTH = $clog2(DEPTH))(
 
 	 input [ADDR_WIDTH - 1 :0] address,
 	 inout [DATA_WIDTH - 1 :0] data,
-	 input CS, RD_WR,
+	 input CS, OE, WE,
 	 input clk, reset
 );
-	reg [DATA_WIDTH - 1 :0] mem [DEPTH :0] ;
+	reg [DATA_WIDTH - 1 :0] mem [0: DEPTH-1] ;
+	//reg [DATA_WIDTH - 1 :0] mem [DEPTH-1 :0] ;
 	wire output_condition;
 	reg [DATA_WIDTH - 1 :0] rdata;
 	integer i;
 
-	assign output_condition = CS & RD_WR;
-	assign data = output_condition ? rdata : 'bz;
+	assign output_condition = reset & CS & OE;
+	assign /*#(1,1,1)*/ data = output_condition ? mem[address] : 'bz;
 
 	initial begin
 		$display("=============================================================================================");
@@ -25,22 +27,20 @@ module memory
 		$display("");
 		$display("");
 
-		//clear memory
-		for(i = 0; i < DEPTH; i = i+1)
-			mem[i] = ~0;
-
-		//backdoor memory load task here.
 	end
 
+//	always	@(posedge reset) begin
+//		rdata = mem[address];
+//	end
 	always @(posedge clk) begin
 		if(reset) begin
 		  if(CS) begin
-			  if(RD_WR) begin//READ
-				  rdata = mem[address];
-		    end		
-			  else begin			//WRITE
-				  mem[address] = data;
-			  end
+				case({WE,OE})
+					//2'b00 : ; //DO NOTHING
+					//2'b01 : rdata = mem[address]; //READ
+					2'b10 : mem[address] = data; //WRITE
+					2'b11 : $display("%d: ERROR from module memory: OE and WE are 1 at the same time!!", $time);	//INVALID
+				endcase
 		  end
 		end
 	end

@@ -19,7 +19,6 @@
 `include "../design/BHVR/decoder_bhvr.v"
 //`include "../design/BHVR/register_bhvr.v"
 //`include "../design/BHVR/counter_bhvr.v"
-//`include "../design/BHVR/memory_bhvr2.v"
 //`include "../design/BHVR/ALU_bhvr.v"
 
 `else //structural
@@ -35,7 +34,6 @@
 //`include "../design/tri_state_buffer.v"
 //`include "../design/register.v"
 //`include "../design/counter.v"
-//`include "../design/BHVR/memory_bhvr2.v"
 //`include "../design/ALU_components.v"
 //`include "../design/ALU.v"
 //`include "../design/CPU.v"
@@ -44,7 +42,7 @@
 `include "../design/tri_state_buffer.v"
 `include "../design/register.v"
 `include "../design/counter.v"
-`include "../design/BHVR/memory_bhvr2.v"
+`include "../design/BHVR/memory_bhvr.v"
 `include "../design/ALU_components.v"
 `include "../design/ALU.v"
 `include "../design/accumulator.v"
