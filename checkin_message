@@ -1,2 +1,7 @@
--Added #DB assmbler directive
--Support for '00ABH' hex format numbers
+-Mux:
+	-	Combined 2x1 muxes into single module
+	-	Renamed DATA_WIDTh param to SIZE for consistency
+-CPU.v:	
+	- Added support for 3rd T state T[2]
+	- Ported MID SID RANGE signals from ternary assignment to switch based assignment
+	- support for conditional jumps is WIP

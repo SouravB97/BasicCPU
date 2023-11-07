@@ -15,8 +15,8 @@ module mux_tb();
 	reg[15:0] data7 = 'h0108;
 	wire[15:0] data_out;
 
-	mux #(.DATA_WIDTH(8)) eight_mux(.D(data),.S(sel),.Y(y));
-	mux #(.DATA_WIDTH(2)) two_mux(.D(data[1:0]),.S(sel),.Y(y1));
+	mux #(.SIZE(8)) eight_mux(.D(data),.S(sel),.Y(y));
+	mux #(.SIZE(2)) two_mux(.D(data[1:0]),.S(sel),.Y(y1));
 	//switch #(.SIZE(4)) switch0(.data_in({data3, data2, data1, data0}), .S(sel), .data_out(data_out));
 	switch #(.SIZE(8), .DATA_WIDTH(16)) switch0(
 		.data_in({data7, data6, data5, data4, data3, data2, data1, data0}),

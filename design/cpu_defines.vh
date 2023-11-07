@@ -49,28 +49,33 @@ IO:  0x8000-0x8004
 `define CB_MID_EN_RANGE					1:1  
 `define CB_PC_INR_RANGE					2:2  
 `define CB_AMID_RANGE						4:3  
-`define CB_MID_RANGE						8:5  
-`define CB_SID_RANGE					 12:9  
-`define CB_ALU_OPCODE_RANGE		 17:13  
-`define CB_HLT_RANGE	 				 18:18  
-`define CB_CLR_TIMER_RANGE	 	 19:19  
-`define CB_AR_INR_RANGE	 	 		 20:20  
-`define CB_ALU_EN_RANGE	 	 		 21:21  
+`define CB_MID_RANGE						7:5  
+`define CB_SID_RANGE					 10:8  
+`define CB_ALU_OPCODE_RANGE		 15:11  
+`define CB_HLT_RANGE	 				 16:16  
+`define CB_CLR_TIMER_RANGE	 	 17:17  
+`define CB_AR_INR_RANGE	 	 		 18:18  
+`define CB_ALU_EN_RANGE	 	 		 19:19  
 
 `define DEC_OP(op) \ //gives same output as ir0_decoder
 	(op >> `OPCODEWORD_DECODE_OFFSET)	& {`OPCODEWORD_ALU_OPCODE_WIDTH{1'b1}}
 `define IS_MOV(op) (op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b00
-`define IS_MV1(op) (op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b01
+`define IS_MVI(op) (op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b01
 `define IS_ALU(op) (op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b10
-`define IS_SYS(op) (op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b11
+`define IS_SYS(op) ((op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b11) & ((op >> `OPCODEWORD_CMP_OFFSET) | 1'b0)
+`define IS_CON(op) ((op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b11) & ((op >> `OPCODEWORD_CMP_OFFSET) & 1'b1)
 
-`define OPCODEWORD_TYPE_RANGE			7:6
+`define OPCODEWORD_TYPE_RANGE						7:6
+`define OPCODEWORD_CMP_RANGE						5:5
 `define OPCODEWORD_ALU_OPCODE_RANGE			4:0
 `define OPCODEWORD_DECODE_RANGE					`OPCODEWORD_ALU_OPCODE_RANGE
-`define OPCODEWORD_MID_RANGE			2:0
-`define OPCODEWORD_SID_RANGE			5:3
+`define OPCODEWORD_SID_RANGE						5:3
+`define OPCODEWORD_MID_RANGE						2:0
+`define OPCODEWORD_ALU_STATUS_RANGE			1:0
+`define OPCODEWORD_FLIPCMP_RANGE				2:2
 
 `define OPCODEWORD_TYPE_OFFSET					6
+`define OPCODEWORD_CMP_OFFSET						5
 `define OPCODEWORD_ALU_OPCODE_OFFSET		0
 `define OPCODEWORD_DECODE_OFFSET				`OPCODEWORD_ALU_OPCODE_OFFSET
 
@@ -165,8 +170,8 @@ IO:  0x8000-0x8004
 |0101x	|'h0A,'h0B		 |OR 		|C = A | B;			|OR                  |
 |0110x	|'h0C,'h0D		 |XOR		|C = A ^ B;			|XOR                 |
 |0111x	|'h0E,'h0F		 |CMP		|C = ~B;				|Complement A        |
-|10xxx	|'h10-'h17		 |LSH		|C = A >> 1;		|Shift right         |
-|11xxx	|'h18-'h1F		 |RSH		|C = A << 1;		|Shift left          |
+|10xxx	|'h10-'h17		 |RSH		|C = A >> 1;		|Shift right         |
+|11xxx	|'h18-'h1F		 |LSH		|C = A << 1;		|Shift left          |
 |-------------------------|------------------------------------|
 */
 `define CPU_INSTR_LD  				 8'b1000_0000
@@ -181,13 +186,23 @@ IO:  0x8000-0x8004
 `define CPU_INSTR_OR	 				 8'b1000_1010
 `define CPU_INSTR_XOR 				 8'b1000_1100
 `define CPU_INSTR_CMP 				 8'b1000_1110
-`define CPU_INSTR_LSH 				 8'b1001_0000
-`define CPU_INSTR_RSH 				 8'b1001_1000
+`define CPU_INSTR_RSH 				 8'b1001_0000
+`define CPU_INSTR_LSH 				 8'b1001_1000
 
 //SYSTEM instructions
 `define CPU_INSTR_NOP 				 8'b1100_0000
 `define CPU_INSTR_HLT 				 8'b1100_0001
 `define CPU_INSTR_INC_AR 			 8'b1100_0010
+
+//Conditional Jumps
+`define CPU_INSTR_JCAR				 8'b1110_0000
+`define CPU_INSTR_JNCAR				 8'b1110_0100
+`define CPU_INSTR_JEPAR				 8'b1110_0001
+`define CPU_INSTR_JOPAR				 8'b1110_0101
+`define CPU_INSTR_JZER				 8'b1110_0010
+`define CPU_INSTR_JNZER				 8'b1110_0110
+`define CPU_INSTR_JNEG				 8'b1110_0011
+`define CPU_INSTR_JPOS				 8'b1110_0111
 
 //CISC INSTRUCTIONS
 `define CISC_INSTR_	0

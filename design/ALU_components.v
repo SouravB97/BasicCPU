@@ -33,20 +33,20 @@ module SHU
 
 	genvar i;
 	//instance 0
-	mux #(.DATA_WIDTH(2)) m0(.D({1'b0,A[1]}), .S(opcode), .Y(C[0]));
+	mux #(.SIZE(2)) m0(.D({1'b0,A[1]}), .S(opcode), .Y(C[0]));
 
 	//instance i
 	generate
 		for(i = 1; i<DATA_WIDTH-1; i=i+1) begin
-			mux #(.DATA_WIDTH(2)) mi(.D({A[i-1], A[i+1]}), .S(opcode), .Y(C[i]));
+			mux #(.SIZE(2)) mi(.D({A[i-1], A[i+1]}), .S(opcode), .Y(C[i]));
 		end
 	endgenerate
 
 	//instance n-1
-	mux #(.DATA_WIDTH(2)) mn1(.D({A[DATA_WIDTH-2], 1'b0}), .S(opcode), .Y(C[DATA_WIDTH-1]));
+	mux #(.SIZE(2)) mn1(.D({A[DATA_WIDTH-2], 1'b0}), .S(opcode), .Y(C[DATA_WIDTH-1]));
 
 	//for generating carry
-	mux #(.DATA_WIDTH(2)) mux_carry(.D({A[DATA_WIDTH-1], 1'b0}), .S(opcode), .Y(Cout));
+	mux #(.SIZE(2)) mux_carry(.D({A[DATA_WIDTH-1], 1'b0}), .S(opcode), .Y(Cout));
 endmodule
 
 //logic circuit
@@ -71,8 +71,8 @@ module LU
 	genvar i;
 	generate
 		for(i = 0; i< DATA_WIDTH; i=i+1) begin
-			//mux #(.DATA_WIDTH(4)) m1(.D({a[i],o[i],x[i],n[i]}), .S(opcode), .Y(S[i]));
-			mux #(.DATA_WIDTH(4)) m1(.D({n[i],x[i],o[i],a[i]}), .S(opcode), .Y(S[i]));
+			//mux #(.SIZE(4)) m1(.D({a[i],o[i],x[i],n[i]}), .S(opcode), .Y(S[i]));
+			mux #(.SIZE(4)) m1(.D({n[i],x[i],o[i],a[i]}), .S(opcode), .Y(S[i]));
 		end
 	endgenerate
 endmodule
@@ -119,8 +119,8 @@ module AU
 	generate
 		for(i =0; i< DATA_WIDTH; i = i+1) begin
 			full_adder fa(.A(A[i]), .B(w1[i]), .Cin(c[i]), .S(S[i]), .Cout(c[i+1]));	
-			//mux #(.DATA_WIDTH(4)) m1(.D({B[i], ~B[i], 1'b1, 1'b0}),.S(opcode[2:1]),.Y(w1[i]));
-			mux #(.DATA_WIDTH(4)) m1(.D({1'b1,~B[i],B[i],1'b0}),.S(opcode[2:1]),.Y(w1[i]));
+			//mux #(.SIZE(4)) m1(.D({B[i], ~B[i], 1'b1, 1'b0}),.S(opcode[2:1]),.Y(w1[i]));
+			mux #(.SIZE(4)) m1(.D({1'b1,~B[i],B[i],1'b0}),.S(opcode[2:1]),.Y(w1[i]));
 		end
 	endgenerate
 	

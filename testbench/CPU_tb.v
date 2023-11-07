@@ -9,7 +9,7 @@ module CPU_tb();
 	reg clk, reset, hlt;
 
 	localparam clk_period = 2;	//ns
-	localparam bootdelay = 3*clk_period + 2; //time after which to raise reset
+	localparam bootdelay = 2*clk_period + 7; //time after which to raise reset
 	localparam max_cycles = 200; //max cycles after reset assertion to kill test
 	localparam drain_cycles = 10; //additional cycles after hlt for check, report phase
 
@@ -138,7 +138,7 @@ module CPU_tb();
 		reg [7:0] expected_rdata, actual_rdata, wdata;
 		begin
 			//pause CPU:
-			force cpu.control_unit.en_timer_decoder = 0;
+			force cpu.control_unit.en_timer = 0;
 			//WRITE
 			addr = 16'h0000;
 			for(i = 0 ; i < `MEMORY_DEPTH; i++) begin

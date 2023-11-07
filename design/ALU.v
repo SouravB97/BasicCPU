@@ -75,8 +75,8 @@ module ALU
 	generate
 		for(i = 0; i < DATA_WIDTH; i = i+1) begin
 
-			mux #(.DATA_WIDTH(2)) m1 (.D({w2[i], w1[i]}), .S(opcode[3]), .Y(w4[i]));
-			mux #(.DATA_WIDTH(2)) m2 (.D({w3[i], w4[i]}), .S(opcode[4]), .Y(C[i]));
+			mux #(.SIZE(2)) m1 (.D({w2[i], w1[i]}), .S(opcode[3]), .Y(w4[i]));
+			mux #(.SIZE(2)) m2 (.D({w3[i], w4[i]}), .S(opcode[4]), .Y(C[i]));
 
 		end
 	endgenerate

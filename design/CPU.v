@@ -87,10 +87,6 @@ module cpu_m(
 		.WE_H(WE_PC1),.OE_H(OE_PC1),
 		.WE_L(WE_PC0),.OE_L(OE_PC0)
 	);
-	//latch
-	//latch #(.DATA_WIDTH(16)) address_latch(
-	//	.D(address_bus1), .Q(address_bus), .EN(~clk)	
-	//);
 
 	//Stack pointer SP
 //	ar_register #(.ADDR_WIDTH(16)) SP(
@@ -218,11 +214,17 @@ module control_unit_m(
 	wire [`OPCODEWORD_ALU_OPCODE_WIDTH:0] alu_opcode = ir0_reg_out[`OPCODEWORD_ALU_OPCODE_RANGE];
 	wire [`OPCODEWORD_MID_WIDTH-1:0] ir0_mid				 = ir0_reg_out[`OPCODEWORD_MID_RANGE];
 	wire [`OPCODEWORD_SID_WIDTH-1:0] ir0_sid				 = ir0_reg_out[`OPCODEWORD_SID_RANGE];
+	wire [1:0] time_cycle_enbld = time_cycle & {2{en_timer}};
 	wire instr_decode = ~T[0]; //don't decode at T0,  during opcode fetch
+	wire sign, zero, parity, carry;
 
+	wire op_is_sys = op_is_others & ~ir0_reg_out[`OPCODEWORD_CMP_RANGE];
+	wire op_is_cmp = op_is_others & ir0_reg_out[`OPCODEWORD_CMP_RANGE];
 	wire op_is_mov_ins = op_is_mov | op_is_mvi ;
 	wire op_is_mem	= (op_is_mov_ins) & ~|(ir0_sid[2:0] ^ 3'h1);	//SID is RAM
 	wire mid_sid_is_ram	=  |(ir0_sid[2:0] ^ 3'h1) | |(ir0_mid[2:0] ^ 3'h1);	//MID or SID is RAM
+
+	assign {sign, zero, parity, carry} = alu_status;
 
 	//========================= Timer =====================================
 	//timer counter
@@ -234,9 +236,9 @@ module control_unit_m(
 
 	//timing generator
 	decoder #(.WIDTH(2)) timer_decoder(
-		.S(time_cycle), .EN(en_timer_decoder), .D(T)
+		.S(time_cycle), .EN(en_timer), .D(T)
 	);
-	d_ff en_timer_dff(.clk(clk), .reset(reset), .D(1'b1), .Q(en_timer_decoder)); //ensure T[0] at first clk after reset
+	d_ff en_timer_dff(.clk(clk), .reset(reset), .D(1'b1), .Q(en_timer)); //no T states when reset
 
 	//========================= Instruction Decoders =====================================
 	decoder #(.WIDTH(`OPCODEWORD_ALU_OPCODE_WIDTH)) ir0_decoder(
@@ -246,11 +248,10 @@ module control_unit_m(
 
 	decoder #(.WIDTH(2)) opcode_type_decoder(
 		.S(ir0_reg_out[`OPCODEWORD_TYPE_RANGE]), .EN(instr_decode),
-		.D({op_is_sys, op_is_alu, op_is_mvi, op_is_mov})
+		.D({op_is_others, op_is_alu, op_is_mvi, op_is_mov})
 	);
 
 	//====================================================================================
-
 	assign control_bus[`CB_SID_EN_RANGE]				= mid_sid_en;
 	assign control_bus[`CB_MID_EN_RANGE]				= mid_sid_en;
 	assign control_bus[`CB_ALU_OPCODE_RANGE]		= alu_opcode;
@@ -263,29 +264,89 @@ module control_unit_m(
 	;
 	assign mid_sid_en				= 
 				(T[0])	| 							//OPCODE_FETCH
-				(T[1] & op_is_mov_ins)
+				(T[1] & op_is_mov_ins) |
+				(T[2] & op_is_cmp)			//if made it to T2, enable
 	;
 	assign 	control_bus[`CB_HLT_RANGE]			= 
 				|T[2:0] & op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)]
 	;
-	assign control_bus[`CB_CLR_TIMER_RANGE]	= 
-				(~T[0]) &			//0 at T[0]
-		 		(T[1] & 	~(op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)]))	//don't clear if halt
+	wire continue_past_T1 = (op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)]) |		//pause timer at T[1] if halt
+													(op_is_cmp & cmp_pass); 	//go to T[2] if ALU check passes
+	assign control_bus[`CB_CLR_TIMER_RANGE]	= 	//decision point to add additional states
+				(~T[0]) &	(		//0 at T[0]
+		 		(T[1] & ~continue_past_T1) |
+				(T[2])
+			)
 	;
 	assign control_bus[`CB_AR_INR_RANGE]	= 
 				(~T[0]) &		
-		 		(T[1] & 	op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_INC_AR)])
+		 		(T[1] 	& op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_INC_AR)])
 	;
-	/*
-	switch #(.SIZE(2), .DATA_WIDTH(`OPCODEWORD_MID_WIDTH)) control_bus_mid_range_switch(
+	assign control_bus[`CB_AMID_RANGE]				= 
+			 	(T[1] & op_is_mov & mid_sid_is_ram) & 2'h1	//OE_AR at T[1] sometimes, OE_PC otherwise
+	;
+	//Multi-bit switches for MID, SID_range
+	wire midsid_switch_sel0 = (T[1] & op_is_mov_ins) |
+														(T[2] & op_is_cmp);
+	switch #(.SIZE(8), .DATA_WIDTH(`OPCODEWORD_MID_WIDTH)) control_bus_mid_range_switch(
 		.data_in({
-				(~(~ir0_mid | {`OPCODEWORD_MID_WIDTH{op_is_mov_ins}})),				//T1
-				`OPCODEWORD_MID_WIDTH'h1						//T0, OE_M opcode fetch
+				`OPCODEWORD_MID_WIDTH'h7,		//'b111 //T[3] don't care
+				`OPCODEWORD_MID_WIDTH'h7,		//'b110 //T[3] don't care
+				`OPCODEWORD_MID_WIDTH'h1,		//'b101	//T[2] & op_is_cmp :OE_M, conditional JMP
+				`OPCODEWORD_MID_WIDTH'h7,		//'b100	//T[2] & !op_is_cmp :don't care
+				ir0_mid,										//'b011 //T[1] & op_is_mov
+				`OPCODEWORD_MID_WIDTH'h7,		//'b010	//T[1] & !op_is_mov : don't care
+				`OPCODEWORD_MID_WIDTH'h1,		//'b001	//T[0]: OE_M, fetch
+				`OPCODEWORD_MID_WIDTH'h1		//'b000	//T[0]:	OE_M, fetch
 			}),
-		.S(~T[0]),
+		.S({time_cycle_enbld, midsid_switch_sel0}),
 		.data_out(control_bus[`CB_MID_RANGE])
 	);
-	*/
+	switch #(.SIZE(4), .DATA_WIDTH(`OPCODEWORD_SID_WIDTH)) control_bus_sid_range_switch(
+		.data_in({
+				`OPCODEWORD_SID_WIDTH'h0,		//'b11   //WE_IR0, opcode fetch at T[0]
+				`OPCODEWORD_SID_WIDTH'h0,		//'b10
+				ir0_sid,										//'b01
+				`OPCODEWORD_SID_WIDTH'h7		//'b00	//don't care, default
+			}),
+		.S({T[0], op_is_mov_ins}),
+		.data_out(control_bus[`CB_SID_RANGE])
+	);
+//	//Multi-bit switch
+//	switch #(.SIZE(4), .DATA_WIDTH(`OPCODEWORD_MID_WIDTH)) control_bus_mid_range_switch(
+//		.data_in({
+//				`OPCODEWORD_MID_WIDTH'h1,		//'b11   //OE_M, opcode fetch at T[0]
+//				`OPCODEWORD_MID_WIDTH'h1,		//'b10
+//				ir0_mid,										//'b01
+//				`OPCODEWORD_MID_WIDTH'h7		//'b00	//don't care, default
+//			}),
+//		.S({T[0], op_is_mov_ins}),
+//		.data_out(control_bus[`CB_MID_RANGE])
+//	);
+//	switch #(.SIZE(4), .DATA_WIDTH(`OPCODEWORD_SID_WIDTH)) control_bus_sid_range_switch(
+//		.data_in({
+//				`OPCODEWORD_SID_WIDTH'h0,		//'b11   //WE_IR0, opcode fetch at T[0]
+//				`OPCODEWORD_SID_WIDTH'h0,		//'b10
+//				ir0_sid,										//'b01
+//				`OPCODEWORD_SID_WIDTH'h7		//'b00	//don't care, default
+//			}),
+//		.S({T[0], op_is_mov_ins}),
+//		.data_out(control_bus[`CB_SID_RANGE])
+//	);
+
+	//=============== Logic for supplementary wires ====================
+	mux #(.SIZE(4)) cmp_pass_mux1(
+		.D({sign, zero, parity, carry}),
+		.S(ir0_reg_out[`OPCODEWORD_ALU_STATUS_RANGE]),
+		.Y(cmp_pass_mux1_out)
+	);
+	mux #(.SIZE(2)) cmp_pass_mux2(
+		.D({~cmp_pass_mux1_out, cmp_pass_mux1_out}),
+		.S(ir0_reg_out[`OPCODEWORD_FLIPCMP_RANGE]),
+		.Y(cmp_pass)
+	);
+	
+	/*
 	assign control_bus[`CB_MID_RANGE]				= 
 				T[0] ? 1		//OE_M, Opcode_fetch
 		: 	T[1] ? op_is_mov_ins ? ir0_mid : 15	//OE_M
@@ -302,7 +363,6 @@ module control_unit_m(
 						 : 0	//OE_PC
 		: 			   0	//OE_PC
 	;
-	/*
 	assign mid_sid_en				= 
 				T[0] ? 1'b1 //OPCODE_FETCH
 		:		T[1] ? op_is_mov_ins ? 1'b1 : 1'b0

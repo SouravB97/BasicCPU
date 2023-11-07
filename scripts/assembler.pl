@@ -122,7 +122,6 @@ while(my $line = <INP>){
 				print "Unrecognized preprocessor directive in line $. : $line";
 				print "\tNo r-value for $1 macro\n";
 			}
-
 		}
 		next;
 	}

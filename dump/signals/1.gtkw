@@ -1,10 +1,10 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Mon Nov 06 01:35:29 2023
+[*] Mon Nov 06 17:42:49 2023
 [*]
 [dumpfile] "C:\Users\soura\Documents\Verilog\testing\dump\CPU_tb.vcd"
-[dumpfile_mtime] "Mon Nov 06 01:35:25 2023"
-[dumpfile_size] 1164770
+[dumpfile_mtime] "Mon Nov 06 17:42:21 2023"
+[dumpfile_size] 993783
 [savefile] "C:\Users\soura\Documents\Verilog\testing\dump\signals\1.gtkw"
 [timestart] 0
 [size] 1902 991
@@ -93,7 +93,7 @@ CPU_tb.cpu.OE_B
 CPU_tb.cpu.WE_M
 @1000200
 -CPU main signals
-@800200
+@c00200
 -RAM
 @28
 CPU_tb.cpu.RAM.clk
@@ -104,7 +104,7 @@ CPU_tb.cpu.RAM.data[7:0]
 @28
 CPU_tb.cpu.RAM.WE
 CPU_tb.cpu.RAM.OE
-@1000200
+@1401200
 -RAM
 @800200
 -A_reg
@@ -130,13 +130,14 @@ CPU_tb.cpu.A_reg.D[7:0]
 CPU_tb.cpu.A_reg.alu_input[7:0]
 CPU_tb.cpu.A_reg.Q[7:0]
 CPU_tb.cpu.A_reg.alu_opcode[4:0]
-@29
-CPU_tb.cpu.A_reg.WE
 @28
+CPU_tb.cpu.A_reg.WE
 CPU_tb.cpu.A_reg.OE
 @22
 CPU_tb.cpu.A_reg.alu.A[7:0]
+@23
 CPU_tb.cpu.A_reg.alu.B[7:0]
+@22
 CPU_tb.cpu.A_reg.alu.opcode[4:0]
 CPU_tb.cpu.A_reg.alu.C[7:0]
 @28
@@ -183,7 +184,7 @@ CPU_tb.cpu.instr_reg0.WE
 CPU_tb.cpu.instr_reg0.CS
 @1401200
 -instr_reg0
-@c00200
+@800200
 -B_reg
 @28
 CPU_tb.cpu.B_reg.clk
@@ -195,7 +196,7 @@ CPU_tb.cpu.B_reg.Q[7:0]
 @28
 CPU_tb.cpu.B_reg.WE
 CPU_tb.cpu.B_reg.OE
-@1401200
+@1000200
 -B_reg
 @28
 CPU_tb.cpu.control_unit.CLR_TIMER

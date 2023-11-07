@@ -19,8 +19,8 @@ module counter
 	generate
 		for(i = 0; i < DATA_WIDTH; i=i+1) begin
 			//muxes
-			mux #(.DATA_WIDTH(4)) mux0(.D({2'b00, D[i], cnt_en[i]}),  .S({SYNC_CLR, WE}), .Y(J[i]));
-			mux #(.DATA_WIDTH(4)) mux1(.D({2'b11, ~D[i], cnt_en[i]}), .S({SYNC_CLR, WE}), .Y(K[i]));
+			mux #(.SIZE(4)) mux0(.D({2'b00, D[i], cnt_en[i]}),  .S({SYNC_CLR, WE}), .Y(J[i]));
+			mux #(.SIZE(4)) mux1(.D({2'b11, ~D[i], cnt_en[i]}), .S({SYNC_CLR, WE}), .Y(K[i]));
 
 			//JK flip flop
 			jk_ff jk_ff0 (.clk(clk), .reset(reset),
