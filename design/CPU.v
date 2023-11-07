@@ -33,8 +33,7 @@ module cpu_m(
 
 	//========================= random wires in CPU =====================================
 	wire[7:0] alu_in0, alu_in1, alu_out, ir0_reg_out;
-	wire[4:0] alu_opcode_latched;
-	wire[3:0] alu_status;
+	wire[3:0] alu_status, alu_status_reg;
 	wire[15:0] address_bus1;
 
 	//========================= Accumulator =====================================
@@ -58,9 +57,9 @@ module cpu_m(
 
 	//status register
 	register #(.TYPE(1), .DATA_WIDTH(4)) status_reg(
-		.clk(clk1), .reset(reset),
-		.data(data_bus[3:0]), .data_in(alu_status),
-		.CS(1'b1), .WE(1'b1), .OE(1'b0/*OE_SR*/)
+		.clk(clk1), .reset(reset),											//giving ~clk as it should latch A write data
+		.data_in(alu_status), .data(alu_status_reg),
+		.CS(1'b1), .WE(ALU_EN), .OE(1'b1/*OE_SR*/)
 	);
 
 	//Instruction register (Connects to instruction decoder)
@@ -186,7 +185,7 @@ module cpu_m(
 	//========================= Control Unit =====================================
 	control_unit_m control_unit(
 		.clk(clk2), .reset(reset), .hlt(hlt),
-		.ir0_reg_out(ir0_reg_out), .alu_status(alu_status),
+		.ir0_reg_out(ir0_reg_out), .alu_status(alu_status_reg),
 	 	.control_bus(control_bus)
 	);
 	//========================= Control Unit =====================================
@@ -287,18 +286,20 @@ module control_unit_m(
 	//Multi-bit switches for MID, SID_range
 	switch #(.SIZE(2), .DATA_WIDTH(`OPCODEWORD_MID_WIDTH)) mid_switch(
 		.data_in({
-				`OPCODEWORD_MID_WIDTH'h1,	//OE_M, opcode fetch or load immidiate
-				ir0_mid 									//
+				`OPCODEWORD_MID_WIDTH'h1,	//T[0]: OE_M, opcode fetch or load immidiate
+				ir0_mid 									//T[1]: default
 			}),
 		.S(T[0] | (op_is_cmp & cmp_pass)),
 		.data_out(control_bus[`CB_MID_RANGE])
 	);
-	switch #(.SIZE(2), .DATA_WIDTH(`OPCODEWORD_SID_WIDTH)) sid_switch(
+	switch #(.SIZE(4), .DATA_WIDTH(`OPCODEWORD_SID_WIDTH)) sid_switch(
 		.data_in({
-				`OPCODEWORD_MID_WIDTH'h0,	//WE_IR0, opcode fetch or load immidiate
-				ir0_sid 									//default
+				`OPCODEWORD_MID_WIDTH'h0,	//T[0]: WE_IR0, opcode fetch or load immidiate
+				`OPCODEWORD_MID_WIDTH'h0,	//T[0]: WE_IR0, opcode fetch or load immidiate
+				`OPCODEWORD_MID_WIDTH'h6, //T[1]: Conditional JMP, WE_PC0
+				ir0_sid 									//T[1]: Default 
 			}),
-		.S(T[0] | (op_is_cmp & cmp_pass)),
+		.S({T[0],(op_is_cmp & cmp_pass)}),
 		.data_out(control_bus[`CB_SID_RANGE])
 	);
 	/*

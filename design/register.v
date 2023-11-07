@@ -10,8 +10,8 @@ module register
 	inout [DATA_WIDTH-1:0] data
 );
 	wire [DATA_WIDTH-1:0] D,Q;
-	wire [DATA_WIDTH-1:0] data_in_type = (TYPE == 0) ? data : data_in;
 	assign data_out = Q;
+	assign D = (TYPE == 0) ? data : data_in;
 
 	genvar i;
 
@@ -22,7 +22,6 @@ module register
 								.D(D[i]), .Q(Q[i]));
 
 			//tristate gate
-			tranif1(data_in_type[i], D[i], CS & WE); //input
 			tranif1(Q[i], data[i], CS & OE); //output
 		end
 	endgenerate

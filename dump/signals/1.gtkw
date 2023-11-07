@@ -1,30 +1,30 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Tue Nov 07 12:48:41 2023
+[*] Tue Nov 07 18:19:46 2023
 [*]
 [dumpfile] "C:\Users\soura\Documents\Verilog\testing\dump\CPU_tb.vcd"
-[dumpfile_mtime] "Tue Nov 07 12:32:21 2023"
-[dumpfile_size] 1974289
+[dumpfile_mtime] "Tue Nov 07 18:07:55 2023"
+[dumpfile_size] 1279561
 [savefile] "C:\Users\soura\Documents\Verilog\testing\dump\signals\1.gtkw"
-[timestart] 8430
+[timestart] 58510
 [size] 1902 991
 [pos] -1 -1
-*-12.332600 27000 21000 23000 25000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-12.754677 74010 21000 23000 25000 17000 19000 74010 76010 78010 80010 82010 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] CPU_tb.
 [treeopen] CPU_tb.cpu.
 [treeopen] CPU_tb.cpu.A_reg.genblk1[7].
-[treeopen] CPU_tb.cpu.A_reg.genblk1[7].m.genblk1.
 [treeopen] CPU_tb.cpu.B_reg.genblk1[0].
 [treeopen] CPU_tb.cpu.instr_reg0.genblk1[0].
 [treeopen] CPU_tb.cpu.PC.reg_l.
 [treeopen] CPU_tb.cpu.PC.reg_l.genblk1[0].
+[treeopen] CPU_tb.cpu.status_reg.genblk1[0].
 [sst_width] 266
-[signals_width] 383
+[signals_width] 406
 [sst_expanded] 1
 [sst_vpaned_height] 289
 @800200
 -CPU timing
-@28
+@29
 CPU_tb.cpu.clk
 @420
 CPU_tb.cycle
@@ -34,8 +34,6 @@ CPU_tb.cpu.control_unit.time_cycle[1:0]
 @800022
 CPU_tb.cpu.control_unit.T[3:0]
 @28
-(0)CPU_tb.cpu.control_unit.T[3:0]
-(1)CPU_tb.cpu.control_unit.T[3:0]
 (2)CPU_tb.cpu.control_unit.T[3:0]
 (3)CPU_tb.cpu.control_unit.T[3:0]
 @1001200
@@ -96,19 +94,26 @@ CPU_tb.cpu.B_reg.Q[7:0]
 CPU_tb.cpu.WE_B
 @22
 CPU_tb.cpu.AR.addr_l[7:0]
-CPU_tb.cpu.AR.addr_h[7:0]
 @28
 CPU_tb.cpu.OE_M
 CPU_tb.cpu.OE_A
 CPU_tb.cpu.OE_B
 CPU_tb.cpu.SID_EN
+CPU_tb.cpu.A_reg.ALU_EN
+@c00022
+CPU_tb.cpu.status_reg.Q[3:0]
+@28
+(0)CPU_tb.cpu.status_reg.Q[3:0]
+(1)CPU_tb.cpu.status_reg.Q[3:0]
+(2)CPU_tb.cpu.status_reg.Q[3:0]
+(3)CPU_tb.cpu.status_reg.Q[3:0]
 @1401200
+-group_end
 -CPU main signals
 @800200
 -RAM
 @28
 CPU_tb.cpu.RAM.clk
-@29
 CPU_tb.cpu.RAM.reset
 @22
 CPU_tb.cpu.RAM.address[7:0]
@@ -124,29 +129,9 @@ CPU_tb.cpu.RAM.OE
 CPU_tb.cpu.A_reg.clk
 CPU_tb.cpu.A_reg.genblk1[0].dff.clk
 @22
-CPU_tb.cpu.A_reg.data[7:0]
-@c00022
+[color] 6
 CPU_tb.cpu.A_reg.D[7:0]
-@28
-(0)CPU_tb.cpu.A_reg.D[7:0]
-(1)CPU_tb.cpu.A_reg.D[7:0]
-(2)CPU_tb.cpu.A_reg.D[7:0]
-(3)CPU_tb.cpu.A_reg.D[7:0]
-(4)CPU_tb.cpu.A_reg.D[7:0]
-(5)CPU_tb.cpu.A_reg.D[7:0]
-(6)CPU_tb.cpu.A_reg.D[7:0]
-(7)CPU_tb.cpu.A_reg.D[7:0]
-@1401200
--group_end
-@22
-CPU_tb.cpu.A_reg.alu_input[7:0]
 CPU_tb.cpu.A_reg.Q[7:0]
-CPU_tb.cpu.A_reg.alu_opcode[4:0]
-@28
-CPU_tb.cpu.A_reg.WE
-CPU_tb.cpu.A_reg.OE
-CPU_tb.cpu.A_reg.ALU_EN
-@22
 CPU_tb.cpu.A_reg.alu.A[7:0]
 CPU_tb.cpu.A_reg.alu.B[7:0]
 CPU_tb.cpu.A_reg.alu.opcode[4:0]
@@ -154,8 +139,22 @@ CPU_tb.cpu.A_reg.alu.C[7:0]
 @28
 CPU_tb.cpu.A_reg.alu.sign
 CPU_tb.cpu.A_reg.alu.zero
-CPU_tb.cpu.A_reg.alu.carry
 CPU_tb.cpu.A_reg.alu.parity
+CPU_tb.cpu.A_reg.alu.carry
+@22
+CPU_tb.cpu.A_reg.alu.status[3:0]
+CPU_tb.cpu.alu_status[3:0]
+@c00022
+CPU_tb.cpu.alu_status_reg[3:0]
+@28
+(0)CPU_tb.cpu.alu_status_reg[3:0]
+(1)CPU_tb.cpu.alu_status_reg[3:0]
+(2)CPU_tb.cpu.alu_status_reg[3:0]
+(3)CPU_tb.cpu.alu_status_reg[3:0]
+@1401200
+-group_end
+@28
+CPU_tb.cpu.A_reg.ALU_EN
 @1401200
 -A_reg
 @c00200
@@ -216,22 +215,42 @@ CPU_tb.cpu.control_unit.carry
 @800200
 -JCAR timing diagram
 @22
+[color] 1
 CPU_tb.cpu.address_bus[15:0]
+[color] 2
 CPU_tb.cpu.data_bus[7:0]
 @28
+[color] 3
 CPU_tb.cpu.WE_IR0
 @22
+[color] 4
 CPU_tb.cpu.instr_reg0.Q[7:0]
 @28
+[color] 5
 CPU_tb.cpu.control_unit.carry
+[color] 6
 CPU_tb.cpu.PC_INR
+[color] 7
 CPU_tb.cpu.OE_M
+[color] 1
 CPU_tb.cpu.WE_PC0
 @22
+[color] 2
 CPU_tb.cpu.PC.addr_l[7:0]
 @28
+[color] 3
 CPU_tb.cpu.CLR_TIMER
 @1000200
 -JCAR timing diagram
+@28
+CPU_tb.cpu.control_unit.op_is_cmp
+CPU_tb.cpu.control_unit.op_is_others
+CPU_tb.cpu.control_unit.cmp_pass
+CPU_tb.cpu.control_unit.carry
+CPU_tb.cpu.control_unit.cmp_pass_mux1_out
+CPU_tb.cpu.control_unit.op_is_mov
+CPU_tb.cpu.control_unit.op_is_mov_ins
+CPU_tb.cpu.control_unit.op_is_mvi
+CPU_tb.cpu.control_unit.op_is_sys
 [pattern_trace] 1
 [pattern_trace] 0

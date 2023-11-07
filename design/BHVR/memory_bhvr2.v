@@ -29,7 +29,7 @@ module memory
 
 	end
 
-	always	@(*) begin
+	always	@(posedge reset) begin
 		rdata = mem[address];
 	end
 	always @(posedge clk) begin

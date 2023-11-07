@@ -18,14 +18,12 @@ module accumulator #(
 	localparam OPCODE_WIDTH = `OPCODEWORD_ALU_OPCODE_WIDTH;
 	localparam STATUS_WIDTH = 4;
 
-	wire [DATA_WIDTH-1:0] D,Q,a,b;
+	wire [DATA_WIDTH-1:0] D,Q;
 	wire [DATA_WIDTH-1:0] alu_portC, alu_portB, alu_portA;			//connect to ALU output PORT X
-	wire [OPCODE_WIDTH-1:0] we_vector, alu_opcode_latched;
 
-	assign data_out = Q;
 	assign alu_portA = Q;
 	assign alu_portB = alu_input;
-	assign a = alu_portC;
+	assign data_out = Q;
 
 	ALU alu(
 		.A(alu_portA), .B(alu_portB),
@@ -42,10 +40,8 @@ module accumulator #(
 
 			//tristate gate
 			tranif1(Q[i], data[i], CS & OE);	//output
-			tranif1(data[i], b[i], CS & WE);		//input
 
-			//mux
-			mux #(.TRI_STATE_MUX(0)) m(.D({a[i],b[i]}), .S(ALU_EN), .Y(D[i]));
+			assign D[i] = (ALU_EN & alu_portC[i]) | (WE & data[i]);
 		end
 	endgenerate
 endmodule

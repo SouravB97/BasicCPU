@@ -1,6 +1,6 @@
+-Register, Accumulator
+	-Removed input tstate gate, not needed after clk modification
+-Memory
+	Reverted last checkin
 -CPU.v:	
-	- Removed support for 3 T stages as compare instructions don't need them (2 T states instead)
-	- Optimized MID SID switches
-  - Might need to latch ALU status during T1 phase
--Memory:
-	- Continuously assigned Rdata
+  - latched ALU status in status register. Not accessible on data bus
