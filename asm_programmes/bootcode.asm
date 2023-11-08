@@ -1,15 +1,14 @@
-#define origin 20H
-JMP origin
+#define origin 20h
+#define a efh
 
-#orig 3
-#DB 0xAB
+jmp `origin
 
-#orig origin
-LDAR0 0xf0
-LDA 1
-void_loop: MOV_A_MEM
-INC_AR
-LSH
-JNCAR void_loop
-HLT
-
+#orig `origin
+ldar0 `a
+lda 1
+ldb 0
+loop: mov_a_mem
+	add
+	mov_mem_b
+	jncar loop
+hlt

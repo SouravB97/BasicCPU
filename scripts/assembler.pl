@@ -6,7 +6,7 @@ use List::Util qw(first);
 use Data::Dumper;
 use Getopt::Long;
 
-my $defines_file = "$ENV{STEM}/design/cpu_defines.vh";
+my $defines_file = "$ENV{STEM}/design/instruction_set.vh";
 my $pp_directives_file = "$ENV{STEM}/scripts/preprocessor.txt";
 my $cisc_instructions_file = "$ENV{STEM}/scripts/cisc_instructions.txt";
 my $input_file = "$ENV{STEM}/asm_programmes/bootcode.asm";
@@ -118,7 +118,6 @@ while(my $line = <INP>){
 		}
 		#check if preprocessor syntax is correct
 		if($pp_in_line eq 'define'){
-			print "error_line define\n";
 			if($line !~ /^\s*#define\s+(\S+)\s+(\S+)\s*$/i){
 				$syntax_errors+=1;
 				print "Unrecognized preprocessor directive in line $. : $line";
@@ -169,19 +168,17 @@ open(OUT, ">$input_file_tmp2") or die "Couldn't open file $input_file_tmp2, $!";
 
 while(my $line = <INP>){
 	if($line =~ /^\s*#define\s+(\S+)\s+(\S+)\s*$/i){
-		$define_hash{$1} = $2;
+		my $key = "`".$1;
+		$define_hash{$key} = $2;
 		next;
 	}
 	#check if anything to substitute from defines
 	foreach my $define_key (keys %define_hash){
-		#if($line =~ /\b\Q$define_key\E\b/){
 		if($line =~ /\Q$define_key\E/){
 			$line =~ s/$define_key/$define_hash{$define_key}/;
 			last;
 		}
 	}
-
-
 	print OUT "$line";
 }
 

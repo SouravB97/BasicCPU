@@ -15,21 +15,20 @@ module cpu_m(
 	wire OE_AR, OE_PC, OE_SP, OE_R0R1;
 	//control bus inputs
 	wire [`OPCODEWORD_ALU_OPCODE_WIDTH-1:0] ALU_OPCODE	= control_bus[`CB_ALU_OPCODE_RANGE];
-	wire [`OPCODEWORD_MID_WIDTH-1:0] MID 				= control_bus[`CB_MID_RANGE]; //data bus master/slave ID
-	wire [`OPCODEWORD_SID_WIDTH-1:0] SID 				= control_bus[`CB_SID_RANGE]; //data bus master/slave ID
-	wire [1:0] AMID				= control_bus[`CB_AMID_RANGE]; //address master ID
-	wire MID_EN						= control_bus[`CB_MID_EN_RANGE];
-	wire SID_EN						= control_bus[`CB_SID_EN_RANGE];
-	wire PC_INR						= control_bus[`CB_PC_INR_RANGE];
-	wire AR_INR						= control_bus[`CB_AR_INR_RANGE];
-	wire HLT							= control_bus[`CB_HLT_RANGE] | hlt;
-	wire CLR_TIMER				= control_bus[`CB_CLR_TIMER_RANGE];
-	wire ALU_EN						= control_bus[`CB_ALU_EN_RANGE];
+	wire [`OPCODEWORD_MID_WIDTH-1:0] MID 								= control_bus[`CB_MID_RANGE]; //data bus master/slave ID
+	wire [`OPCODEWORD_SID_WIDTH-1:0] SID 								= control_bus[`CB_SID_RANGE]; //data bus master/slave ID
+	wire [1:0] AMID																			= control_bus[`CB_AMID_RANGE]; //address master ID
+	wire MID_EN																					= control_bus[`CB_MID_EN_RANGE];
+	wire SID_EN																					= control_bus[`CB_SID_EN_RANGE];
+	wire PC_INR																					= control_bus[`CB_PC_INR_RANGE];
+	wire AR_INR																					= control_bus[`CB_AR_INR_RANGE];
+	wire HLT																						= control_bus[`CB_HLT_RANGE] | hlt;
+	wire CLR_TIMER																			= control_bus[`CB_CLR_TIMER_RANGE];
+	wire ALU_EN																					= control_bus[`CB_ALU_EN_RANGE];
 ;
 	//========================= timing and clocks =====================================
 	wire clk1 = reset_q & clk;
 	wire clk2 = reset_q & ~clk;
-	wire clk3 = reset_qq & clk;
 
 	//========================= random wires in CPU =====================================
 	wire[7:0] alu_in0, alu_in1, alu_out, ir0_reg_out;
@@ -87,14 +86,6 @@ module cpu_m(
 		.WE_L(WE_PC0),.OE_L(OE_PC0)
 	);
 
-	//Stack pointer SP
-//	ar_register #(.ADDR_WIDTH(16)) SP(
-//		.clk(clk1), .reset(reset),
-//		.data(data_bus), .address(address_bus),
-//		.CS(1'b1),.OE_A(OE_SP),
-//		.WE_H(WE_SP1),.OE_H(OE_SP1),
-//		.WE_L(WE_SP0),.OE_L(OE_SP0)
-//	);
 	//========================= PORTS =====================================
 	//PORTA
 //	//Address range: 0x8000 to 0x8003
@@ -108,7 +99,7 @@ module cpu_m(
 
 	//========================= Memory =====================================
 	//RAM
-	//Address range: 0x8000 to 0x80FF
+	//Address range: 0x0000 to 0x00FF
 	memory #(.DEPTH(`MEMORY_DEPTH),
 					 .ADDR_WIDTH(8))
 	RAM(
@@ -173,7 +164,6 @@ module cpu_m(
 		1	|	AR
 		2	|	SP
 		3	|	R0R1
-
 	*/
 	decoder #(.WIDTH(2)) amid_decoder(
 		.S(AMID), .EN(1'b1),
@@ -192,7 +182,6 @@ module cpu_m(
 
 	//reset delay flops
 	d_ff reset_delay0 (.clk(clk), .reset(reset), .D(reset),   .Q(reset_q)); 
-	d_ff reset_delay1 (.clk(clk), .reset(reset), .D(reset_q), .Q(reset_qq)); 
 
 endmodule
 
@@ -280,7 +269,7 @@ module control_unit_m(
 	;
 	assign control_bus[`CB_CLR_TIMER_RANGE] 	=
 			(~T[0]) &						//always increment, don't clear
-			(T[1] & ~HLT)				//clear if not HLT or 3 state opcode
+			(T[1] & ~HLT)				//clear if not HLT
 	;
 	//Multi-bit switches for MID, SID_range
 	switch #(.SIZE(2), .DATA_WIDTH(`OPCODEWORD_MID_WIDTH)) mid_switch(
@@ -301,43 +290,6 @@ module control_unit_m(
 		.S({T[0],(op_is_cmp & cmp_pass)}),
 		.data_out(control_bus[`CB_SID_RANGE])
 	);
-	/*
-	switch #(.SIZE(8), .DATA_WIDTH(`OPCODEWORD_MID_WIDTH)) control_bus_mid_range_switch(
-		.data_in({
-				`OPCODEWORD_MID_WIDTH'h7,		//'b111 //T[3] don't care
-				`OPCODEWORD_MID_WIDTH'h7,		//'b110 //T[3] don't care
-				`OPCODEWORD_MID_WIDTH'h1,		//'b101	//T[2] & op_is_cmp :OE_M, conditional JMP
-				`OPCODEWORD_MID_WIDTH'h7,		//'b100	//T[2] & !op_is_cmp :don't care
-				ir0_mid,										//'b011 //T[1] & op_is_mov
-				`OPCODEWORD_MID_WIDTH'h7,		//'b010	//T[1] & !op_is_mov : don't care
-				`OPCODEWORD_MID_WIDTH'h1,		//'b001	//T[0]: OE_M, fetch
-				`OPCODEWORD_MID_WIDTH'h1		//'b000	//T[0]:	OE_M, fetch
-			}),
-		.S({time_cycle_enbld, midsid_switch_sel0}),
-		.data_out(control_bus[`CB_MID_RANGE])
-	);
-	switch #(.SIZE(4), .DATA_WIDTH(`OPCODEWORD_SID_WIDTH)) control_bus_sid_range_switch(
-		.data_in({
-				`OPCODEWORD_SID_WIDTH'h0,		//'b11   //WE_IR0, opcode fetch at T[0]
-				`OPCODEWORD_SID_WIDTH'h0,		//'b10
-				ir0_sid,										//'b01
-				`OPCODEWORD_SID_WIDTH'h7		//'b00	//don't care, default
-			}),
-		.S({T[0], op_is_mov_ins}),
-		.data_out(control_bus[`CB_SID_RANGE])
-	);
-
-	mux #(.SIZE(4)) clr_timer_mux(
-		.D({
-			1'b1,									//T[3] don't care
-			1'b1,									//T[2] always clear 
-			~HLT | op_is_cmp,			//T[1] clear if not HLT or 3 state opcode
-			1'b0									//T[0] always incremenet, don't clear
-		}),
-		.S(time_cycle_enbld),
-		.Y(control_bus[`CB_CLR_TIMER_RANGE])
-	);*/
-
 	//=============== Logic for supplementary wires ====================
 	mux #(.SIZE(4)) cmp_pass_mux1(
 		.D({sign, zero, parity, carry}),
