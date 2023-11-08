@@ -94,6 +94,14 @@ while(my $line = <INP>){
 	next if($line =~ /^\s*$comment_char/);
 	$line =~ s/$comment_char.*//;
 
+	#check syntax of labels
+	if($line =~ /:/){
+		unless($line =~ /\w+\s*:\s*\w+/){
+			$syntax_errors+=1;
+			print "Incorrect use of label in line $. : $line";
+		}
+	}
+
 	#check if preprocessor
 	if($line =~ /#(\w+)/){
 		my $pp_in_line = lc $1;
@@ -110,13 +118,14 @@ while(my $line = <INP>){
 		}
 		#check if preprocessor syntax is correct
 		if($pp_in_line eq 'define'){
+			print "error_line define\n";
 			if($line !~ /^\s*#define\s+(\S+)\s+(\S+)\s*$/i){
 				$syntax_errors+=1;
 				print "Unrecognized preprocessor directive in line $. : $line";
 				$line =~ /define\s+(\S+)/i;
 				print "\tNo r-value for define macro $1\n";
 			}
-		} elsif($pp_in_line eq 'orig|db'){
+		} elsif($pp_in_line eq ('orig' or 'db')){
 			if($line !~ /^\s*#(orig|db)\s+(\S+)\s*$/i){
 				$syntax_errors+=1;
 				print "Unrecognized preprocessor directive in line $. : $line";
@@ -128,7 +137,8 @@ while(my $line = <INP>){
 
 	#check for opcode
 	foreach my $opcode (keys %ins_map){
-		if($line =~ /\b\Q$opcode\E\b/i){
+		#if($line =~ /\b\Q$opcode\E\b/i)
+		if($line =~ /\Q$opcode\E/i){
 			$match = 1;
 			#print "Match found: $opcode : $line\n";
 			last;
@@ -141,7 +151,7 @@ while(my $line = <INP>){
 }
 close(INP);
 die "File has $syntax_errors syntax errors.\n Error in compile " if $syntax_errors;
-
+#exit();
 
 #pre-process
 `cp $input_file $input_file_tmp1`;
@@ -164,19 +174,19 @@ while(my $line = <INP>){
 	}
 	#check if anything to substitute from defines
 	foreach my $define_key (keys %define_hash){
-		if($line =~ /\b\Q$define_key\E\b/){
+		#if($line =~ /\b\Q$define_key\E\b/){
+		if($line =~ /\Q$define_key\E/){
 			$line =~ s/$define_key/$define_hash{$define_key}/;
 			last;
 		}
 	}
 
+
 	print OUT "$line";
 }
-	print "Defines:\n";
-	print Dumper(\%define_hash);
 
 close(INP);
-close(OUT);
+ close(OUT);
 
 #First pass, deal with assembler directives
 #`cp $input_file_tmp1 $input_file_tmp2`;
@@ -189,12 +199,21 @@ open(OUT, ">$output_file") or die "Couldn't open file $output_file, $!";
 read INP, my $file_content, -s INP;
 #remove new line
 $file_content =~ s/\n/ /g;
-my @ins_word = ($file_content =~ /\S+/g);
-#print "@ins_word\n";
+my @ins_word = ($file_content =~ /(\S+)/g);
+print "@ins_word\n";
+my %label_hash;
 
 for(my $i=0; $i< scalar @ins_word ; $i+=1){
 	my $instr = uc $ins_word[$i];
+	print "\t$i) $instr\n";
 
+	#read labels
+	if($instr =~ /(\w+):/){
+		my $label = $1;
+		die "Label $label is repeated at token $mem_ptr\n" if(exists($label_hash{$label}));
+		$label_hash{$label} = $mem_ptr;
+		next;
+	}
 	#Assembler directive
 	if($instr =~ /#(\w+)/){
 		$i+=1;	
@@ -204,21 +223,27 @@ for(my $i=0; $i< scalar @ins_word ; $i+=1){
 		} elsif($1 eq "DB"){
 			$mem[$mem_ptr] = to_int($val);
 		}
+		next;
 	}
 	#RISC opcode
-	elsif(exists($ins_map{$instr})){
+	if(exists($ins_map{$instr})){
 		$mem[$mem_ptr] = oct("0x".$ins_map{$instr});
 		$mem_ptr+=1;
 		$code_byte_size+=1;
-	} 
+		next;
+	}
+	#substitute labels
+	if(exists($label_hash{$instr})){
+		$instr = $label_hash{$instr};
+	}
 	#OPCODE arguement
-	elsif($instr =~ /0X[A-F0-9]+|0B[01]+|[0-9]+/){
+	if((to_int($instr) != -1)){
 		$mem[$mem_ptr] = to_int($instr);
 		$mem_ptr+=1;
 		$code_byte_size+=1;
-	} else {
-		die "Invalid instruction at token $code_byte_size\n";
+		next;
 	}
+	die "Invalid instruction at token $mem_ptr\n";
 }
 
 #printf ("@mem\nsize mem: %d\n", scalar @mem);
@@ -228,6 +253,10 @@ if($randomize){
 		$mem[$mem_ptr] = rand($max_val);
 	}
 }
+print "Defines:\n";
+print Dumper(\%define_hash);
+print "Labels:\n";
+print Dumper(\%label_hash);
 
 print "\n";
 print "===========================================================\n";
@@ -267,7 +296,10 @@ sub to_int{
 	my $input_str = $_[0];
 	my $output_int = 0;
 	
-	die "Invalid arguement $input_str " if($input_str !~ /0X[A-F0-9]+|[A-F0-9]+H|0B[01]+|[0-9]+/i); 
+	if($input_str !~ /0X[A-F0-9]+|[A-F0-9]+H|0B[01]+|[0-9]+/i){
+		print "Invalid arguement $input_str ";
+		return -1;
+	}
 	if($input_str =~ /0X|0B/i){
 		$output_int = int(oct(lc $input_str));
 	} elsif ($input_str =~ /([A-F0-9]+)H/i){

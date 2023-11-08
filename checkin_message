@@ -1,6 +1,1 @@
--Memory:
-	Removed clock dependency on reads
-	-Renamed file
--CPU.v:	
-	Successfully tested conditional jumps!
-	CPU is now turing complete
+Assembler: Added support for labels
