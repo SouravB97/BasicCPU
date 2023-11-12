@@ -219,7 +219,7 @@ module control_unit_m(
 	counter #(.DATA_WIDTH(2)) timer_reg(
 		.clk(clk), .reset(reset),
 		.data_out(time_cycle),
-		.CS(1'b1), .CNT_EN(~HLT), .WE(1'b0), .SYNC_CLR(CLR_TIMER)
+		.CS(en_timer), .CNT_EN(~HLT), .WE(1'b0), .SYNC_CLR(CLR_TIMER)
 	);
 
 	//timing generator

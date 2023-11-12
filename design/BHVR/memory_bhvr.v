@@ -29,16 +29,15 @@ module memory
 
 	end
 
-//	always	@(posedge reset) begin
-//		rdata = mem[address];
-//	end
+	always	@(posedge reset) begin
+		rdata = mem[address];
+	end
 	always @(posedge clk) begin
 		if(reset) begin
 		  if(CS) begin
 				case({WE,OE})
-					//2'b00 : ; //DO NOTHING
-					//2'b01 : rdata = mem[address]; //READ
-					2'b10 : mem[address] = data; //WRITE
+					2'b0x : rdata <= mem[address]; //READ
+					2'b10 : mem[address] <= data; //WRITE
 					2'b11 : $display("%d: ERROR from module memory: OE and WE are 1 at the same time!!", $time);	//INVALID
 				endcase
 		  end

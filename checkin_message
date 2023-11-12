@@ -1,4 +1,1 @@
-Assembler: Fixed bug with define. Now defines need to be declared with '`'
-CPU executes fibonacci series!
-CPU
-	- cleaned up code
+Added fibonacci save programme: Calculates fibonacci numbers and saves them in heap
