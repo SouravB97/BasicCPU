@@ -12,7 +12,10 @@ This way, this design is closer to a synthesized netlist, that can be implemente
 
 # How to get started:
 1. source bootenv; #Basic environment configuration
-3. cd testbench; ./rerun_command; #Fires the testbench, shows the output and opens the waveform viewer
+3. cd testbench; #TB exists here 
+4. ./rerun_command; #Fires the testbench, shows the output and opens the waveform viewer
+OR
+4. $STEM/scripts/run_asm $STEM/asm_programmes/bootcode.hex
 
 # How to run a custom programme:
 Simplest way:
@@ -24,6 +27,11 @@ Run other code:
 Script to run other code: Leaves TB files unchanged and dumps new output files based on asm file name
 1. cd testbench ;
 2. $STEM/scripts/run_asm $STEM/asm_programmes/fibonacci_save.asm
+
+# How to run any verilog code:
+It uses icarus verilog simulator, and gtkwave waveform viewer.
+The commands to run any design using these are encapsulated in $STEM/scripts/irun.bat, which is aliased to 'irun'
+1. irun CPU_tb.v #compiles and simulates design
 
 # The Simulation:
 1. The script clears all previous output files.

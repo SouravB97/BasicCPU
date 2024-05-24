@@ -1,6 +1,20 @@
 #!/bin/bash
-export STEM=$HOME/Documents/Verilog/testing
+
+# Ensure the current directory is within a Git repository
+if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+    echo "Not a Git repository."
+		echo "Please set up repo: git clone https://github.com/SouravB97/BasicCPU.git"
+		return
+fi
+
+# Get the root directory of the Git repository
+repo_root=$(git rev-parse --show-toplevel)
+
+export STEM=$repo_root
 source $STEM/.alias
 alias assemble="perl $STEM/scripts/assembler.pl -inp "
 chmod +x scripts/run_asm
+chmod +x scripts/irun.bat
 echo "Loaded env"
+echo "\$STEM set to $STEM"
+

@@ -1,18 +1,25 @@
-#!/bin/bash
+set compile_dir=%USERPROFILE%/Documents/Verilog/compiled
 ::mv this file to install folder, c:/iverilog/bin
-ECHO OFF
+echo off
 ::no more print
-ECHO My utility to run icarus simulator
-ECHO Verilog file: %1
+echo My utility to run icarus simulator
+echo Verilog file: %1
 set v_file=%1
 set o_file=%v_file:~0,-2%
 
-::make sure to replace the file path with your own
-ECHO iverilog -o C:\Users\soura\Documents\Verilog\compiled\%o_file% %v_file%
-ECHO vvp C:\Users\soura\Documents\Verilog\compiled\%o_file%
-ECHO.  
+if not exist "%compile_dir%" (
+    mkdir "%compile_dir%"
+    echo %compile_dir% created successfully.
+) else (
+		echo compile directory: %compile_dir%
+)
 
-iverilog -o C:\Users\soura\Documents\Verilog\compiled\%o_file% %v_file%
-vvp C:\Users\soura\Documents\Verilog\compiled\%o_file%
+::make sure to replace the file path with your own
+echo iverilog -o %compile_dir%/%o_file% %v_file%
+echo vvp %compile_dir%/%o_file%
+echo.  
+
+iverilog -o %compile_dir%/%o_file% %v_file%
+vvp %compile_dir%/%o_file%
 
 ::PAUSE
