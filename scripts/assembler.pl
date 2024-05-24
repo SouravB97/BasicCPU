@@ -25,11 +25,7 @@ my $retain_temps;
 my $randomize;
 my $help;
 my $show_map;
-my $help_message = 
-"	Help Message	\
-	source bootenv to setup ENV vars.
-"
-;
+my $help_message;
 
 GetOptions ( 
 	"f|inp=s" => \$input_file,
@@ -42,17 +38,33 @@ GetOptions (
 	"rand|randomize" => 	\$randomize
 );
 
+
+#printf ("@mem\nsize mem: %d\n", scalar @mem);
+$output_file =~ s/\.asm/.hex/g;
+
+$help_message = 
+"	Help Message	\
+
+	This script assembles the assembly code provided at $input_file and generates object file at $output_file
+
+	Troubleshooting:
+	source bootenv to setup ENV vars.
+
+	Usage:
+	$0 -inp input_file.asm ;
+	$0 -inp $input_file -out $output_file ;
+	
+	Default output: input_file.hex
+
+"
+;
 if(defined $help){
 	print "$help_message";
 	exit();
 }
 
-#printf ("@mem\nsize mem: %d\n", scalar @mem);
-$output_file =~ s/\.asm/.hex/g;
-
 print "input file: $input_file\n" ;
 print "Output file: $output_file\n" ;
-
 
 open(DATA, "<$defines_file") or die "Couldn't open file $defines_file, $!";
 

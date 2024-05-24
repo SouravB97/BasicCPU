@@ -1,0 +1,49 @@
+#!/bin/bash
+# Check if the STEM exists
+if [ ! -d "$STEM" ]; then
+    echo "STEM not found. please source bootenv"
+    exit 1
+fi
+# Check if a file name is provided as an argument
+if [ $# -eq 0 ]; then
+    echo "No file provided. Usage: $0 filepath"
+    exit 1
+fi
+
+# Assign the first argument to a variable
+filepath=$1
+
+# Check if the file exists
+if [ ! -f "$filepath" ]; then
+    echo "File not found: $filepath"
+    exit 1
+fi
+# Extract the file name using basename
+filename=$(basename "$filepath")
+# Discard the file extension
+filename=${filename%.*}
+
+# Print the file name
+echo "File name: $filename"
+TB_TOP=$STEM/testbench/CPU_tb.v
+
+#remove old
+rm -rf $STEM/compiled/CPU_tb $STEM/dump/$filename.vcd $STEM/dump/$filename.hex  $STEM/asm_programmes/compiled_hex/$filename.hex;
+#assemble
+$STEM/scripts/assembler.pl -inp $filepath  -out $STEM/asm_programmes/compiled_hex/$filename.hex ;
+#Substitute output paths in TB_TOP.
+sed -i "s/..\/asm_programmes\/compiled_hex\/bootcode.hex/..\/asm_programmes\/compiled_hex\/$filename.hex/" $TB_TOP 
+sed -i "s/..\/dump\/output.hex/..\/dump\/$filename.hex/" $TB_TOP
+sed -i "s/..\/dump\/CPU_tb.vcd/..\/dump\/$filename.vcd/" $TB_TOP
+#Simulate
+#irun.bat CPU_tb.v ; 
+iverilog -o $STEM/compiled/CPU_tb $TB_TOP
+vvp $STEM/compiled/CPU_tb
+echo "WAVE_DUMP: $STEM/dump/$filename.vcd"
+echo "MEM_DUMP : $STEM/dump/$filename.hex"; tail -17 $STEM/dump/$filename.hex ;
+#Substitute back
+sed -i "s/..\/asm_programmes\/compiled_hex\/$filename.hex/..\/asm_programmes\/compiled_hex\/bootcode.hex/" $TB_TOP 
+sed -i "s/..\/dump\/$filename.hex/..\/dump\/output.hex/" $TB_TOP
+sed -i "s/..\/dump\/$filename.vcd/..\/dump\/CPU_tb.vcd/" $TB_TOP
+#Show waves
+gtkwave -f $STEM/dump/$filename.vcd -a $STEM/dump/signals/1.gtkw

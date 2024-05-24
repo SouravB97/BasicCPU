@@ -1,1 +1,3 @@
-Added fibonacci save programme: Calculates fibonacci numbers and saves them in heap
+-Added detailed README
+-Added rerun script which makes running different asm programmes smoother.
+-Experimented with 2 cycle instruction fetch

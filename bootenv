@@ -2,4 +2,5 @@
 export STEM=$HOME/Documents/Verilog/testing
 source $STEM/.alias
 alias assemble="perl $STEM/scripts/assembler.pl -inp "
+chmod +x scripts/run_asm
 echo "Loaded env"
