@@ -1,20 +1,20 @@
-#Basic CPU
+# Basic CPU
 This is a basic 8bit CPU with 2 Registers(A and B), an ALU, Programme counter, Address register, Instruction register, 256 bytes of Memory and a Timing and Control unit.
-A register and ELU constitute the Accumulator.
+A register and ALU constitute the Accumulator.
 The data bus is 8bit wide, the Address bus is 16 bits and the instruction opcodes are also 8 bits.
 There is no pipelining. Most instructions take 2 cycles to perform, Fetch at T0 and decode + Execute at T1.
 
-There is no behavioral modelling anywhere in design, besides the memory model in ($STEM/design/BHVR/memory_bhvr.v)
-All the CPU logic is built bottom up using logic gates.
+There is no behavioural modelling anywhere in the design, besides the memory model in ($STEM/design/BHVR/memory_bhvr.v)
+All the CPU logic is built bottom-up using logic gates.
 Logic gates -> Digital components (Flops, Muxes, Decoders) -> More complex components (ALU, Registers) -> CPU
-The Timing and control unit uses hard wired control logic. The instruction opcodes are decoded using decoders, and the corresponding outputs are driven by simple logic operations.
+The Timing and control unit uses hard-wired control logic. The instruction opcodes are decoded using decoders, and the corresponding outputs are driven by simple logic operations.
 This way, this design is closer to a synthesized netlist, that can be implemented on a breadboard than HDL code.
 
 # How to get started:
-1. source bootenv #Basic environment configuration
-3. cd testbench; ./rerun_command #Fires the testbench, shows the output and opens the waveform viewer
+1. source bootenv; #Basic environment configuration
+3. cd testbench; ./rerun_command; #Fires the testbench, shows the output and opens the waveform viewer
 
-#How to run a custom programme:
+# How to run a custom programme:
 Simplest way:
 1. Write the assemble code in $STEM/asm_programmes/bootcode.asm and run using $STEM/testbench/rerun_command
 Run other code:
@@ -25,7 +25,7 @@ Script to run other code: Leaves TB files unchanged and dumps new output files b
 1. cd testbench ;
 2. $STEM/scripts/run_asm $STEM/asm_programmes/fibonacci_save.asm
 
-#The simulation:
+# The Simulation:
 1. The script clears all previous output files.
 2. Then it assembles the code at $STEM/asm_programmes/bootcode.asm into $STEM/asm_programmes/compiled_hex/bootcode.hex. It invokes the perl assembler at $STEM/scripts/assembler.pl
 3. Runs the testbench $STEM/testbench/CPU_tb.v
@@ -36,14 +36,14 @@ Script to run other code: Leaves TB files unchanged and dumps new output files b
 8. It also dumps the waveforms into $STEM/dump/CPU_tb.vcd 
 9. The rerun command scripts loads the waveforms into gtkwave
 
-# Testbench architechture:
+# Testbench Architechture:
 The TB_TOP is present in $STEM/testbench/CPU_tb.v file. It instantiates the DUT located at $STEM/design/CPU.v
 The CPU executes $STEM/asm_programmes/bootcode.asm and dumps the memory contents to $STEM/dump/output.hex at the end of sim.
 The waves are loaded from $STEM/dump/CPU_tb.vcd
 The TB monitors the running CPU, and exits the sim once HLT is detected, or if something goes wrong and the CPU runs indefinitely, it waits for a certian max cycles and then kills the sim.
 
 
-#Assembler
+# Assembler
 The perl assembler supports standard assembly syntax.
 It gets the list of opcodes and their corresponding value from $STEM/design/instruction_set.vh
 It parses the asm file (<filename>.asm) multiple times and generates the object file at $STEM/asm_programmes/compiled_hex/<filename>.hex
@@ -73,7 +73,7 @@ The assembler works by doing the following steps:
 11. Substitutes opcodes and opcode arguements
 12. Print the final result into the output hex file. If -randomize is selected, it pads the empty memory locations with random values. Else it pads with ff.
 
-#How to add new opcodes:
+# How to add new opcodes:
 Add the instruction into instruction.hex (See $STEM/design/instruction_set.vh) . Follow the rules so that decoding becomes easier:
 opcode[7:6] = {
 		00 :	Move instruction 
