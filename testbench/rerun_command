@@ -5,4 +5,4 @@ $STEM/scripts/assembler.pl -inp $STEM/asm_programmes/bootcode.asm -out $STEM/asm
 iverilog -o $STEM/compiled/CPU_tb $STEM/testbench/CPU_tb.v
 vvp $STEM/compiled/CPU_tb
 echo "MEM_DUMP: $STEM/dump/output.hex"; tail -17 $STEM/dump/output.hex ;
-gtkwave -f $STEM/dump/CPU_tb.vcd -a $STEM/dump/signals/1.gtkw
+gtkwave -f $STEM/dump/CPU_tb.vcd -a $STEM/dump/signals/cpu_debug.gtkw

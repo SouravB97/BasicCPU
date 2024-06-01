@@ -1,8 +1,10 @@
 # Basic CPU
 This is a basic 8bit CPU with 2 Registers(A and B), an ALU, Programme counter, Address register, Instruction register, 256 bytes of Memory and a Timing and Control unit.
 A register and ALU constitute the Accumulator.
-The data bus is 8bit wide, the Address bus is 16 bits and the instruction opcodes are also 8 bits.
-There is no pipelining. Most instructions take 2 cycles to perform, Fetch at T0 and decode + Execute at T1.
+The data bus is 8bit wide, the Address bus is 16 bits wide of which lower 8 are in use. The instruction opcodes are also 8 bits.
+There is no pipelining. Instructions take 3 or 4 cycles to perform; instruction fetch at T0, T1 followed by decode and execute at T2. If a memory read needs to happen it can stretch up to T3.
+Memory read takes 2 cycles, Memory write needs 1, Register read takes 1.
+Opcode fetch consumes 2 cycles as it is a memory read.
 
 There is no behavioural modelling anywhere in the design, besides the memory model in ($STEM/design/BHVR/memory_bhvr.v)
 All the CPU logic is built bottom-up using logic gates.
@@ -13,13 +15,11 @@ This way, this design is closer to a synthesized netlist, that can be implemente
 # How to get started:
 1. source bootenv; #Basic environment configuration
 3. cd testbench; #TB exists here 
-4. ./rerun_command; #Fires the testbench, shows the output and opens the waveform viewer
-OR
-4. $STEM/scripts/run_asm $STEM/asm_programmes/bootcode.hex
+4. $STEM/scripts/run_asm $STEM/asm_programmes/bootcode.hex # Script simulates the TB, loads bootcode onto the CPU and lets it execute.
 
 # How to run a custom programme:
 Simplest way:
-1. Write the assemble code in $STEM/asm_programmes/bootcode.asm and run using $STEM/testbench/rerun_command
+1. Write the assembly code in $STEM/asm_programmes/bootcode.asm and run using $STEM/testbench/rerun_command
 Run other code:
 1. Create a new file, Ex: $STEM/asm_programmes/fibonacci_save.asm
 2. Make changes in rerun command to assemble fibonacci_save.asm instead of bootcode.asm 
@@ -41,13 +41,12 @@ The commands to run any design using these are encapsulated in $STEM/scripts/iru
 5. Starts the CPU by releasing the reset signal and starting clk.
 6. The CPU executes the code in memory and dumps the output back into memory.
 7. The testbench dumps the memory contents into $STEM/dump/output.hex where it can be viewed.
-8. It also dumps the waveforms into $STEM/dump/CPU_tb.vcd 
-9. The rerun command scripts loads the waveforms into gtkwave
+8. It also dumps the waveforms into $STEM/dump/bootcode.vcd and loads the it into gtkwave waveform viewer.
 
 # Testbench Architechture:
 The TB_TOP is present in $STEM/testbench/CPU_tb.v file. It instantiates the DUT located at $STEM/design/CPU.v
-The CPU executes $STEM/asm_programmes/bootcode.asm and dumps the memory contents to $STEM/dump/output.hex at the end of sim.
-The waves are loaded from $STEM/dump/CPU_tb.vcd
+The CPU executes $STEM/asm_programmes/bootcode.asm and dumps the memory contents to $STEM/dump/bootcode.hex at the end of sim.
+The waves are loaded from $STEM/dump/bootcode.vcd
 The TB monitors the running CPU, and exits the sim once HLT is detected, or if something goes wrong and the CPU runs indefinitely, it waits for a certian max cycles and then kills the sim.
 
 
@@ -81,20 +80,36 @@ The assembler works by doing the following steps:
 11. Substitutes opcodes and opcode arguements
 12. Print the final result into the output hex file. If -randomize is selected, it pads the empty memory locations with random values. Else it pads with ff.
 
+# Anatomy of instruction word (opcode)
+The opcode is always 8 bits wide. The value of the opcode is not picked at random, rather it has the following fields which are decoded by the CPU.
+
+There are 5 types of instructions this CPU supports:
+	1 MOV			#Move: Instructions involving moving data around.
+	2 MVI			#MVI: Move immediate. Instructions involving loading the given arguement directly into CPU reg
+	3 ALU			#Arithmatic/Logical operations
+	4 SYSTEM	#System instructions like HLT, NOP
+	5 CJMP		#Conditional jump
+
+
+7:6 opcode type
+	0 MOV			#Move: Instructions involving moving data around.
+	1 MVI			#MVI: Move immediate. Instructions involving loading the given arguement directly into CPU reg
+	2 ALU			#Arithmatic/Logical operations
+	3 OTHERS	#System instructions like HLT, NOP
+
+For MOV and MVI:
+	5:3 SID (slave ID)	component which gets written. see table for SID decoder
+	2:0 MID (Master ID) component which gets read. see table for MID decoder
+
+For ALU instructions:
+	4:0 ALU opcode. To be passed to ALU. see ALU table
+
+For OTHER instructions:
+	5:5 Compare range
+		0 SYSTEM instruction
+		1 Conditional Jump
 # How to add new opcodes:
 Add the instruction into instruction.hex (See $STEM/design/instruction_set.vh) . Follow the rules so that decoding becomes easier:
-opcode[7:6] = {
-		00 :	Move instruction 
-		01 :	Move Immediate Instruction
-		10 :  ALU invoke Instruction
-		11 :  Other System Instruction
-}
-For Move Instruction:
-opcode[2:0] = Master ID (MID), the ID of the CPU component from which to read.
-opcode[5:3] = Slave ID (SID), the ID of the CPU component to be written.
-
-For ALU instruction:
-opcode[4:0] = ALU opcode, directly fed to ALU opcode bus. (See $STEM/design/ALU.v)
 
 Add the corresponding logic in the CPU, using decoders and logic gates, and maybe muxes.
 

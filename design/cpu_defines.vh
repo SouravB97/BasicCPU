@@ -2,7 +2,6 @@
 Address map:
 
 RAM: 0x0000-0x00FF
-IO:  0x8000-0x8004
 */
 	/*
 		SID	|	Register
@@ -14,6 +13,7 @@ IO:  0x8000-0x8004
 		5 	|	AR1 
 		6 	| PC0      
 		7 	| PC1      
+		==UNUSED==
 		8 	|	IR1
 		9 	| R0	
 		10	|	R1
@@ -33,6 +33,7 @@ IO:  0x8000-0x8004
 		5 	|	AR1 
 		6 	| PC0      
 		7 	| PC1      
+		==UNUSED==
 		8 	|	IR1
 		9 	| R0	
 		10	|	R1
@@ -59,6 +60,7 @@ IO:  0x8000-0x8004
 
 `define DEC_OP(op) \ //gives same output as ir0_decoder
 	(op >> `OPCODEWORD_DECODE_OFFSET)	& {`OPCODEWORD_ALU_OPCODE_WIDTH{1'b1}}
+
 `define IS_MOV(op) (op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b00
 `define IS_MVI(op) (op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b01
 `define IS_ALU(op) (op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b10
@@ -66,12 +68,12 @@ IO:  0x8000-0x8004
 `define IS_CMP(op) ((op >> `OPCODEWORD_TYPE_OFFSET) ^ 2'b11) & ((op >> `OPCODEWORD_CMP_OFFSET) & 1'b1)
 
 `define OPCODEWORD_TYPE_RANGE						7:6
-`define OPCODEWORD_CMP_RANGE						5:5
+`define OPCODEWORD_CJ_RANGE						5:5
 `define OPCODEWORD_ALU_OPCODE_RANGE			4:0
 `define OPCODEWORD_DECODE_RANGE					`OPCODEWORD_ALU_OPCODE_RANGE
 `define OPCODEWORD_SID_RANGE						5:3
 `define OPCODEWORD_MID_RANGE						2:0
-`define OPCODEWORD_ALU_STATUS_RANGE			1:0
+`define OPCODEWORD_CMP_CRITERIA_RANGE		1:0
 `define OPCODEWORD_FLIPCMP_RANGE				2:2
 
 `define OPCODEWORD_TYPE_OFFSET					6
@@ -82,4 +84,3 @@ IO:  0x8000-0x8004
 `define OPCODEWORD_ALU_OPCODE_WIDTH 		5
 `define OPCODEWORD_MID_WIDTH						3
 `define OPCODEWORD_SID_WIDTH						3
-

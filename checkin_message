@@ -1,1 +1,4 @@
--Made bootenv and irun.bat more scalable
+-Host of changes
+-Documentation
+-CPU works with normal memories
+-Opcode fetch, memory read takes 2 cycles

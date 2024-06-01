@@ -59,10 +59,11 @@ module switch_2x1
 endmodule
 
 //Nx1 switch : Recursive
+//A switch is an array of muxes used to mux multi-bit signals. This functions like a case statement.
 module switch
 #(parameter DATA_WIDTH = `DATA_WIDTH,
 	parameter SIZE = 2)(
-	input [SIZE*DATA_WIDTH -1:0] data_in,
+	input [SIZE*DATA_WIDTH -1:0] data_in,			//Little Endian format: MSB corresponds to higher values of S.
 	input [SEL_WIDTH-1:0] S,
 	output [DATA_WIDTH -1:0] data_out
 );
@@ -74,13 +75,13 @@ module switch
 		wire[DATA_WIDTH-1:0] stage0_in1;
 		wire[DATA_WIDTH-1:0] stage0_in0;
 		
-		switch #(.SIZE(SIZE/2), .DATA_WIDTH(DATA_WIDTH)) stage1_switch0 (
+		switch #(.SIZE(SIZE/2), .DATA_WIDTH(DATA_WIDTH)) stage1_switch1 (
 			.data_in(data_in[SIZE*DATA_WIDTH -1: (SIZE/2)*DATA_WIDTH]),
 			.S(S[SEL_WIDTH-2 : 0]),
 			.data_out(stage0_in1)
 		);
 
-		switch #(.SIZE(SIZE/2), .DATA_WIDTH(DATA_WIDTH)) stage1_switch1 (
+		switch #(.SIZE(SIZE/2), .DATA_WIDTH(DATA_WIDTH)) stage1_switch0 (
 			.data_in(data_in[(SIZE/2)*DATA_WIDTH -1: 0]),
 			.S(S[SEL_WIDTH-2 : 0]),
 			.data_out(stage0_in0)

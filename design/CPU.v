@@ -5,6 +5,7 @@ module cpu_m(
 );
 	wire [7:0] data_bus; 
 	wire [15:0] address_bus;
+	wire [15:0] address_reg;
 
 	//========================= CONTROL UNIT OUTPUTS =====================================
 	//Control outputs for Data bus
@@ -72,7 +73,7 @@ module cpu_m(
 	//Address register AR
 	pc_register #(.ADDR_WIDTH(16)) AR(
 		.clk(clk1), .reset(reset),
-		.data(data_bus), .address(address_bus),
+		.data(data_bus), .address(address_reg),
 		.CS(1'b1),.OE_A(OE_AR), .CNT_EN(AR_INR),
 		.WE_H(WE_AR1),.OE_H(OE_AR1),
 		.WE_L(WE_AR0),.OE_L(OE_AR0)
@@ -80,10 +81,16 @@ module cpu_m(
 	//Programme Counter PC
 	pc_register #(.ADDR_WIDTH(16)) PC(
 		.clk(clk1), .reset(reset),
-		.data(data_bus), .address(address_bus),
+		.data(data_bus), .address(address_reg),
 		.CS(1'b1),.OE_A(OE_PC), .CNT_EN(PC_INR),
 		.WE_H(WE_PC1),.OE_H(OE_PC1),
 		.WE_L(WE_PC0),.OE_L(OE_PC0)
+	);
+	//========================= Address Latch =====================================
+	latch #(.DATA_WIDTH(16)) address_latch(
+		.D(address_reg),
+		.Q(address_bus),
+		.EN(clk2 | (reset & ~reset_q))
 	);
 
 	//========================= PORTS =====================================
@@ -103,7 +110,7 @@ module cpu_m(
 	memory #(.DEPTH(`MEMORY_DEPTH),
 					 .ADDR_WIDTH(8))
 	RAM(
-		.clk(clk2), .reset(reset), 
+		.clk(clk), .reset(reset), 
 		.address(address_bus[7:0]), .data(data_bus), 
 		.OE(OE_M), .WE(WE_M), .CS(~address_bus[15])
 	);
@@ -162,6 +169,7 @@ module cpu_m(
 		AMID	|	Register
 		0	|	PC	
 		1	|	AR
+		== unused ==
 		2	|	SP
 		3	|	R0R1
 	*/
@@ -173,6 +181,7 @@ module cpu_m(
 	);
 
 	//========================= Control Unit =====================================
+	//where the magic happens. This is the conductor in the orchestra
 	control_unit_m control_unit(
 		.clk(clk2), .reset(reset), .hlt(hlt),
 		.ir0_reg_out(ir0_reg_out), .alu_status(alu_status_reg),
@@ -192,27 +201,60 @@ module control_unit_m(
 );
 
 	//timing controls
-	wire [1:0] time_cycle;
-	wire [3:0] T;
+	wire [1:0] time_cycle;						//CPU time cycle
+	wire [3:0] T;											//CPU T states
+
+	wire [`OPCODEWORD_ALU_OPCODE_WIDTH-1:0] alu_opcode = ir0_reg_out[`OPCODEWORD_ALU_OPCODE_RANGE];
+	wire [`OPCODEWORD_MID_WIDTH-1:0] ir0_mid				 = ir0_reg_out[`OPCODEWORD_MID_RANGE];
+	wire [`OPCODEWORD_SID_WIDTH-1:0] ir0_sid				 = ir0_reg_out[`OPCODEWORD_SID_RANGE];
+	wire sign, zero, parity, carry;
+	wire [`OPCODEWORD_MID_WIDTH-1:0] t1_mid, t2_mid, t3_mid;
+	wire [`OPCODEWORD_SID_WIDTH-1:0] t1_sid, t2_sid, t3_sid;
+
+/*
+	Anatomy of instruction word (opcode)
+	
+	7:6 opcode type
+		0 MOV
+		1 MVI
+		2 ALU
+		3 SYSTEM or CJ
+	
+	For MOV and MVI:
+		5:3 SID (3 bit slave ID)	component which gets written. see table for SID decoder
+		2:0 MID (3 bit Master ID) component which gets read. see table for MID decoder
+
+	For ALU instructions:
+		4:0 (5 bit ALU opcode.) To be passed to ALU. see ALU table
+
+	For SYSTEM instructions:
+		5:5 Compare range
+			0 True system instruction
+			1 Conditional Jump
+
+*/
+
+	//decode instruction: extract useful bits
+	wire [31:0] DEC_IR0; 		//Output from instruction decoder
+ 	wire op_is_mov;					//opcode is Move reg/mem-> reg/mem
+ 	wire op_is_mvi;					//opcode is Move Immediate instruction. eg. LDA 32H, LDAR0 42. Increment PC on T3 for these.
+ 	wire op_is_alu;					//opcode is ALU instruction
+	wire op_is_others;			//opcode is SYSTEM or conditional jump.
+	wire op_is_sys;					//opcode is SYSTEM instruction, HLT, NOP, etc
+	wire op_is_cj;					//opcode is conditional jump
+  wire op_mid_is_mem;			//move instruction reading from mem
+
+	wire instr_decode;			//Shows decode phase, unused
+
+	assign op_is_sys				 = op_is_others & ~ir0_reg_out[`OPCODEWORD_CJ_RANGE];
+	assign op_is_cj 				 = op_is_others & ir0_reg_out[`OPCODEWORD_CJ_RANGE];
+	assign op_mid_is_mem		 = ~|(ir0_mid[2:0] ^ `OPCODEWORD_SID_WIDTH'h1); //MID == 1 (MEM)
+
+	assign {sign, zero, parity, carry} = alu_status;
+	assign instr_decode = ~|T[1:0]; //don't decode at T[1:0],  during opcode fetch
 
 	wire HLT				= control_bus[`CB_HLT_RANGE] | hlt;
 	wire CLR_TIMER	= control_bus[`CB_CLR_TIMER_RANGE];
-
-	wire [31:0] DEC_IR0;
-	wire [`OPCODEWORD_ALU_OPCODE_WIDTH:0] alu_opcode = ir0_reg_out[`OPCODEWORD_ALU_OPCODE_RANGE];
-	wire [`OPCODEWORD_MID_WIDTH-1:0] ir0_mid				 = ir0_reg_out[`OPCODEWORD_MID_RANGE];
-	wire [`OPCODEWORD_SID_WIDTH-1:0] ir0_sid				 = ir0_reg_out[`OPCODEWORD_SID_RANGE];
-	wire [1:0] time_cycle_enbld = time_cycle & {2{en_timer}};
-	wire instr_decode = ~T[0]; //don't decode at T0,  during opcode fetch
-	wire sign, zero, parity, carry;
-
-	wire op_is_sys = op_is_others & ~ir0_reg_out[`OPCODEWORD_CMP_RANGE];
-	wire op_is_cmp = op_is_others & ir0_reg_out[`OPCODEWORD_CMP_RANGE];
-	wire op_is_mov_ins = op_is_mov | op_is_mvi | (op_is_cmp & cmp_pass);
-	wire op_is_mem	= (op_is_mov_ins) & ~|(ir0_sid[2:0] ^ 3'h1);	//SID is RAM
-	wire mid_sid_is_ram	=  |(ir0_sid[2:0] ^ 3'h1) | |(ir0_mid[2:0] ^ 3'h1);	//MID or SID is RAM
-
-	assign {sign, zero, parity, carry} = alu_status;
 
 	//========================= Timer =====================================
 	//timer counter
@@ -238,62 +280,10 @@ module control_unit_m(
 		.S(ir0_reg_out[`OPCODEWORD_TYPE_RANGE]), .EN(instr_decode),
 		.D({op_is_others, op_is_alu, op_is_mvi, op_is_mov})
 	);
-
-	//====================================================================================
-	assign control_bus[`CB_SID_EN_RANGE]				= mid_sid_en;
-	assign control_bus[`CB_MID_EN_RANGE]				= mid_sid_en;
-	assign control_bus[`CB_ALU_OPCODE_RANGE]		= alu_opcode;
-	assign control_bus[`CB_ALU_EN_RANGE]				= op_is_alu; //LD opcode
-
-	//FETCH always at T0
-	assign control_bus[`CB_PC_INR_RANGE]				= 
-				(T[0]) |
-				(T[1] & 
-					(op_is_mvi |
-					(op_is_cmp & ~cmp_pass)))
-	;
-	assign mid_sid_en				= 
-				(T[0])	| 							//OPCODE_FETCH
-				(T[1] & 
-					(op_is_mov_ins | (op_is_cmp & ~cmp_pass)))
-	;
-	assign control_bus[`CB_HLT_RANGE]			= 
-				en_timer & op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)]
-	;
-	assign control_bus[`CB_AR_INR_RANGE]	= 
-				(~T[0]) &		
-		 		(T[1] 	& op_is_sys &	DEC_IR0[`DEC_OP(`CPU_INSTR_INC_AR)])
-	;
-	assign control_bus[`CB_AMID_RANGE]				= //treat as single bit, OE_PC or OE_AR
-			 	(T[1] & op_is_mov & mid_sid_is_ram) & 2'h1	//OE_AR at T[1] sometimes, OE_PC otherwise
-	;
-	assign control_bus[`CB_CLR_TIMER_RANGE] 	=
-			(~T[0]) &						//always increment, don't clear
-			(T[1] & ~HLT)				//clear if not HLT
-	;
-	//Multi-bit switches for MID, SID_range
-	switch #(.SIZE(2), .DATA_WIDTH(`OPCODEWORD_MID_WIDTH)) mid_switch(
-		.data_in({
-				`OPCODEWORD_MID_WIDTH'h1,	//T[0]: OE_M, opcode fetch or load immidiate
-				ir0_mid 									//T[1]: default
-			}),
-		.S(T[0] | (op_is_cmp & cmp_pass)),
-		.data_out(control_bus[`CB_MID_RANGE])
-	);
-	switch #(.SIZE(4), .DATA_WIDTH(`OPCODEWORD_SID_WIDTH)) sid_switch(
-		.data_in({
-				`OPCODEWORD_MID_WIDTH'h0,	//T[0]: WE_IR0, opcode fetch or load immidiate
-				`OPCODEWORD_MID_WIDTH'h0,	//T[0]: WE_IR0, opcode fetch or load immidiate
-				`OPCODEWORD_MID_WIDTH'h6, //T[1]: Conditional JMP, WE_PC0
-				ir0_sid 									//T[1]: Default 
-			}),
-		.S({T[0],(op_is_cmp & cmp_pass)}),
-		.data_out(control_bus[`CB_SID_RANGE])
-	);
 	//=============== Logic for supplementary wires ====================
 	mux #(.SIZE(4)) cmp_pass_mux1(
 		.D({sign, zero, parity, carry}),
-		.S(ir0_reg_out[`OPCODEWORD_ALU_STATUS_RANGE]),
+		.S(ir0_reg_out[`OPCODEWORD_CMP_CRITERIA_RANGE]),
 		.Y(cmp_pass_mux1_out)
 	);
 	mux #(.SIZE(2)) cmp_pass_mux2(
@@ -301,5 +291,65 @@ module control_unit_m(
 		.S(ir0_reg_out[`OPCODEWORD_FLIPCMP_RANGE]),
 		.Y(cmp_pass)
 	);
+	//============================== Assign Control Word =====================================
+	assign control_bus[`CB_ALU_OPCODE_RANGE]		= alu_opcode;
+	assign control_bus[`CB_ALU_EN_RANGE]				= op_is_alu; //LD opcode
+	assign control_bus[`CB_SID_EN_RANGE]				= mid_sid_en;
+	assign control_bus[`CB_MID_EN_RANGE]				= mid_sid_en;
+
+	//1. CLR_TIMER
+	assign control_bus[`CB_CLR_TIMER_RANGE]	=
+		(T[2] & ( (op_is_mov & ~op_mid_is_mem) |				//3 cycle MOV
+							 op_is_alu  								 |				//ALU always 3 cycle
+							(op_is_cj & ~cmp_pass)			 |				//Conditional Jump failed
+							(op_is_sys & ~HLT)										//Dont clear timer on HLT
+							 )) |	//
+		T[3]																						//always clear on T3
+	;
+	//2. PC_INR
+	assign control_bus[`CB_PC_INR_RANGE]	=
+		T[1] | 																					//Always increment after opcode fetch
+		(T[2] & (op_is_cj & ~cmp_pass)) |								//CJ Failed, skip next byte (operand of CJ)
+		(T[3] & op_is_mvi)															//Increment PC after reading operand of MVI
+	;
+	//3. mid_sid_en																				
+	assign mid_sid_en	=																//If 0 tri-states the data bus and stops all reads from it.
+		T[1] |																					//Opcode fetch on data bus
+		(T[2] & op_is_mov & ~op_mid_is_mem) |						//Only need data bus in T2 during REG RD/WR and MEM WR
+		T[3]																						//T3 always mem_rd
+	;
+	//4. MID																													//use multi bit logic gate using repetetion operator
+	assign control_bus[`CB_MID_RANGE] = 
+		({`OPCODEWORD_MID_WIDTH{T[1]}} & `OPCODEWORD_MID_WIDTH'h1)	|		//Always read MEM during opcode fetch
+		({`OPCODEWORD_MID_WIDTH{T[2]}} & ir0_mid)										|		//MOV_<REG>_DST
+		({`OPCODEWORD_MID_WIDTH{T[3]}} & `OPCODEWORD_MID_WIDTH'h1)			//MOV_MEM_<REG>, MVI, CJ(pass)
+	;
+	//5. SID
+	assign control_bus[`CB_SID_RANGE] = 
+		({`OPCODEWORD_SID_WIDTH{T[1]}} & `OPCODEWORD_SID_WIDTH'h0)	|		//Always write IR0 during opcode fetch
+		({`OPCODEWORD_SID_WIDTH{T[2]}} & ir0_sid)										|		//MOV_<REG>_DST
+		({`OPCODEWORD_SID_WIDTH{T[3]}} & t3_sid)
+	;
+	//Multi-bit switches for SID_range
+	switch #(.SIZE(2), .DATA_WIDTH(`OPCODEWORD_SID_WIDTH)) t3_sid_switch(
+		.data_in({
+				`OPCODEWORD_SID_WIDTH'h6,	//CJ cmp pass, Jump, write to PC0
+				ir0_sid										//MOV_MEM_<REG>, MVI.
+			}),
+		.S(op_is_cj & cmp_pass),
+		.data_out(t3_sid)
+	);
+	//6. AR_INR
+	assign control_bus[`CB_AR_INR_RANGE]	=
+		T[2] & (op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_INC_AR)])
+	;
+	//7. HLT
+	assign control_bus[`CB_HLT_RANGE]			= 
+		T[2] & op_is_sys & DEC_IR0[`DEC_OP(`CPU_INSTR_HLT)]
+	;
+	//8. AMID
+	assign control_bus[`CB_AMID_RANGE]				= //single bit, 0:OE_PC 1:OE_AR
+		|T[3:2] & op_is_mov
+	;
 	
 endmodule

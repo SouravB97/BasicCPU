@@ -46,4 +46,4 @@ sed -i "s/..\/asm_programmes\/compiled_hex\/$filename.hex/..\/asm_programmes\/co
 sed -i "s/..\/dump\/$filename.hex/..\/dump\/output.hex/" $TB_TOP
 sed -i "s/..\/dump\/$filename.vcd/..\/dump\/CPU_tb.vcd/" $TB_TOP
 #Show waves
-gtkwave -f $STEM/dump/$filename.vcd -a $STEM/dump/signals/1.gtkw
+gtkwave -f $STEM/dump/$filename.vcd -a $STEM/dump/signals/cpu_debug.gtkw

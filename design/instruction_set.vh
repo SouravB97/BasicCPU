@@ -1,18 +1,5 @@
-//MVI instruction
-`define CPU_INSTR_LDA 				 8'b0101_0001	//0x11
-`define CPU_INSTR_LDB 				 8'b0101_1001	//0x19
-`define CPU_INSTR_LDAR0 			 8'b0110_0001	//0x21
-`define CPU_INSTR_LDAR1 			 8'b0110_1001	//0x29
-`define CPU_INSTR_LDPC0 			 8'b0111_0001	//0x31
-`define CPU_INSTR_LDPC1 			 8'b0111_1001	//0x39
-
-`define CPU_INSTR_STA 				 8'b0000_1010	//0x0A
-`define CPU_INSTR_STB 				 8'b0000_1011	//0x0B
-`define CPU_INSTR_SAR0 				 8'b0000_1100	//0x0C
-`define CPU_INSTR_SAR1 				 8'b0000_1101	//0x0D
-`define CPU_INSTR_SPC0 				 8'b0000_1110	//0x0E
-`define CPU_INSTR_SPC1 				 8'b0000_1111	//0x0F
-
+//MOV instruction
+//{2'op_type, 3'sid, 3'mid}
 //MOV_SRC_DST								sid_mid
 `define CPU_INSTR_MOV_MEM_A		 	 8'b00010001
 `define CPU_INSTR_MOV_MEM_B			 8'b00011001
@@ -63,12 +50,25 @@
 `define CPU_INSTR_MOV_PC1_AR1		 8'b00101111
 `define CPU_INSTR_MOV_PC1_PC0		 8'b00110111
 
-//unconditional branch, same as LD_PC0
+//MVI instruction
+//{2'op_type, 3'sid, 3'mem_mid}
+//`define CPU_INSTR_LDMEM 			 8'b0100_1001	//0x11
+`define CPU_INSTR_LDA 				 8'b0101_0001	//0x11
+`define CPU_INSTR_LDB 				 8'b0101_1001	//0x19
+`define CPU_INSTR_LDAR0 			 8'b0110_0001	//0x21
+`define CPU_INSTR_LDAR1 			 8'b0110_1001	//0x29
+`define CPU_INSTR_LDPC0 			 8'b0111_0001	//0x31
+`define CPU_INSTR_LDPC1 			 8'b0111_1001	//0x39
+
+//unconditional branch, same as LDPC0
+//Only valid for 8 bits. Need to add CISC instruction for 16 bits.
+//JMP = LDPC0 addr_low ; LDPC1 addr_hi
 `define CPU_INSTR_JMP			 			 8'b0111_0001	//0x31
 `define CPU_INSTR_BUN			 			 8'b0111_0001	//0x31
 
 
 //ALU instructions
+//{2'op_type, 1'unused, 5'alu_opcode}
 /*
 |--------------------------------------------------------------|
 |OPCODE |HEX			 |NAME		|OPERATION			|Function            |
@@ -105,11 +105,13 @@
 `define CPU_INSTR_LSH 				 8'b1001_1000
 
 //SYSTEM instructions
+//{2'op_type, 1'cj_range, 4'unused, 2'system_inst}
 `define CPU_INSTR_NOP 				 8'b1100_0000
 `define CPU_INSTR_HLT 				 8'b1100_0001
 `define CPU_INSTR_INC_AR 			 8'b1100_0010
 
 //Conditional Jumps
+//{2'op_type, 1'cj_range, 2'unused, 1'flip_cmp, 2'compare_criteria}
 `define CPU_INSTR_JCAR				 8'b1110_0000
 `define CPU_INSTR_JNCAR				 8'b1110_0100
 `define CPU_INSTR_JEPAR				 8'b1110_0001
@@ -123,89 +125,84 @@
 `define CISC_INSTR_	0
 
 /*
-
+Generate from $STEM/scripts/assembler.pl -show
 $VAR1 = {
-          'LDA' => '51',
-          'MOV_PC0_A' => '16',
-          'LDPC0' => '71',
-          'MOV_MEM_AR1' => '29',
-          'MOV_AR1_PC1' => '3d',
-          'MOV_MEM_B' => '19',
-          'MOV_MEM_AR0' => '21',
-          'MOV_AR1_PC0' => '35',
-          'MOV_A_PC0' => '32',
-          'MOV_PC1_AR1' => '2f',
-          'MOV_B_AR1' => '2b',
-          'SAR0' => 'c',
-          'MOV_AR1_MEM' => 'd',
-          'MOV_PC1_AR0' => '27',
-          'MOV_PC1_B' => '1f',
-          'SAR1' => 'd',
-          'MOV_A_B' => '1a',
-          'ADD' => '82',
-          'JMP' => '71',
-          'MOV_A_MEM' => 'a',
-          'LDPC1' => '79',
-          'SUB' => '85',
-          'MOV_B_A' => '13',
-          'SPC0' => 'e',
-          'RSH' => '90',
-          'JZER' => 'e2',
-          'JOPAR' => 'e5',
-          'SPC1' => 'f',
-          'NOP' => 'c0',
-          'LSH' => '98',
-          'MOV_B_AR0' => '23',
-          'MOV_A_PC1' => '3a',
-          'INC_AR' => 'c2',
-          'AND' => '88',
-          'MOV_AR1_A' => '15',
-          'MOV_PC0_PC1' => '3e',
-          'LDB' => '59',
-          'MOV_AR0_B' => '1c',
-          'HLT' => 'c1',
-          'DEC' => '86',
-          'MOV_AR0_AR1' => '2c',
-          'BUN' => '71',
-          'JNEG' => 'e3',
-          'MOV_PC0_MEM' => 'e',
-          'CMP' => '8e',
-          'MOV_MEM_PC1' => '39',
-          'STA' => 'a',
-          'MOV_PC1_MEM' => 'f',
-          'MOV_AR1_AR0' => '25',
-          'MOV_AR1_B' => '1d',
-          'MOV_MEM_PC0' => '31',
-          'JEPAR' => 'e1',
-          'JNZER' => 'e6',
-          'LD1' => '87',
-          'MOV_AR0_A' => '14',
-          'JNCAR' => 'e4',
-          'MOV_A_AR0' => '22',
-          'MOV_B_PC1' => '3b',
-          'OR' => '8a',
-          'LD' => '80',
-          'MOV_PC1_PC0' => '37',
           'MOV_PC0_AR0' => '26',
-          'MOV_PC0_B' => '1e',
-          'MOV_B_PC0' => '33',
-          'MOV_A_AR1' => '2a',
           'XOR' => '8c',
-          'ADC' => '83',
-          'JPOS' => 'e7',
-          'MOV_PC0_AR1' => '2e',
-          'MOV_MEM_A' => '11',
-          'LDAR1' => '69',
-          'SBB' => '84',
-          'INC' => '81',
-          'MOV_AR0_MEM' => 'c',
-          'MOV_B_MEM' => 'b',
-          'LDAR0' => '61',
-          'STB' => 'b',
-          'MOV_AR0_PC0' => '34',
-          'JCAR' => 'e0',
+          'MOV_AR0_AR1' => '2c',
+          'MOV_B_AR0' => '23',
+          'RSH' => '90',
+          'MOV_AR1_MEM' => 'd',
+          'MOV_B_PC0' => '33',
+          'LDPC0' => '71',
+          'JNEG' => 'e3',
+          'MOV_MEM_PC0' => '31',
+          'MOV_AR0_B' => '1c',
+          'MOV_B_A' => '13',
           'MOV_PC1_A' => '17',
+          'MOV_AR1_PC1' => '3d',
+          'MOV_MEM_A' => '11',
+          'MOV_B_PC1' => '3b',
+          'JMP' => '71',
+          'MOV_PC1_PC0' => '37',
+          'MOV_A_MEM' => 'a',
+          'JZER' => 'e2',
+          'SUB' => '85',
+          'INC' => '81',
+          'AND' => '88',
+          'MOV_B_AR1' => '2b',
+          'LDB' => '59',
+          'SBB' => '84',
+          'DEC' => '86',
+          'LD1' => '87',
+          'MOV_AR1_PC0' => '35',
+          'OR' => '8a',
+          'LDPC1' => '79',
+          'MOV_PC1_MEM' => 'f',
+          'JNZER' => 'e6',
+          'MOV_A_B' => '1a',
+          'MOV_PC0_B' => '1e',
+          'MOV_AR1_A' => '15',
+          'MOV_MEM_PC1' => '39',
+          'MOV_PC0_AR1' => '2e',
+          'JNCAR' => 'e4',
+          'CMP' => '8e',
+          'BUN' => '71',
+          'MOV_A_AR1' => '2a',
+          'LD' => '80',
+          'MOV_B_MEM' => 'b',
+          'MOV_AR0_PC0' => '34',
+          'MOV_MEM_B' => '19',
+          'MOV_PC0_PC1' => '3e',
+          'MOV_A_PC1' => '3a',
+          'NOP' => 'c0',
+          'MOV_MEM_AR1' => '29',
+          'MOV_PC1_AR1' => '2f',
+          'JCAR' => 'e0',
+          'MOV_AR1_AR0' => '25',
+          'LDAR0' => '61',
+          'MOV_A_PC0' => '32',
+          'MOV_PC0_MEM' => 'e',
+          'MOV_AR0_A' => '14',
+          'ADC' => '83',
+          'MOV_A_AR0' => '22',
+          'MOV_PC1_B' => '1f',
+          'MOV_AR0_MEM' => 'c',
+          'LSH' => '98',
+          'MOV_PC0_A' => '16',
+          'LDA' => '51',
+          'MOV_AR1_B' => '1d',
+          'LDAR1' => '69',
+          'HLT' => 'c1',
+          'MOV_PC1_AR0' => '27',
+          'INC_AR' => 'c2',
+          'JOPAR' => 'e5',
+          'MOV_MEM_AR0' => '21',
+          'ADD' => '82',
+          'JEPAR' => 'e1',
+          'JPOS' => 'e7',
           'MOV_AR0_PC1' => '3c'
         };
-Total instructions: 81
+Total instructions: 75
+
 */

@@ -56,6 +56,16 @@ $help_message =
 	
 	Default output: input_file.hex
 
+	Options:
+		f|inp=s		  	:		Pass input assembly file
+		out=s					:		Pass output file
+		h|help				:		Show this message
+		mem_depth=s		:		Pass memory depth. Default is 256
+		mem_width=s		:		Pass memory data width. Default is 8
+		show					:		Show 
+		retain_temps	:		Retain temporary files in $input_file location, called tmp1 and tmp2. Default is off.
+		rand|randomize:		Put random values in unused memory locations. Default is pad with FF
+
 "
 ;
 if(defined $help){

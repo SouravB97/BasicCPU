@@ -21,11 +21,7 @@
 	`include "../design/d_ff.v"
 	`include "../design/jk_ff.v"
 	`include "../design/mux.v"
-	`ifdef DECODER_BHVR
-		`include "../design/BHVR/decoder_bhvr.v"
-	`else
-		`include "../design/decoder.v"
-	`endif
+	`include "../design/decoder.v"
 `endif
 
 `include "../design/tri_state_buffer.v"

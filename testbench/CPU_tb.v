@@ -8,8 +8,8 @@ module CPU_tb();
 
 	reg clk, reset, hlt;
 
-	localparam clk_period = 2;	//ns
-	localparam bootdelay = 2*clk_period + 2; //time after which to raise reset
+	localparam clk_period = 5;	//ns
+	localparam bootdelay = 2*clk_period + 3; //time after which to raise reset
 	localparam max_cycles = 200; //max cycles after reset assertion to kill test
 	localparam drain_cycles = 10; //additional cycles after hlt for check, report phase
 
@@ -37,7 +37,6 @@ module CPU_tb();
 	reg [7:0] rdata;
 	reg [7:0] wdata = 'h25;
 	reg [15:0] addr;
-	reg [`DATA_WIDTH - 1 :0] mem [0:`MEMORY_DEPTH -1] ;
 
 	initial begin
 		$dumpfile(dump_file);
@@ -46,8 +45,7 @@ module CPU_tb();
 		$printtimescale;
 
 		//load memory
-		$readmemh(mem_input, mem); //must be same folder as tb top, where irun is run
-		$readmemh(mem_input, cpu.RAM.mem); //must be same folder as tb top, where irun is run
+		$readmemh(mem_input, cpu.RAM.mem);
 		init();
 	end
 
@@ -59,7 +57,7 @@ module CPU_tb();
 		@(posedge reset);
 		$display("%d Starting seqs at time %t",cycle, $time);
 		repeat(max_cycles) @(posedge clk);
-		$display("%d Reached max_cycles %d. Exiting test", cycle, $time, max_cycles);
+		$display("%d Reached max_cycles %d. Exiting test", cycle, max_cycles);
 		exit();
 	end
 	initial begin : wait_for_hlt
