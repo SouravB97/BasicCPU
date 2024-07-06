@@ -122,21 +122,28 @@ Add the corresponding logic in the CPU, using decoders and logic gates, and mayb
 
 # **Timing Diagrams:**
 1. Opcode fetch: This is a memory read from the PC0 address. All instructions need to fetch the opcode. It takes 2 cycles.
-   ![image](https://github.com/SouravB97/BasicCPU/assets/42449435/b68399ad-5059-436a-86d7-ca7e077eb8d0)
-2. Move register - register: After opcode fetch, this instruction takes one cycle to execute.
-   ![image](https://github.com/SouravB97/BasicCPU/assets/42449435/3c9b9de9-febe-4af3-ab0b-3b8754b23566)
-   ![image](https://github.com/SouravB97/BasicCPU/assets/42449435/0308249a-5be1-4ce9-bd4a-3179d7c8f01f)
-3. Move Immediate: This instruction loads memory data at the address (PC+1) location into a register. Since it has 2 memory reads, it needs 4 cycles to execute. It is useful for initialising registers with hardcoded values. 
-   ![image](https://github.com/SouravB97/BasicCPU/assets/42449435/7d05be91-e467-466d-82dc-9ee538e06557)
-4. Memory read: This instruction loads memory data at the AR0 address into a register. It is useful for loading variable values into the CPU registers, by loading pointer adderss into AR0.
-    ![image](https://github.com/SouravB97/BasicCPU/assets/42449435/ee0d4c10-66b3-4da1-89a9-6b6bd1aa4bfd)
-5. ALU operation: ALU takes input from A and sometimes B registers and stores the results back into A. Instruction takes 3 cycles.
-   ![image](https://github.com/SouravB97/BasicCPU/assets/42449435/f6bc4288-461c-42b9-8425-1fe5db27997e)
-6. Unconditional Jump/Branch: Load the immediate address into the PC0 register. It involves a memory read so takes 4 cycles.
-   ![image](https://github.com/SouravB97/BasicCPU/assets/42449435/6a6e4628-edf7-4bda-b6c2-8043ba1b4dec)
-7. Conditional Jump: Perform a jump based on ALU status. It can take 3 or 4 cycles.
-   ![image](https://github.com/SouravB97/BasicCPU/assets/42449435/6c975003-1831-4a7b-8eef-e919163d29d2)
-   ![image](https://github.com/SouravB97/BasicCPU/assets/42449435/4a44214e-0a83-4678-9cfc-9904e062eb8c)
+   
+   <img src="https://github.com/SouravB97/BasicCPU/assets/42449435/b68399ad-5059-436a-86d7-ca7e077eb8d0" width="200" height="400">
+3. Move register - register: After opcode fetch, this instruction takes one cycle to execute.
+   
+   <img src="https://github.com/SouravB97/BasicCPU/assets/42449435/3c9b9de9-febe-4af3-ab0b-3b8754b23566" width="300" height="450">
+   <img src="https://github.com/SouravB97/BasicCPU/assets/42449435/0308249a-5be1-4ce9-bd4a-3179d7c8f01f" width="300" height="450">
+5. Move Immediate: This instruction loads memory data at the address (PC+1) location into a register. Since it has 2 memory reads, it needs 4 cycles to execute. It is useful for initialising registers with hardcoded values.
+   
+   <img src="https://github.com/SouravB97/BasicCPU/assets/42449435/7d05be91-e467-466d-82dc-9ee538e06557" width="360" height="450">
+7. Memory read: This instruction loads memory data at the AR0 address into a register. It is useful for loading variable values into the CPU registers, by loading pointer adderss into AR0.
+   
+    <img src="https://github.com/SouravB97/BasicCPU/assets/42449435/ee0d4c10-66b3-4da1-89a9-6b6bd1aa4bfd" width="360" height="450">
+9. ALU operation: ALU takes input from A and sometimes B registers and stores the results back into A. Instruction takes 3 cycles.
+    
+   <img src="https://github.com/SouravB97/BasicCPU/assets/42449435/f6bc4288-461c-42b9-8425-1fe5db27997e" width="300" height="450">
+11. Unconditional Jump/Branch: Load the immediate address into the PC0 register. It involves a memory read so takes 4 cycles.
+
+    <img src="https://github.com/SouravB97/BasicCPU/assets/42449435/6a6e4628-edf7-4bda-b6c2-8043ba1b4dec" width="360" height="450">
+13. Conditional Jump: Perform a jump based on ALU status. It can take 3 or 4 cycles.
+
+    <img src="https://github.com/SouravB97/BasicCPU/assets/42449435/6c975003-1831-4a7b-8eef-e919163d29d2" width="360" height="450">
+    <img src="https://github.com/SouravB97/BasicCPU/assets/42449435/4a44214e-0a83-4678-9cfc-9904e062eb8c" width="300" height="450">
 
 # Waveform Screenshots:
 Here's a waveform dump from the fibonacci programme:
