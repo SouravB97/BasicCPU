@@ -146,10 +146,11 @@ How to run:
 3. $STEM/scripts/run_asm $STEM/asm_programmes/fibonacci.asm
 
 Code:
+
 	#define origin 20h
 	#define a efh
-	
-	jmp `origin
+ 	
+  	jmp `origin
 	
 	#orig `origin
 	ldar0 `a
