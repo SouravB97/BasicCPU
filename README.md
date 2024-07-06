@@ -138,9 +138,31 @@ Add the corresponding logic in the CPU, using decoders and logic gates, and mayb
    ![image](https://github.com/SouravB97/BasicCPU/assets/42449435/6c975003-1831-4a7b-8eef-e919163d29d2)
    ![image](https://github.com/SouravB97/BasicCPU/assets/42449435/4a44214e-0a83-4678-9cfc-9904e062eb8c)
 
+# Waveform Screenshots:
+Here's a waveform dump from the fibonacci programme:
+How to run:
+1. source bootenv ;
+2. cd testbench;
+3. $STEM/scripts/run_asm $STEM/asm_programmes/fibonacci.asm
 
+Code:
+	#define origin 20h
+	#define a efh
+	
+	jmp `origin
+	
+	#orig `origin
+	ldar0 `a
+	lda 1
+	ldb 0
+	loop: mov_a_mem
+		add
+		mov_mem_b
+		jncar loop
+	hlt
 
-
+Output Dump:
+![Screenshot 2024-07-06 124414](https://github.com/SouravB97/BasicCPU/assets/42449435/d73609de-1b1f-4d83-bee7-af8a9c520b72)
 
 
 
