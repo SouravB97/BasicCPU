@@ -87,30 +87,43 @@ The assembler works by doing the following steps:
 The opcode is always 8 bits wide. The value of the opcode is not picked at random, rather it has the following fields which are decoded by the CPU.
 
 There are 5 types of instructions this CPU supports:
-	1 MOV			#Move: Instructions involving moving data around.
-	2 MVI			#MVI: Move immediate. Instructions involving loading the given arguement directly into CPU reg
-	3 ALU			#Arithmatic/Logical operations
-	4 SYSTEM	#System instructions like HLT, NOP
-	5 CJMP		#Conditional jump
+
+1. MOV			#Move: Instructions involving moving data around.
+2. MVI			#MVI: Move immediate. Instructions involving loading the given arguement directly into CPU reg
+3. ALU			#Arithmatic/Logical operations
+4. SYSTEM		#System instructions like HLT, NOP
+5. CJMP			#Conditional jump
+
 
 
 7:6 opcode type
-	0 MOV			#Move: Instructions involving moving data around.
-	1 MVI			#MVI: Move immediate. Instructions involving loading the given arguement directly into CPU reg
-	2 ALU			#Arithmatic/Logical operations
-	3 OTHERS	#System instructions like HLT, NOP
+	
+ 0 MOV			#Move: Instructions involving moving data around.
+	
+ 1 MVI			#MVI: Move immediate. Instructions involving loading the given arguement directly into CPU reg
+	
+ 2 ALU			#Arithmatic/Logical operations
+	
+ 3 OTHERS	#System instructions like HLT, NOP
+
 
 For MOV and MVI:
-	5:3 SID (slave ID)	component which gets written. see table for SID decoder
-	2:0 MID (Master ID) component which gets read. see table for MID decoder
+	
+ 5:3 SID (slave ID)	component which gets written. see table for SID decoder
+	
+ 2:0 MID (Master ID) component which gets read. see table for MID decoder
+
 
 For ALU instructions:
-	4:0 ALU opcode. To be passed to ALU. see ALU table
+	
+ 4:0 ALU opcode. To be passed to ALU. see ALU table
+
 
 For OTHER instructions:
-	5:5 Compare range
-		0 SYSTEM instruction
-		1 Conditional Jump
+	
+ 5:5 Compare range
+ 	0 SYSTEM instruction
+  	1 Conditional Jump
 
 # RTL Table
 ![image](https://github.com/SouravB97/BasicCPU/assets/42449435/e6ed579b-7260-4a7a-b3d4-cfc239dab10a)
