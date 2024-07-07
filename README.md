@@ -6,6 +6,9 @@ There is no pipelining. Instructions take 3 or 4 cycles to perform; instruction 
 Memory read takes 2 cycles, Memory write needs 1, and Register read takes 1.
 Opcode fetch consumes 2 cycles as it is a memory read.
 
+This CPU supports 5 main types of instructions: Move, Move Immediate, ALU-related, Conditional Jump and System.
+The actual total number of instructions is 75. (see $STEM/design/instruction_set.vh)
+
 There is no behavioural modelling anywhere in the design, besides the memory model in ($STEM/design/BHVR/memory_bhvr.v)
 All the CPU logic is built bottom-up using logic gates.
 Logic gates -> Digital components (Flops, Muxes, Decoders) -> More complex components (ALU, Registers) -> CPU
@@ -16,6 +19,7 @@ This way, this design is closer to a synthesized netlist, that can be implemente
 ![image](https://github.com/SouravB97/BasicCPU/assets/42449435/5f0de502-55f3-4f3f-a32b-a1695e85dccb)
 
 # How to get started:
+This was developed in Windows using the free verilog simulator [Icarus Verilog](https://bleyer.org/icarus/) and waveform viewer [GTKWave](https://gtkwave.sourceforge.net/). Here's [my guide](https://youtu.be/Y3JDM5ESlBE) on how to set that up. I also recommend installing [git bash](https://git-scm.com/download/win) for a Linux-like experience. After [cloning this repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository), go the main directory and run the following commands:
 1. source bootenv; #Basic environment configuration
 3. cd testbench; #TB exists here 
 4. $STEM/scripts/run_asm $STEM/asm_programmes/bootcode.hex # Script simulates the TB, loads bootcode onto the CPU and lets it execute.
@@ -23,11 +27,13 @@ This way, this design is closer to a synthesized netlist, that can be implemente
 # How to run a custom programme:
 Simplest way:
 1. Write the assembly code in $STEM/asm_programmes/bootcode.asm and run using $STEM/testbench/rerun_command
+
 Run other code:
 1. Create a new file, Ex: $STEM/asm_programmes/fibonacci_save.asm
 2. Make changes in the rerun command to assemble fibonacci_save.asm instead of bootcode.asm 
 3. Make changes in TB_TOP to pass new object file, and run using rerun_command.
-Script to run other code: Leaves TB files unchanged and dumps new output files based on asm file name
+   
+Script to run other code: Does the above stuff and leaves TB files unchanged and dumps new output files based on asm file name
 1. cd testbench ;
 2. $STEM/scripts/run_asm $STEM/asm_programmes/fibonacci_save.asm
 
@@ -49,7 +55,7 @@ The commands to run any design using these are encapsulated in $STEM/scripts/iru
 # Testbench Architechture:
 The TB_TOP is present in $STEM/testbench/CPU_tb.v file. It instantiates the DUT located at $STEM/design/CPU.v
 The CPU executes $STEM/asm_programmes/bootcode.asm and dumps the memory contents to $STEM/dump/bootcode.hex at the end of the sim.
-The waves are loaded from $STEM/dump/bootcode.vcd
+The waves are loaded from $STEM/dump/cpu_debug.vcd
 The TB monitors the running CPU and exits the sim once HLT is detected, or if something goes wrong and the CPU runs indefinitely, it waits for a certain max cycle and then kills the sim.
 
 
@@ -57,11 +63,12 @@ The TB monitors the running CPU and exits the sim once HLT is detected, or if so
 The perl assembler supports standard assembly syntax.
 It gets the list of opcodes and their corresponding value from $STEM/design/instruction_set.vh
 It parses the asm file (<filename>.asm) multiple times and generates the object file at $STEM/asm_programmes/compiled_hex/<filename>.hex
-This assembler supports preprocessor directives, as well as. So it can be used to assemble more complex programmes, like ($STEM/asm_programmes/fibonacci_save.asm)
+This assembler supports preprocessor directives, so it can be used to assemble more complex programmes, like ($STEM/asm_programmes/fibonacci_save.asm)
 It supports the following assembler directives and C-style macros:
 #define, #orig, #db
 It supports labels, which can be used in jump instructions:
 Ex:
+
 	loop: lsh
 		jncar loop
 	hlt
@@ -82,6 +89,43 @@ The assembler works by doing the following steps:
 10. Executes assembler directives like .ORIG
 11. Substitutes opcodes and opcode arguments
 12. Print the final result into the output hex file. If -randomize is selected, it pads the empty memory locations with random values. Else it pads with ff.
+13. 
+
+# Example Testcase Run: Fibonacci Sequence
+Here's a waveform dump from the fibonacci programme:
+How to run:
+1. source bootenv ;
+2. cd testbench;
+3. $STEM/scripts/run_asm $STEM/asm_programmes/fibonacci.asm
+
+Code:
+
+	#define origin 20h
+	#define a efh
+ 	
+  	jmp `origin
+	
+	#orig `origin
+	ldar0 `a
+	lda 1
+	ldb 0
+	loop: mov_a_mem
+		add
+		mov_mem_b
+		jncar loop
+	hlt
+
+Assembler output:
+![image](https://github.com/SouravB97/BasicCPU/assets/42449435/71391941-ca93-4e0d-b62b-5558cd2d1783)
+
+The bootcode in memory:
+![image](https://github.com/SouravB97/BasicCPU/assets/42449435/3d8c58a5-7f54-4d59-b3fd-ea122b169096)
+
+Testbench simulation log:
+![image](https://github.com/SouravB97/BasicCPU/assets/42449435/2eab300b-b130-4575-adfd-4e9ce216f0f4)
+
+Output Dump:
+![Screenshot 2024-07-06 124414](https://github.com/SouravB97/BasicCPU/assets/42449435/d73609de-1b1f-4d83-bee7-af8a9c520b72)
 
 # Anatomy of instruction word (opcode)
 The opcode is always 8 bits wide. The value of the opcode is not picked at random, rather it has the following fields which are decoded by the CPU.
@@ -157,34 +201,3 @@ Add the corresponding logic in the CPU, using decoders and logic gates, and mayb
 
     <img src="https://github.com/SouravB97/BasicCPU/assets/42449435/6c975003-1831-4a7b-8eef-e919163d29d2" width="360" height="450">
     <img src="https://github.com/SouravB97/BasicCPU/assets/42449435/4a44214e-0a83-4678-9cfc-9904e062eb8c" width="300" height="450">
-
-# Waveform Screenshots:
-Here's a waveform dump from the fibonacci programme:
-How to run:
-1. source bootenv ;
-2. cd testbench;
-3. $STEM/scripts/run_asm $STEM/asm_programmes/fibonacci.asm
-
-Code:
-
-	#define origin 20h
-	#define a efh
- 	
-  	jmp `origin
-	
-	#orig `origin
-	ldar0 `a
-	lda 1
-	ldb 0
-	loop: mov_a_mem
-		add
-		mov_mem_b
-		jncar loop
-	hlt
-
-Output Dump:
-![Screenshot 2024-07-06 124414](https://github.com/SouravB97/BasicCPU/assets/42449435/d73609de-1b1f-4d83-bee7-af8a9c520b72)
-
-
-
-
