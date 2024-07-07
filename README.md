@@ -13,7 +13,7 @@ The Timing and control unit uses hard-wired control logic. The instruction opcod
 This way, this design is closer to a synthesized netlist, that can be implemented on a breadboard than HDL code.
 
 # CPU Block Diagram:
-TODO
+![image](https://github.com/SouravB97/BasicCPU/assets/42449435/5f0de502-55f3-4f3f-a32b-a1695e85dccb)
 
 # How to get started:
 1. source bootenv; #Basic environment configuration
