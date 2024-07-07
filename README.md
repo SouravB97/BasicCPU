@@ -11,12 +11,14 @@ The actual total number of instructions is 75. (see $STEM/design/instruction_set
 
 There is no behavioural modelling anywhere in the design, besides the memory model in ($STEM/design/BHVR/memory_bhvr.v)
 All the CPU logic is built bottom-up using logic gates.
+
 Logic gates -> Digital components (Flops, Muxes, Decoders) -> More complex components (ALU, Registers) -> CPU
-The Timing and control unit uses hard-wired control logic. The instruction opcodes are decoded using decoders, and the corresponding outputs are driven by simple logic operations.
-This way, this design is closer to a synthesized netlist, that can be implemented on a breadboard than HDL code.
+
+The Timing and control unit uses hard-wired control logic. The instruction opcodes are decoded using decoders and the corresponding outputs are driven by simple logic operations.
+This way, this design is closer to a synthesized netlist, that can be implemented on a breadboard using appropriate TTL components.
 
 # CPU Block Diagram:
-![image](https://github.com/SouravB97/BasicCPU/assets/42449435/5f0de502-55f3-4f3f-a32b-a1695e85dccb)
+![image](https://github.com/SouravB97/BasicCPU/assets/42449435/545b7699-a646-4e95-ae79-6f1ee994ad5e)
 
 # How to get started:
 This was developed in Windows using the free verilog simulator [Icarus Verilog](https://bleyer.org/icarus/) and waveform viewer [GTKWave](https://gtkwave.sourceforge.net/). Here's [my guide](https://youtu.be/Y3JDM5ESlBE) on how to set that up. I also recommend installing [git bash](https://git-scm.com/download/win) for a Linux-like experience. After [cloning this repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository), go the main directory and run the following commands:
