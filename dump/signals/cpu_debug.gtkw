@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
-[*] Sat Jun 01 14:46:16 2024
+[*] Sat Jul 06 07:08:06 2024
 [*]
-[dumpfile] "C:\Users\soura\Documents\Verilog\BasicCPU\dump\test_all_opcode_types.vcd"
-[dumpfile_mtime] "Sat Jun 01 14:40:37 2024"
-[dumpfile_size] 1220417
+[dumpfile] "C:\Users\soura\Documents\Verilog\BasicCPU\dump\fibonacci_save.vcd"
+[dumpfile_mtime] "Sat Jul 06 07:06:50 2024"
+[dumpfile_size] 7124006
 [savefile] "C:\Users\soura\Documents\Verilog\BasicCPU\dump\signals\cpu_debug.gtkw"
 [timestart] 0
 [size] 2048 1081
 [pos] -1 -1
-*-15.754677 40030 16000 20000 24000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-19.754677 24000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] CPU_tb.
 [treeopen] CPU_tb.cpu.
 [treeopen] CPU_tb.cpu.A_reg.genblk1[7].
@@ -99,7 +99,7 @@ CPU_tb.cpu.A_reg.Q[7:0]
 @28
 CPU_tb.cpu.WE_A
 CPU_tb.cpu.WE_M
-@22
+@25
 [color] 6
 CPU_tb.cpu.B_reg.Q[7:0]
 @24
@@ -132,10 +132,9 @@ CPU_tb.cpu.HLT
 CPU_tb.cpu.RAM.clk
 [color] 2
 CPU_tb.cpu.RAM.reset
-@23
+@22
 [color] 3
 CPU_tb.cpu.RAM.address[7:0]
-@22
 CPU_tb.cpu.RAM.data[7:0]
 @28
 [color] 5

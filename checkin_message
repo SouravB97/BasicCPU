@@ -1,4 +1,1 @@
--Host of changes
--Documentation
--CPU works with normal memories
--Opcode fetch, memory read takes 2 cycles
+-Added block diagram to PPT
